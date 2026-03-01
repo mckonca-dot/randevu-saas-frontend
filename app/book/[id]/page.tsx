@@ -1,0 +1,691 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { 
+  Star, MapPin, Calendar, Clock, Scissors, 
+  User, Phone, Image as ImageIcon, AlertCircle, Check, ChevronRight, Sparkles, Droplet, Menu, X
+} from "lucide-react";
+
+export default function BookAppointment() {
+  const params = useParams();
+  
+  // --- STATE ---
+  const [shop, setShop] = useState<any>(null);
+  const [services, setServices] = useState<any[]>([]);
+  const [staffs, setStaffs] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [gallery, setGallery] = useState<any[]>([]);
+  const [closures, setClosures] = useState<any[]>([]);
+  const [leaves, setLeaves] = useState<any[]>([]);
+  const [busySlots, setBusySlots] = useState<any[]>([]);
+
+  // Seçimler
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedStaff, setSelectedStaff] = useState<any>(null);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [customerInfo, setCustomerInfo] = useState({ name: "", phone: "", note: "" });
+
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // --- VERİ ÇEKME ---
+  useEffect(() => {
+    const userId = params?.id;
+    if (!userId || userId === "undefined") return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const baseUrl = "https://konca-saas-backend.onrender.com/public";
+        const shopRes = await fetch(`${baseUrl}/shop/${userId}`);
+        
+        if(shopRes.ok) {
+            setShop(await shopRes.json());
+            Promise.all([
+               fetch(`${baseUrl}/services/${userId}`).then(r => r.ok ? r.json() : []).then(setServices),
+               fetch(`${baseUrl}/staffs/${userId}`).then(r => r.ok ? r.json() : []).then(setStaffs),
+               fetch(`${baseUrl}/reviews/${userId}`).then(r => r.ok ? r.json() : []).then(setReviews),
+               fetch(`${baseUrl}/gallery/${userId}`).then(r => r.ok ? r.json() : []).then(setGallery),
+               fetch(`${baseUrl}/closures/${userId}`).then(r => r.ok ? r.json() : []).then(setClosures),
+               fetch(`${baseUrl}/leaves/${userId}`).then(r => r.ok ? r.json() : []).then(setLeaves),
+            ]).catch(err => console.log("Veri hatası:", err));
+        }
+      } catch (error) {
+        console.error("Bağlantı hatası:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [params?.id]);
+
+  useEffect(() => {
+    if (!date || !params?.id) return;
+    setTime(""); 
+    const fetchBusySlots = async () => {
+        try {
+            const res = await fetch(`https://konca-saas-backend.onrender.com/public/appointments/${params.id}?date=${date}`);
+            if (res.ok) setBusySlots(await res.json());
+        } catch (error) { console.error(error); }
+    };
+    fetchBusySlots();
+  }, [date, params?.id]);
+
+  // --- YARDIMCI FONKSİYONLAR ---
+  const getTodayStr = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const isSlotInPast = (slotTime: string) => {
+    const todayStr = getTodayStr();
+    if (date === todayStr) {
+        const now = new Date();
+        const [slotH, slotM] = slotTime.split(':').map(Number);
+        const currentH = now.getHours();
+        const currentM = now.getMinutes();
+        if (slotH < currentH || (slotH === currentH && slotM < currentM)) return true;
+    }
+    return false;
+  };
+
+  const isTimeSlotBusy = (slotTime: string) => {
+    if (!selectedService) return false;
+    const [slotH, slotM] = slotTime.split(':').map(Number);
+    const slotStartMins = slotH * 60 + slotM;
+    const slotEndMins = slotStartMins + selectedService.duration;
+
+    if (selectedStaff) {
+         const isLeave = leaves.some((l: any) => l.staffId === selectedStaff.id && l.date === date);
+         if (isLeave) return true;
+    }
+
+    return busySlots.some((appt: any) => {
+        if (selectedStaff && appt.staffId && appt.staffId !== selectedStaff.id) return false;
+        const apptStart = new Date(appt.start);
+        const apptH = apptStart.getHours();
+        const apptM = apptStart.getMinutes();
+        const busyStartMins = apptH * 60 + apptM;
+        const busyEndMins = busyStartMins + appt.duration;
+        return (slotStartMins < busyEndMins && slotEndMins > busyStartMins);
+    });
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value.replace(/\D/g, ''); 
+    if (input.length > 0 && input !== '5') {
+        input = input.replace(/^[^5]+/, ''); 
+    }
+    input = input.substring(0, 10);
+    let formatted = input;
+    if (input.length > 6) {
+        formatted = `(${input.substring(0, 3)}) ${input.substring(3, 6)} ${input.substring(6)}`;
+    } else if (input.length > 3) {
+        formatted = `(${input.substring(0, 3)}) ${input.substring(3)}`;
+    } else if (input.length > 0) {
+        formatted = `(${input}`;
+    }
+    setCustomerInfo({ ...customerInfo, phone: formatted });
+  };
+
+  // 🚀 Kuralları Yukarıya Taşıdık (Tüm kod bu kuralları görsün diye)
+  const todayStr = getTodayStr();
+  const isSunday = date ? new Date(date).getDay() === 0 : false;
+  const isPastDate = date ? date < todayStr : false;
+  const isShopClosed = closures.some((c: any) => c.date === date);
+
+  const handleSubmit = async () => {
+    if (!selectedService) return alert("⚠️ Lütfen bir hizmet seçiniz.");
+    if (!date || !time) return alert("⚠️ Lütfen tarih ve saat seçiniz.");
+    if (!customerInfo.name) return alert("⚠️ Lütfen Adınızı giriniz.");
+    if (customerInfo.phone.length !== 14) return alert("⚠️ Lütfen geçerli bir telefon numarası giriniz.");
+
+    const selectedDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
+
+    if (date < todayStr) return alert("⛔ Geçmiş bir tarihe randevu alamazsınız.");
+    if (date === todayStr && isSlotInPast(time)) return alert("⛔ Geçmiş bir saate randevu alamazsınız.");
+    if (selectedDateTime.getDay() === 0) return alert("⛔ Pazar günleri dükkanımız kapalıdır.");
+
+    const [openH, openM] = (shop.workStart || "09:00").split(':').map(Number);
+    const shopOpenMins = openH * 60 + openM;
+    const [closeH, closeM] = (shop.workEnd || "18:00").split(':').map(Number);
+    const shopCloseMins = closeH * 60 + closeM;
+
+    const [selH, selM] = time.split(':').map(Number);
+    const selectedStartMins = selH * 60 + selM;
+    const selectedEndMins = selectedStartMins + selectedService.duration;
+
+    if (selectedStartMins < shopOpenMins) return alert(`⛔ Dükkanımız saat ${shop.workStart}'da açılmaktadır.`);
+    if (selectedEndMins > shopCloseMins) return alert(`⛔ Seçtiğiniz hizmet süresi dükkan kapanışını aşıyor.`);
+
+    // Zaten yukarıda hesapladığımız kuralı burada sadece kontrol ediyoruz
+    if (isShopClosed) return alert(`⛔ Üzgünüz, dükkanımız ${date} tarihinde kapalıdır.`);
+
+    if (isTimeSlotBusy(time)) return alert("⚠️ Bu saat aralığı maalesef dolu.");
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("https://konca-saas-backend.onrender.com/public/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shopId: Number(params.id),
+          serviceId: selectedService.id,
+          staffId: selectedStaff?.id,
+          dateTime: selectedDateTime.toISOString(), // ✅ Evrensel formatlı kusursuz saat
+          customerName: customerInfo.name,
+          customerPhone: customerInfo.phone,
+          customerNote: customerInfo.note
+        }),
+      });
+
+      if (res.ok) {
+        alert("🎉 Randevunuz başarıyla oluşturuldu! Dükkan sahibinden onay mesajı bekleniyor.");
+        window.location.reload();
+      } else {
+        const err = await res.json();
+        alert("Hata: " + (err.message || "Bir sorun oluştu."));
+      }
+    } catch (e) {
+      alert("Sunucu hatası.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const generateTimeSlots = () => {
+    const slots = [];
+    const startHour = shop?.workStart ? parseInt(shop.workStart.split(':')) : 9;
+    const endHour = shop?.workEnd ? parseInt(shop.workEnd.split(':')) : 21;
+    for (let i = startHour; i < endHour; i++) {
+        slots.push(`${i < 10 ? '0'+i : i}:00`);
+        slots.push(`${i < 10 ? '0'+i : i}:30`);
+    }
+    return slots;
+  };
+
+  if (loading) return (
+      <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-amber-500">
+          <Scissors className="animate-spin mb-4" size={48} />
+          <h2 className="text-xl font-bold tracking-widest animate-pulse">PREMIUM DENEYİM YÜKLENİYOR...</h2>
+      </div>
+  );
+  
+  if (!shop) return <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-gray-500">Dükkan bilgileri alınamadı.</div>;
+
+  return (
+    <div className="bg-[#0a0a0a] text-[#e5e5e5] font-sans antialiased min-h-screen scroll-smooth">
+      
+      {/* 🌟 CSS ANİMASYONLARI VE ÖZEL STİLLER 🌟 */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+        
+        h1, h2, h3, h4, h5, .font-heading { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+        .font-body { font-family: 'Inter', sans-serif; }
+        
+        .neon-gold-text { text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 0 20px rgba(245, 158, 11, 0.3); }
+        .neon-gold-border { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); border: 1px solid rgba(245, 158, 11, 0.8); }
+        .neon-gold-border:hover { box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+      `}} />
+
+      {/* --- NAVBAR --- */}
+      <nav className="fixed w-full z-50 top-0 transition-all duration-300 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#171717]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex-shrink-0 flex items-center gap-3">
+              {shop?.logo && <img src={shop.logo} className="w-10 h-10 rounded-full border border-amber-500 object-cover" />}
+              <a href="#" className="font-heading text-2xl font-bold tracking-wider text-white">
+                {shop?.shopName || "KUAFÖR"}
+              </a>
+            </div>
+            <div className="hidden md:flex space-x-8">
+              <a href="#hakkimizda" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">Hakkımızda</a>
+              <a href="#hizmetler" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">Hizmetler</a>
+              <a href="#galeri" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">Galeri</a>
+              <a href="#iletisim" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">İletişim</a>
+            </div>
+            <div className="hidden md:flex">
+              <a href="#randevu" className="px-6 py-2 text-amber-500 font-heading tracking-wider hover:bg-amber-500 hover:text-black transition duration-300 neon-gold-border cursor-pointer">
+                RANDEVU AL
+              </a>
+            </div>
+            <div className="md:hidden flex items-center">
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-gray-300 hover:text-amber-500 focus:outline-none">
+                {isMobileMenuOpen ? <X size={28}/> : <Menu size={28}/>}
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* --- HERO SECTION --- */}
+      <section 
+        className="h-screen flex items-center justify-center pt-20 bg-cover bg-center bg-fixed relative"
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 10, 0.4), rgba(10, 10, 10, 1)), url('${shop?.coverImage || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'}')` }}
+      >
+        <div className="text-center px-4 max-w-4xl animate-fade-in-up">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight font-heading neon-gold-text">
+            STİLİN GÜCÜNÜ <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-300">KEŞFET</span>
+          </h1>
+          <p className="text-lg md:text-2xl text-gray-300 mb-10 font-light tracking-wide flex items-center justify-center gap-2">
+            <Star className="text-amber-500" size={20} fill="currentColor"/>
+            {shop?.tagline || `${shop?.shopName} - Premium Stil Merkezi`}
+            <Star className="text-amber-500" size={20} fill="currentColor"/>
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#randevu" className="px-8 py-4 bg-amber-500 text-black font-heading text-xl font-bold tracking-wider hover:bg-yellow-500 transition duration-300 shadow-[0_0_15px_rgba(217,119,6,0.5)]">
+              HEMEN RANDEVU AL
+            </a>
+            <a href="#hizmetler" className="px-8 py-4 border-2 border-white text-white font-heading text-xl font-bold tracking-wider hover:bg-white hover:text-black transition duration-300">
+              HİZMETLERİ İNCELE
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* --- HAKKIMIZDA --- */}
+      <section id="hakkimizda" className="py-24 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div className="relative group overflow-hidden rounded-sm">
+              <img src={shop?.coverImage || "https://images.unsplash.com/photo-1621605815971-fbc98d665033?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Kuaför Salonu" className="w-full h-[500px] object-cover grayscale group-hover:grayscale-0 transition duration-700 transform group-hover:scale-105" />
+              <div className="absolute bottom-6 left-6 bg-[#0a0a0a]/90 p-4 border-l-4 border-amber-500 backdrop-blur-sm">
+                <div className="flex items-center gap-1 text-amber-500 mb-1">
+                  <Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/>
+                </div>
+                <p className="text-white font-heading text-2xl font-bold">5.0 / 5.0</p>
+                <p className="text-gray-400 text-sm">Müşteri Memnuniyeti</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-amber-500 font-heading tracking-widest mb-2">BİZ KİMİZ?</h4>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 font-heading">SADECE TIRAŞ DEĞİL,<br/>BİR KİMLİK TASARIMI</h2>
+              <p className="text-gray-400 mb-6 leading-relaxed font-body">
+                {shop?.description || `${shop?.shopName} olarak erkek bakım standartlarını yeniden yazıyoruz. Klasik berber anlayışından sıyrılarak, modern vizyonumuzla her müşterimizin yüz hatlarına ve yaşam tarzına en uygun stili yaratıyoruz.`}
+              </p>
+              <ul className="space-y-4 text-gray-300 font-medium font-body">
+                <li className="flex items-center gap-3"><Check className="text-amber-500" size={20}/> Premium Modern Ekipmanlar</li>
+                <li className="flex items-center gap-3"><Check className="text-amber-500" size={20}/> Üst Düzey Hijyen Standartları</li>
+                <li className="flex items-center gap-3"><Check className="text-amber-500" size={20}/> Kişiye Özel Profesyonel Hizmet</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- HİZMETLER --- */}
+      <section id="hizmetler" className="py-24 bg-[#171717] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h4 className="text-amber-500 font-heading tracking-widest mb-2">HİZMETLERİMİZ</h4>
+            <h2 className="text-4xl md:text-5xl font-bold text-white font-heading">PREMIUM BAKIM MENÜSÜ</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.slice(0, 6).map((srv, index) => (
+              <div key={srv.id} className="bg-[#0a0a0a] p-8 border border-zinc-800 hover:border-amber-500 transition duration-300 group flex flex-col justify-between">
+                <div>
+                  <div className="text-amber-500 text-4xl mb-4"><Scissors size={32}/></div>
+                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-amber-500 transition font-heading">{srv.name}</h3>
+                  <p className="text-gray-400 mb-4 text-sm font-body"><Clock size={14} className="inline mr-1"/> {srv.duration} Dakika</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-white font-heading">{srv.price} ₺</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- GALERİ --- */}
+      {gallery.length > 0 && (
+        <section id="galeri" className="py-24 bg-[#0a0a0a]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h4 className="text-amber-500 font-heading tracking-widest mb-2">PORTFOLYO</h4>
+              <h2 className="text-4xl md:text-5xl font-bold text-white font-heading">USTALIĞIN İMZASI</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {gallery.slice(0, 8).map((img: any, i: number) => (
+                <div key={i} className="relative group overflow-hidden bg-[#171717] aspect-[3/4]">
+                  <img src={img.imageUrl} alt="Galeri" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 transform group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
+                    <span className="text-amber-500 font-heading text-lg">{img.modelName || "Stil"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- DİNAMİK RANDEVU BÖLÜMÜ (KARANLIK TEMA) --- */}
+      <section id="randevu" className="py-24 bg-[#171717] border-t border-zinc-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h4 className="text-amber-500 font-heading tracking-widest mb-2">REZERVASYON</h4>
+            <h2 className="text-4xl md:text-5xl font-bold text-white font-heading mb-4">KOLTUĞUNUZ HAZIR</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto font-body">Tarzınızı bir adım öteye taşımak için şimdi randevu alın. İşleminizi sadece 4 adımda tamamlayın.</p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-12 font-body">
+            
+            {/* SOL KOLON (Form Adımları) */}
+            <div className="lg:col-span-2 space-y-10">
+              
+              {/* 1. Hizmet Seçimi */}
+              <div className="bg-[#0a0a0a] p-8 rounded-2xl border border-zinc-800 animate-fade-in-up">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-lg font-heading">1</div>
+                  <h3 className="text-2xl font-bold text-white font-heading">Hizmet Seçimi</h3>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {services.length > 0 ? services.map(srv => (
+                    <div 
+                      key={srv.id}
+                      onClick={() => setSelectedService(srv)}
+                      className={`p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 flex justify-between items-center group
+                        ${selectedService?.id === srv.id 
+                          ? 'border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]' 
+                          : 'border-zinc-800 bg-[#171717] hover:border-amber-500/50'}`}
+                    >
+                      <div>
+                        <h4 className={`font-bold text-lg font-heading tracking-wide ${selectedService?.id === srv.id ? 'text-amber-500' : 'text-white'}`}>{srv.name}</h4>
+                        <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5"><Clock size={14}/> {srv.duration} dk</p>
+                      </div>
+                      <div className="text-right flex flex-col items-end">
+                        <span className="font-bold text-xl text-white font-heading">{srv.price} ₺</span>
+                        {selectedService?.id === srv.id && <Check size={18} className="text-amber-500 mt-1"/>}
+                      </div>
+                    </div>
+                  )) : <p className="text-gray-500">Aktif hizmet bulunamadı.</p>}
+                </div>
+              </div>
+
+              {/* 2. Uzman Tercihi */}
+              <div className="bg-[#0a0a0a] p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-100">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-lg font-heading">2</div>
+                  <h3 className="text-2xl font-bold text-white font-heading">Uzman Tercihi</h3>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+                  <div 
+                    onClick={() => setSelectedStaff(null)}
+                    className={`flex-shrink-0 w-28 h-36 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center gap-3 transition-all
+                      ${!selectedStaff ? 'border-amber-500 bg-[#171717]' : 'border-zinc-800 bg-[#171717] hover:border-amber-500/50'}`}
+                  >
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-2xl ${!selectedStaff ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-gray-400'}`}>?</div>
+                    <span className="text-sm font-bold text-white">Farketmez</span>
+                  </div>
+                  {staffs.map(stf => (
+                    <div 
+                      key={stf.id}
+                      onClick={() => setSelectedStaff(stf)}
+                      className={`flex-shrink-0 w-28 h-36 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center gap-3 transition-all text-center p-2
+                        ${selectedStaff?.id === stf.id ? 'border-amber-500 bg-[#171717]' : 'border-zinc-800 bg-[#171717] hover:border-amber-500/50'}`}
+                    >
+                      {stf.imageUrl ? 
+                        <img src={stf.imageUrl} className="w-14 h-14 rounded-full object-cover border-2 border-zinc-700"/> : 
+                        <div className="w-14 h-14 rounded-full bg-zinc-800 text-amber-500 flex items-center justify-center font-bold text-xl">{stf.name.charAt(0)}</div>
+                      }
+                      <span className="text-sm font-bold text-white line-clamp-2">{stf.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Tarih ve Saat */}
+              <div className="bg-[#0a0a0a] p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-lg font-heading">3</div>
+                  <h3 className="text-2xl font-bold text-white font-heading">Zaman Belirle</h3>
+                </div>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Tarih Seçin</label>
+                    <div className="relative">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500 pointer-events-none" size={20}/>
+                      <input 
+                        type="date" 
+                        min={todayStr}
+                        onChange={e => setDate(e.target.value)} 
+                        className="w-full p-4 pl-12 bg-[#171717] border border-zinc-800 rounded-xl outline-none focus:border-amber-500 text-white cursor-pointer color-scheme-dark" 
+                        style={{ colorScheme: 'dark' }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Saat Seçin</label>
+                    <div className="bg-[#171717] rounded-xl p-4 border border-zinc-800 max-h-64 overflow-y-auto custom-scrollbar">
+                      
+                      {/* 🚀 İşte Yeni Kurallarımız Burada Devreye Giriyor! */}
+                      {!date ? (
+                        <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                          <Calendar size={32} className="mb-2 opacity-50"/>
+                          <p className="text-sm">Önce tarih seçin</p>
+                        </div>
+                      ) : isShopClosed ? (
+                        <div className="text-red-400 text-center py-8 font-bold flex flex-col items-center">
+                          <AlertCircle className="mb-2" size={32}/> 
+                          <span>Üzgünüz, bu tarihte kapalıyız</span>
+                        </div>
+                      ) : isSunday ? (
+                        <div className="text-red-400 text-center py-8 font-bold flex flex-col items-center">
+                          <AlertCircle className="mb-2" size={32}/> 
+                          <span>Pazar günleri kapalıyız</span>
+                        </div>
+                      ) : isPastDate ? (
+                        <div className="text-red-400 text-center py-8 font-bold flex flex-col items-center">
+                          <Clock className="mb-2" size={32}/> 
+                          <span>Geçmişe alınamaz</span>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-3">
+                          {generateTimeSlots().map((slotTime) => {
+                            const isBusy = isTimeSlotBusy(slotTime);
+                            const isPastTime = isSlotInPast(slotTime);
+                            const [openH, openM] = (shop.workStart || "09:00").split(':').map(Number);
+                            const [slotH, slotM] = slotTime.split(':').map(Number);
+                            const isBeforeOpening = (slotH * 60 + slotM) < (openH * 60 + openM);
+                            const isDisabled = isBusy || isPastTime || isBeforeOpening;
+                            
+                            return (
+                              <button
+                                key={slotTime}
+                                onClick={() => setTime(slotTime)}
+                                disabled={isDisabled}
+                                className={`py-3 px-2 text-sm font-bold rounded-lg border transition-all duration-300
+                                  ${time === slotTime 
+                                    ? 'bg-amber-500 text-black border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] scale-105' 
+                                    : isDisabled 
+                                      ? 'bg-zinc-900 text-zinc-600 border-transparent cursor-not-allowed' 
+                                      : 'bg-[#0a0a0a] text-white border-zinc-700 hover:border-amber-500 hover:text-amber-500'}`}
+                              >
+                                {slotTime}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. İletişim */}
+              <div className="bg-[#0a0a0a] p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-300">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-lg font-heading">4</div>
+                  <h3 className="text-2xl font-bold text-white font-heading">İletişim Bilgileri</h3>
+                </div>
+                <div className="space-y-5">
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div className="bg-[#171717] p-4 rounded-xl border border-zinc-800 focus-within:border-amber-500 flex items-center gap-3">
+                      <User size={20} className="text-amber-500"/>
+                      <input placeholder="Adınız Soyadınız" onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} className="bg-transparent w-full outline-none text-white placeholder-gray-500"/>
+                    </div>
+                    <div className="bg-[#171717] p-4 rounded-xl border border-zinc-800 focus-within:border-amber-500 flex items-center gap-3">
+                      <Phone size={20} className="text-amber-500"/>
+                      <input type="tel" placeholder="(5XX) XXX XXXX" value={customerInfo.phone} onChange={handlePhoneChange} className="bg-transparent w-full outline-none text-white placeholder-gray-500"/>
+                    </div>
+                  </div>
+                  <div className="bg-[#171717] p-4 rounded-xl border border-zinc-800 focus-within:border-amber-500 flex items-start gap-3">
+                    <Scissors size={20} className="text-amber-500 mt-1"/>
+                    <textarea placeholder="Kuaförünüze iletmek istediğiniz not..." onChange={e => setCustomerInfo({...customerInfo, note: e.target.value})} className="bg-transparent w-full outline-none text-white h-20 resize-none placeholder-gray-500"/>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* SAĞ KOLON (STICKY ÖZET) */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-28">
+                <div className="bg-[#0a0a0a] rounded-2xl border border-amber-500 overflow-hidden shadow-[0_0_20px_rgba(245,158,11,0.15)] animate-fade-in-up delay-300">
+                  <div className="bg-amber-500 p-6 text-center">
+                    <h3 className="text-black font-heading font-bold text-2xl tracking-wider">ÖZET</h3>
+                  </div>
+                  <div className="p-8 space-y-5">
+                    <div className="flex justify-between pb-4 border-b border-zinc-800">
+                      <span className="text-gray-400">Hizmet</span>
+                      <span className="font-bold text-white text-right">{selectedService?.name || "Seçilmedi"}</span>
+                    </div>
+                    <div className="flex justify-between pb-4 border-b border-zinc-800">
+                      <span className="text-gray-400">Uzman</span>
+                      <span className="font-bold text-white text-right">{selectedStaff?.name || "Farketmez"}</span>
+                    </div>
+                    <div className="flex justify-between pb-4 border-b border-zinc-800">
+                      <span className="text-gray-400">Tarih</span>
+                      <span className="font-bold text-amber-500">{date ? new Date(date).toLocaleDateString("tr-TR") : "-"} {time ? `| ${time}` : ''}</span>
+                    </div>
+                    <div className="pt-4 flex justify-between items-end">
+                      <span className="text-gray-400 font-heading tracking-wider">TOPLAM</span>
+                      <span className="text-4xl font-bold text-white font-heading">{selectedService?.price || 0} <span className="text-amber-500 text-2xl">₺</span></span>
+                    </div>
+                  </div>
+                  <div className="p-6 pt-0">
+                    <button 
+                      onClick={handleSubmit}
+                      disabled={submitting}
+                      className="w-full bg-amber-500 text-black py-4 rounded-xl font-heading font-bold text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] disabled:opacity-50 disabled:shadow-none flex justify-center items-center gap-2"
+                    >
+                      {submitting ? 'İŞLENİYOR...' : 'ONAYLA'} <ChevronRight size={24}/>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* --- İLETİŞİM VE HARİTA --- */}
+      <section id="iletisim" className="py-24 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h4 className="text-amber-500 font-heading tracking-widest mb-2">BİZE ULAŞIN</h4>
+            <h2 className="text-4xl md:text-5xl font-bold text-white font-heading">İLETİŞİM & KONUM</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            
+            {/* Sol: İletişim Bilgileri */}
+            <div className="space-y-8 animate-fade-in-up">
+              <div className="bg-[#171717] p-8 rounded-2xl border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                <h3 className="text-2xl font-bold text-white font-heading mb-6 border-b border-zinc-800 pb-4">Salon Bilgileri</h3>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="text-amber-500" size={24}/>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Adres</p>
+                      <p className="text-white font-body leading-relaxed">{shop?.address || "Adres bilgisi henüz eklenmedi."}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                      <Phone className="text-amber-500" size={24}/>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Telefon</p>
+                      <p className="text-white font-body text-lg">{shop?.phone || "Telefon numarası henüz eklenmedi."}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 w-full bg-amber-500 text-black py-4 rounded-xl font-heading font-bold text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
+                >
+                  <MapPin size={24}/> YOL TARİFİ AL
+                </a>
+              </div>
+            </div>
+
+            {/* Sağ: Dinamik Google Maps */}
+            <div className="bg-[#171717] p-2 rounded-2xl border border-zinc-800 h-full min-h-[400px] animate-fade-in-up delay-100 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+               <iframe 
+                  width="100%" 
+                  height="100%" 
+                  style={{ borderRadius: '1rem', border: 0, minHeight: '400px' }}
+                  loading="lazy" 
+                  allowFullScreen 
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+               ></iframe>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-black py-8 border-t border-zinc-900 text-center">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
+          <a href="#" className="font-heading text-3xl font-bold tracking-wider text-white mb-4">
+            {shop?.shopName || "Kuaför"}<span className="text-amber-500"></span>
+          </a>
+          <p className="text-gray-500 text-sm font-body">
+            © 2026 {shop?.shopName || "Kuaför"}. Tüm hakları saklıdır.
+          </p>
+        </div>
+      </footer>
+
+      {/* MOBİL ALT BAR */}
+      <div className="fixed bottom-0 left-0 w-full bg-[#0a0a0a] border-t border-zinc-800 p-4 lg:hidden z-40 flex items-center justify-between pb-safe">
+        <div>
+          <p className="text-xs text-gray-500 font-heading tracking-widest">TOPLAM</p>
+          <p className="text-2xl font-bold text-white font-heading">{selectedService?.price || 0} <span className="text-amber-500">₺</span></p>
+        </div>
+        <button 
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="bg-amber-500 text-black px-8 py-3 rounded-lg font-heading font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)] disabled:opacity-50 text-lg"
+        >
+          {submitting ? '...' : 'ONAYLA'}
+        </button>
+      </div>
+      
+    </div>
+  );
+}
