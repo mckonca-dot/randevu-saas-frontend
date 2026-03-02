@@ -221,7 +221,8 @@ export default function BookAppointment() {
   if (!shop) return <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-gray-500">Dükkan bilgileri alınamadı.</div>;
 
   return (
-    <div className="bg-[#0a0a0a] text-[#e5e5e5] font-sans antialiased min-h-screen scroll-smooth">
+    // 👇 overflow-x-hidden eklendi (sağa kaymayı engeller)
+    <div className="bg-[#0a0a0a] text-[#e5e5e5] font-sans antialiased min-h-screen scroll-smooth overflow-x-hidden">
       
       {/* 🌟 CSS ANİMASYONLARI VE ÖZEL STİLLER 🌟 */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -645,7 +646,7 @@ export default function BookAppointment() {
                 </div>
 
                 <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
+                  href={`https://www.google.com/maps/dir/?api=1&destination=$${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 w-full bg-amber-500 text-black py-4 rounded-xl font-heading font-bold text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
@@ -663,7 +664,7 @@ export default function BookAppointment() {
                   style={{ borderRadius: '1rem', border: 0, minHeight: '400px' }}
                   loading="lazy" 
                   allowFullScreen 
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  src={`https://maps.google.com/maps?q=$${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                ></iframe>
             </div>
 
@@ -682,21 +683,6 @@ export default function BookAppointment() {
           </p>
         </div>
       </footer>
-
-      {/* MOBİL ALT BAR */}
-      <div className="fixed bottom-0 left-0 w-full bg-[#0a0a0a] border-t border-zinc-800 p-4 lg:hidden z-40 flex items-center justify-between pb-safe">
-        <div>
-          <p className="text-xs text-gray-500 font-heading tracking-widest">TOPLAM</p>
-          <p className="text-2xl font-bold text-white font-heading">{selectedService?.price || 0} <span className="text-amber-500">₺</span></p>
-        </div>
-        <button 
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="bg-amber-500 text-black px-8 py-3 rounded-lg font-heading font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)] disabled:opacity-50 text-lg"
-        >
-          {submitting ? '...' : 'ONAYLA'}
-        </button>
-      </div>
       
     </div>
   );
