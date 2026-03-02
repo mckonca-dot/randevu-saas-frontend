@@ -271,6 +271,18 @@ export default function BookAppointment() {
             </div>
           </div>
         </div>
+
+        {/* --- MOBİL AÇILIR MENÜ (HAMBURGER İÇERİĞİ) --- */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-[#0a0a0a] border-t border-[#171717] absolute w-full shadow-2xl animate-fade-in-up">
+            <div className="px-4 pt-2 pb-6 space-y-2 flex flex-col">
+              <a href="#hakkimizda" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">HAKKIMIZDA</a>
+              <a href="#hizmetler" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">HİZMETLER</a>
+              <a href="#galeri" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">GALERİ</a>
+              <a href="#iletisim" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">İLETİŞİM / KONUM</a>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* --- HERO SECTION --- */}
