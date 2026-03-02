@@ -7,12 +7,12 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // TypeScript hatalarını susturucu
   typescript: {
     ignoreBuildErrors: true,
   },
+  // 🚀 İŞTE HAYAT KURTARAN SATIR: Turbopack çakışmasını susturur
+  turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);
