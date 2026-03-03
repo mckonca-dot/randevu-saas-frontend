@@ -8,17 +8,9 @@ import {
   LogOut, Plus, Trash2, Edit, CheckCircle, XCircle, 
   Clock, TrendingUp, DollarSign, Store, CalendarX, Power,
   Image as ImageIcon, NotebookPen, QrCode, Download,
-  Menu, X, Phone, RefreshCw, MapPin, Map
+  Menu, X, Phone, RefreshCw, MapPin
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-// 🚀 Türkiye İl-İlçe Verilerini Düzenlemek İçin Yardımcı Fonksiyon (İSTANBUL -> İstanbul yapar)
-const toTitleCase = (str: string) => {
-  return str.replace(
-    /\w\S*/g,
-    (txt) => txt.charAt(0).toLocaleUpperCase('tr-TR') + txt.substr(1).toLocaleLowerCase('tr-TR')
-  );
-};
 
 export default function Dashboard() {
   const router = useRouter();
@@ -80,10 +72,16 @@ export default function Dashboard() {
     }
     fetchData(token);
 
-    // 🚀 TÜRKİYE İL VE İLÇE VERİLERİNİ GÜVENİLİR KAYNAKTAN ÇEK (Sadece 1 Kere Çalışır)
-    fetch("https://raw.githubusercontent.com/volkansenturk/turkiye-iller-ilceler/master/il-ilce.json")
+    // 🚀 TÜRKİYE İL VE İLÇE VERİLERİNİ GÜVENİLİR YENİ API'DEN ÇEK
+    fetch("https://turkiyeapi.dev/api/v1/provinces")
       .then(res => res.json())
-      .then(data => setTurkeyData(data))
+      .then(json => {
+         if(json && json.data) {
+             // İlleri A'dan Z'ye Türkçe karakter duyarlı şekilde sıralıyoruz
+             const sortedProvinces = json.data.sort((a: any, b: any) => a.name.localeCompare(b.name, 'tr-TR'));
+             setTurkeyData(sortedProvinces);
+         }
+      })
       .catch(err => console.error("İl/İlçe datası çekilemedi:", err));
 
   }, []);
@@ -146,10 +144,16 @@ export default function Dashboard() {
   // 🚀 İL SEÇİLDİĞİNDE İLÇELERİ FİLTRELEME MANTIĞI
   useEffect(() => {
     if(shopSettings.city && turkeyData.length > 0) {
-        // Data büyük harfle geldiği için karşılaştırmayı büyük harfle yapıyoruz
-        const selectedCityData = turkeyData.find(c => c.il_adi === shopSettings.city.toLocaleUpperCase('tr-TR'));
-        if(selectedCityData) {
-            setAvailableDistricts(selectedCityData.ilceler.map((i: any) => toTitleCase(i.ilce_adi)));
+        // Seçilen şehri buluyoruz
+        const selectedCityData = turkeyData.find(c => 
+          c.name.toLocaleUpperCase('tr-TR') === shopSettings.city.toLocaleUpperCase('tr-TR')
+        );
+        if(selectedCityData && selectedCityData.districts) {
+            // O şehrin ilçelerini de A'dan Z'ye sıralıyoruz
+            const sortedDistricts = selectedCityData.districts
+               .map((d: any) => d.name)
+               .sort((a: string, b: string) => a.localeCompare(b, 'tr-TR'));
+            setAvailableDistricts(sortedDistricts);
         } else {
             setAvailableDistricts([]);
         }
@@ -465,7 +469,7 @@ export default function Dashboard() {
         {activeTab === 'services' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Hizmet Listesi</h2><button onClick={() => setServiceModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Yeni Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{services.map((s: any) => (<div key={s.id} className={`bg-gray-900 p-5 rounded-xl border transition group relative ${s.isActive === false ? 'border-red-900 opacity-60' : 'border-gray-800 hover:border-gray-600'}`}><div className="flex justify-between items-start mb-2"><h3 className="font-bold text-lg text-white">{s.name}</h3><span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold border border-gray-700">{s.price} ₺</span></div><p className="text-gray-400 text-sm flex items-center gap-1"><Clock size={14}/> {s.duration} dakika</p>{s.isActive === false && <p className="text-red-500 text-xs mt-2 font-bold">⚠️ Şu an pasif</p>}<div className="absolute bottom-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingService(s); setEditServiceModalOpen(true); }} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition"><Edit size={16}/></button><button onClick={() => handleDeleteService(s.id)} className="p-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         {activeTab === 'staff' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Ekip Arkadaşlarım</h2><button onClick={() => setStaffModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Personel Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{staffs.map((s: any) => (<div key={s.id} className="bg-gray-900 p-5 rounded-xl border border-gray-800 hover:border-gray-600 transition group flex items-center gap-4 relative"><div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">{s.name.charAt(0).toUpperCase()}</div><div><h3 className="font-bold text-lg text-white">{s.name}</h3><p className="text-gray-400 text-sm">{s.phone}</p></div><div className="absolute top-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingStaff(s); setEditStaffModalOpen(true); }} className="p-1.5 text-blue-400 hover:text-white transition"><Edit size={16}/></button><button onClick={() => handleDeleteStaff(s.id)} className="p-1.5 text-red-400 hover:text-white transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         
-        {/* 🚀 KOORDİNAT SİSTEMLİ MAĞAZA YÖNETİMİ */}
+        {/* 🚀 DİNAMİK KOORDİNAT VE İL - İLÇE SİSTEMLİ MAĞAZA YÖNETİMİ */}
         {activeTab === 'settings' && (
           <div className="animate-fade-in space-y-6">
               
@@ -497,25 +501,25 @@ export default function Dashboard() {
                           />
                       </div>
 
-                      {/* 🚀 DİNAMİK İL SEÇİCİ */}
+                      {/* 🚀 YENİ DİNAMİK İL SEÇİCİ */}
                       <div>
                           <label className="text-xs text-gray-500 mb-2 block font-bold">İl (Şehir)</label>
                           <select 
                               className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none"
                               value={shopSettings.city}
                               onChange={(e) => {
-                                // İl değiştiğinde ilçeyi sıfırla ki eski ilin ilçesi kalmasın
+                                // İl değiştiğinde ilçeyi sıfırla
                                 setShopSettings({...shopSettings, city: e.target.value, district: ""});
                               }}
                           >
                               <option value="">Şehir Seçiniz...</option>
                               {turkeyData.map(c => (
-                                <option key={c.plaka_kodu} value={toTitleCase(c.il_adi)}>{toTitleCase(c.il_adi)}</option>
+                                <option key={c.id} value={c.name}>{c.name}</option>
                               ))}
                           </select>
                       </div>
                       
-                      {/* 🚀 DİNAMİK İLÇE SEÇİCİ */}
+                      {/* 🚀 YENİ DİNAMİK İLÇE SEÇİCİ */}
                       <div>
                           <label className="text-xs text-gray-500 mb-2 block font-bold">İlçe</label>
                           <select 
@@ -590,7 +594,6 @@ export default function Dashboard() {
                   </div>
               </div>
 
-              {/* ... (Hizmet & İzin kapatma bölümleri aynı) ... */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6"><h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><CalendarX size={20} className="text-red-500"/> Dükkan Kapalı Günleri</h3><div className="flex flex-col sm:flex-row gap-2 mb-4"><input type="date" className="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 w-full" onChange={(e) => setNewClosure({...newClosure, date: e.target.value})} value={newClosure.date}/><input type="text" placeholder="Sebep" className="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 w-full" onChange={(e) => setNewClosure({...newClosure, reason: e.target.value})} value={newClosure.reason}/><button onClick={handleAddClosure} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap">Kapat</button></div><ul className="space-y-2 max-h-48 overflow-y-auto">{closures.map((c: any) => (<li key={c.id} className="flex justify-between items-center bg-gray-800/50 p-2 rounded-lg border border-gray-700"><span className="text-sm text-gray-300">{new Date(c.date).toLocaleDateString("tr-TR")} - <span className="text-gray-500">{c.reason}</span></span><button onClick={() => handleDeleteClosure(c.id)} className="text-red-400 hover:text-red-200"><Trash2 size={14}/></button></li>))}</ul></div>
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6"><h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Power size={20} className="text-blue-500"/> Hizmet Kullanılabilirliği</h3><div className="space-y-3 max-h-64 overflow-y-auto pr-2">{services.map((s: any) => (<div key={s.id} className="flex justify-between items-center bg-gray-800/30 p-3 rounded-lg border border-gray-700"><span className={s.isActive === false ? "text-gray-500 line-through" : "text-white"}>{s.name}</span><div className="form-check form-switch cursor-pointer" onClick={() => handleToggleServiceStatus(s)}><div className={`w-10 h-5 rounded-full relative transition ${s.isActive !== false ? 'bg-blue-600' : 'bg-gray-600'}`}><div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${s.isActive !== false ? 'left-6' : 'left-1'}`}></div></div></div></div>))}</div></div>
