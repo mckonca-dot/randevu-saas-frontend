@@ -8,9 +8,12 @@ import {
   LogOut, Plus, Trash2, Edit, CheckCircle, XCircle, 
   Clock, TrendingUp, DollarSign, Store, CalendarX, Power,
   Image as ImageIcon, NotebookPen, QrCode, Download,
-  Menu, X, Phone, RefreshCw, MapPin
+  Menu, X, Phone, RefreshCw, MapPin, Map
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+// 🚀 STANDART ŞEHİR LİSTESİ
+const CITIES = ["İstanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya", "Kocaeli", "Sakarya", "Mersin", "Eskişehir", "Trabzon", "Samsun", "Gaziantep", "Kayseri"];
 
 export default function Dashboard() {
   const router = useRouter();
@@ -26,8 +29,8 @@ export default function Dashboard() {
   const [closures, setClosures] = useState<any[]>([]); 
   const [leaves, setLeaves] = useState<any[]>([]);      
   
-  // Profil / Dükkan Ayarları State'i
-  const [shopSettings, setShopSettings] = useState({ shopName: "", phone: "", tagline: "", address: "" });
+  // 🚀 Profil / Dükkan Ayarları State'ine city ve district eklendi
+  const [shopSettings, setShopSettings] = useState({ shopName: "", phone: "", tagline: "", address: "", city: "", district: "" });
 
   const [loading, setLoading] = useState(true);
 
@@ -107,11 +110,14 @@ export default function Dashboard() {
               start: userData.workStart || "09:00", 
               end: userData.workEnd || "18:00" 
           });
+          // 🚀 Backend'den gelen İl ve İlçe bilgilerini de state'e dolduruyoruz
           setShopSettings({
               shopName: userData.shopName || "",
               phone: userData.phone || "",
               tagline: userData.tagline || "",
-              address: userData.address || "" 
+              address: userData.address || "",
+              city: userData.city || "",
+              district: userData.district || ""
           });
       }
 
@@ -192,7 +198,7 @@ export default function Dashboard() {
                 "Content-Type": "application/json", 
                 Authorization: `Bearer ${token}` 
             },
-            body: JSON.stringify(shopSettings)
+            body: JSON.stringify(shopSettings) // İl ve ilçe de artık bu paketin içinde gidiyor
         });
         
         if (res.ok) {
@@ -435,7 +441,6 @@ export default function Dashboard() {
                       <XAxis dataKey="name" stroke="#9CA3AF" tick={{fontSize: 12}} interval={0} angle={-30} textAnchor="end" height={60}/>
                       <YAxis stroke="#9CA3AF" />
                       <Tooltip contentStyle={{backgroundColor: '#1F2937', border: 'none', color: '#fff'}} />
-                      {/* 🔥 HATA BURADA ÇÖZÜLDÜ: radius={4} yapıldı */}
                       <Bar dataKey="count" fill="#3B82F6" radius={4} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -576,6 +581,30 @@ export default function Dashboard() {
                               placeholder="05XX XXX XX XX"
                               value={shopSettings.phone}
                               onChange={(e) => setShopSettings({...shopSettings, phone: e.target.value})}
+                          />
+                      </div>
+
+                      {/* 🚀 YENİ EKLENEN İL VE İLÇE ALANLARI */}
+                      <div>
+                          <label className="text-xs text-gray-500 mb-2 block font-bold">İl (Şehir)</label>
+                          <select 
+                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none"
+                              value={shopSettings.city}
+                              onChange={(e) => setShopSettings({...shopSettings, city: e.target.value})}
+                          >
+                              <option value="">Şehir Seçiniz...</option>
+                              {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                      </div>
+                      
+                      <div>
+                          <label className="text-xs text-gray-500 mb-2 block font-bold">İlçe</label>
+                          <input 
+                              type="text" 
+                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition"
+                              placeholder="Örn: Kadıköy"
+                              value={shopSettings.district}
+                              onChange={(e) => setShopSettings({...shopSettings, district: e.target.value})}
                           />
                       </div>
 
