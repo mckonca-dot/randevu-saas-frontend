@@ -1,20 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, MapPin, Star, Scissors, ChevronRight, TrendingUp, Loader2, Sparkles } from "lucide-react";
+import { Search, MapPin, Star, Scissors, ChevronRight, TrendingUp, Loader2, Sparkles, Map } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   const [shops, setShops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // 🔍 Filtre Stateleri
+  // 🚀 DİNAMİK İL VE İLÇE STATE'LERİ (API'den gelecek)
+  const [turkeyData, setTurkeyData] = useState<any[]>([]);
+  const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
+
+  // 🔍 Filtre Seçimleri
   const [selectedCity, setSelectedCity] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedService, setSelectedService] = useState(""); 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Backend'den Verileri Çekme
+  // 1️⃣ Verileri Çekme (Dükkanlar ve Türkiye API)
   useEffect(() => {
+    // Dükkanları çek
     const fetchAllShops = async () => {
       try {
         setLoading(true);
@@ -30,16 +36,35 @@ export default function Home() {
       }
     };
     fetchAllShops();
+
+    // Türkiye İl-İlçe verisini çek
+    fetch("https://turkiyeapi.dev/api/v1/provinces")
+      .then(res => res.json())
+      .then(json => {
+         if(json && json.data) {
+             const sortedProvinces = json.data.sort((a: any, b: any) => a.name.localeCompare(b.name, 'tr-TR'));
+             setTurkeyData(sortedProvinces);
+         }
+      })
+      .catch(err => console.error("İl/İlçe datası çekilemedi:", err));
   }, []);
 
-  // 🚀 DİNAMİK ŞEHİR LİSTESİ OLUŞTURUCU (Sadece dükkanı olan şehirleri çeker, boşları eler)
-  const uniqueCities = Array.from(
-    new Set(
-      shops
-        .map(shop => shop.city)
-        .filter(city => city && city.trim() !== "") // Null veya boş olanları listeye alma
-    )
-  ).sort(); // Alfabetik sıralar
+  // 2️⃣ İl Seçildiğinde İlçeleri Doldurma Mantığı
+  useEffect(() => {
+    if(selectedCity && turkeyData.length > 0) {
+        const cityData = turkeyData.find(c => c.name.toLocaleUpperCase('tr-TR') === selectedCity.toLocaleUpperCase('tr-TR'));
+        if(cityData && cityData.districts) {
+            const sortedDistricts = cityData.districts
+               .map((d: any) => d.name)
+               .sort((a: string, b: string) => a.localeCompare(b, 'tr-TR'));
+            setAvailableDistricts(sortedDistricts);
+        } else {
+            setAvailableDistricts([]);
+        }
+    } else {
+        setAvailableDistricts([]);
+    }
+  }, [selectedCity, turkeyData]);
 
   // 🚀 DİNAMİK HİZMET LİSTESİ OLUŞTURUCU 
   const uniqueServices = Array.from(
@@ -50,27 +75,25 @@ export default function Home() {
     )
   ).sort();
 
-  // 🔍 Arama ve Filtreleme Mantığı
+  // 🔍 Arama ve Filtreleme Mantığı (4 Kademeli)
   const filteredShops = shops.filter(shop => {
     const shopCity = shop.city || "";
     const shopDistrict = shop.district || "";
     const shopName = shop.shopName || "";
 
     // 1. İl Filtresi
-    const matchCity = selectedCity ? shopCity.toLocaleLowerCase('tr-TR') === selectedCity.toLocaleLowerCase('tr-TR') : true;
+    const matchCity = selectedCity ? shopCity.toLocaleUpperCase('tr-TR') === selectedCity.toLocaleUpperCase('tr-TR') : true;
     
-    // 2. Metin Arama Filtresi (İsim veya İlçe)
-    const matchQuery = searchQuery 
-      ? (shopName.toLocaleLowerCase('tr-TR').includes(searchQuery.toLocaleLowerCase('tr-TR')) || 
-         shopDistrict.toLocaleLowerCase('tr-TR').includes(searchQuery.toLocaleLowerCase('tr-TR'))) 
-      : true;
+    // 2. İlçe Filtresi
+    const matchDistrict = selectedDistrict ? shopDistrict.toLocaleUpperCase('tr-TR') === selectedDistrict.toLocaleUpperCase('tr-TR') : true;
     
     // 3. Hizmet Filtresi 
-    const matchService = selectedService 
-      ? shop.services?.some((s: any) => s.name === selectedService) 
-      : true;
+    const matchService = selectedService ? shop.services?.some((s: any) => s.name === selectedService) : true;
+
+    // 4. Metin Arama Filtresi (Sadece Dükkan Adı)
+    const matchQuery = searchQuery ? shopName.toLocaleLowerCase('tr-TR').includes(searchQuery.toLocaleLowerCase('tr-TR')) : true;
     
-    return matchCity && matchQuery && matchService;
+    return matchCity && matchDistrict && matchService && matchQuery;
   });
 
   return (
@@ -104,7 +127,7 @@ export default function Home() {
       <section className="pt-32 pb-20 px-4 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/20 blur-[120px] rounded-full pointer-events-none"></div>
         
-        <div className="max-w-5xl mx-auto text-center relative z-10">
+        <div className="max-w-7xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-7xl font-bold font-heading mb-6 tracking-tight">
             ŞEHRİNDEKİ EN İYİ <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-300">KUAFÖRLERİ KEŞFET</span>
           </h1>
@@ -112,33 +135,50 @@ export default function Home() {
             Sıra beklemeden, tarzına en uygun salonu bul ve saniyeler içinde online randevunu al.
           </p>
 
-          {/* 🔍 YENİ ÜÇLÜ ARAMA KUTUSU */}
-          <div className="bg-[#171717] p-2 md:p-3 rounded-2xl border border-zinc-800 flex flex-col lg:flex-row gap-3 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+          {/* 🔍 YENİ 4'LÜ PROFESYONEL ARAMA KUTUSU */}
+          <div className="bg-[#171717] p-3 rounded-2xl border border-zinc-800 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 shadow-[0_0_30px_rgba(0,0,0,0.8)] max-w-6xl mx-auto">
             
-            {/* 1. İl Seçimi (DİNAMİK) */}
-            <div className="relative flex-1 flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3">
+            {/* 1. İl Seçimi */}
+            <div className="relative flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3 h-14">
               <MapPin className="text-amber-500 flex-shrink-0" size={20} />
               <select 
                 value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCity(e.target.value);
+                  setSelectedDistrict(""); // İl değişince ilçeyi sıfırla
+                }}
                 className="w-full bg-transparent text-white outline-none pl-3 appearance-none cursor-pointer text-sm md:text-base"
-                disabled={uniqueCities.length === 0}
               >
-                <option value="" className="bg-zinc-900">Tüm Şehirler</option>
-                {uniqueCities.map((city, idx) => (
-                  <option key={idx} value={city as string} className="bg-zinc-900">{city as string}</option>
+                <option value="" className="bg-zinc-900">Tüm Türkiye</option>
+                {turkeyData.map(city => (
+                  <option key={city.id} value={city.name} className="bg-zinc-900">{city.name}</option>
                 ))}
               </select>
             </div>
 
-            {/* 2. Hizmet Seçimi (DİNAMİK) */}
-            <div className="relative flex-1 flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3">
+            {/* 2. İlçe Seçimi */}
+            <div className="relative flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3 h-14">
+              <Map className="text-amber-500 flex-shrink-0" size={20} />
+              <select 
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                className={`w-full bg-transparent text-white outline-none pl-3 appearance-none cursor-pointer text-sm md:text-base ${(!selectedCity || availableDistricts.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={!selectedCity || availableDistricts.length === 0}
+              >
+                <option value="" className="bg-zinc-900">{selectedCity ? "Tüm İlçeler" : "Önce İl Seçin"}</option>
+                {availableDistricts.map(district => (
+                  <option key={district} value={district} className="bg-zinc-900">{district}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 3. Hizmet Seçimi */}
+            <div className="relative flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3 h-14">
               <Sparkles className="text-amber-500 flex-shrink-0" size={20} />
               <select 
                 value={selectedService}
                 onChange={(e) => setSelectedService(e.target.value)}
                 className="w-full bg-transparent text-white outline-none pl-3 appearance-none cursor-pointer text-sm md:text-base"
-                disabled={uniqueServices.length === 0}
               >
                 <option value="" className="bg-zinc-900">Tüm Hizmetler</option>
                 {uniqueServices.map((service, idx) => (
@@ -147,12 +187,12 @@ export default function Home() {
               </select>
             </div>
 
-            {/* 3. Arama Inputu */}
-            <div className="relative flex-[1.5] flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3">
+            {/* 4. Arama Inputu */}
+            <div className="relative flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 focus-within:border-amber-500 transition-colors px-4 py-3 h-14">
               <Search className="text-amber-500 flex-shrink-0" size={20} />
               <input 
                 type="text" 
-                placeholder="İlçe veya salon adı ara..." 
+                placeholder="Salon adı ara..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-transparent text-white outline-none pl-3 placeholder-gray-500 text-sm md:text-base"
@@ -160,8 +200,8 @@ export default function Home() {
             </div>
 
             {/* Arama Butonu */}
-            <button className="bg-amber-500 text-black px-8 py-4 rounded-xl font-heading font-bold text-lg hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 flex-shrink-0">
-              ARA <ChevronRight size={20} />
+            <button className="bg-amber-500 text-black px-8 rounded-xl font-heading font-bold text-lg hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 h-14 md:col-span-2 lg:col-span-1">
+              FİLTRELE <ChevronRight size={20} />
             </button>
           </div>
         </div>
