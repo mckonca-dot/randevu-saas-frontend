@@ -20,11 +20,18 @@ export default function Home() {
 
   // 1️⃣ Verileri Çekme (Dükkanlar ve Türkiye API)
   useEffect(() => {
-    // Dükkanları çek
+    // 🚀 CACHE KIRICI EKLENDİ: Tarayıcının eski veriyi göstermesini engeller
     const fetchAllShops = async () => {
       try {
         setLoading(true);
-        const res = await fetch("https://konca-saas-backend.onrender.com/public/shops");
+        const t = Date.now(); // Her saniye değişen bu sayı sayesinde tarayıcı veriyi "yeni" sanıp hep çeker
+        const res = await fetch(`https://konca-saas-backend.onrender.com/public/shops?t=${t}`, {
+            cache: "no-store",
+            headers: {
+                'Pragma': 'no-cache',
+                'Cache-Control': 'no-cache'
+            }
+        });
         if (res.ok) {
           const data = await res.json();
           setShops(data);
@@ -77,9 +84,10 @@ export default function Home() {
 
   // 🔍 Arama ve Filtreleme Mantığı (4 Kademeli)
   const filteredShops = shops.filter(shop => {
-    const shopCity = shop.city || "";
-    const shopDistrict = shop.district || "";
-    const shopName = shop.shopName || "";
+    // 🚀 GÜVENLİK: Veritabanından gelen verilerin sonundaki boşlukları temizler (Trim)
+    const shopCity = (shop.city || "").trim();
+    const shopDistrict = (shop.district || "").trim();
+    const shopName = (shop.shopName || "").trim();
 
     // 1. İl Filtresi
     const matchCity = selectedCity ? shopCity.toLocaleUpperCase('tr-TR') === selectedCity.toLocaleUpperCase('tr-TR') : true;
