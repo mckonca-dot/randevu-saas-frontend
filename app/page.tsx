@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, MapPin, Star, Scissors, ChevronRight, TrendingUp, Loader2, Sparkles, Map } from "lucide-react";
+import { Search, MapPin, Star, Scissors, ChevronRight, TrendingUp, Loader2, Sparkles, Map, Crown } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -102,6 +102,13 @@ export default function Home() {
     const matchQuery = searchQuery ? shopName.toLocaleLowerCase('tr-TR').includes(searchQuery.toLocaleLowerCase('tr-TR')) : true;
     
     return matchCity && matchDistrict && matchService && matchQuery;
+  });
+
+  // 🚀 SÜPER ADMİN: VİTRİNİ ÖNE ÇIKANLARA GÖRE SIRALA
+  const sortedShops = [...filteredShops].sort((a, b) => {
+    if (a.isPromoted && !b.isPromoted) return -1;
+    if (!a.isPromoted && b.isPromoted) return 1;
+    return 0;
   });
 
   return (
@@ -227,17 +234,26 @@ export default function Home() {
             <Loader2 className="animate-spin mb-4" size={48} />
             <h3 className="font-heading tracking-widest text-lg animate-pulse">SALONLAR YÜKLENİYOR...</h3>
           </div>
-        ) : filteredShops.length > 0 ? (
+        ) : sortedShops.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredShops.map((shop) => (
-              <div key={shop.id} className="bg-[#171717] border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-500 transition-all duration-300 group flex flex-col">
+            {/* 🚀 map FONKSİYONU sortedShops ÜZERİNDEN ÇALIŞIYOR */}
+            {sortedShops.map((shop) => (
+              <div key={shop.id} className={`bg-[#171717] border ${shop.isPromoted ? 'border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]' : 'border-zinc-800'} rounded-2xl overflow-hidden hover:border-amber-500 transition-all duration-300 group flex flex-col relative`}>
+                
+                {/* 🚀 EĞER DÜKKAN ÖNE ÇIKARILMIŞSA TAÇ İKONU GÖSTER */}
+                {shop.isPromoted && (
+                  <div className="absolute top-0 left-0 bg-gradient-to-r from-amber-500 to-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-br-lg z-20 flex items-center gap-1 shadow-lg">
+                    <Crown size={12} /> SÜPER SALON
+                  </div>
+                )}
+
                 <div className="relative h-48 overflow-hidden bg-[#0a0a0a]">
                   <img 
                     src={shop.coverImage || "https://images.unsplash.com/photo-1621605815971-fbc98d665033?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} 
                     alt={shop.shopName} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" 
                   />
-                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-zinc-700 flex items-center gap-1">
+                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-zinc-700 flex items-center gap-1 z-10">
                     <Star className="text-amber-500" size={14} fill="currentColor" />
                     <span className="text-sm font-bold">5.0</span>
                   </div>
