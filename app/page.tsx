@@ -100,6 +100,9 @@ export default function Home() {
 
     // 4. Metin Arama Filtresi (Sadece Dükkan Adı)
     const matchQuery = searchQuery ? shopName.toLocaleLowerCase('tr-TR').includes(searchQuery.toLocaleLowerCase('tr-TR')) : true;
+
+    // 🚀 GÜVENLİK: Dükkan durumu pasifse (isActive === false) filtreye hiç sokma!
+    const isShopActive = shop.isActive !== false;
     
     return matchCity && matchDistrict && matchService && matchQuery;
   });
