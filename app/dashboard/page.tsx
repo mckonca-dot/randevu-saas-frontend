@@ -11,6 +11,8 @@ import {
   Menu, X, Phone, RefreshCw, MapPin
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -77,7 +79,6 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(json => {
          if(json && json.data) {
-             // İlleri A'dan Z'ye Türkçe karakter duyarlı şekilde sıralıyoruz
              const sortedProvinces = json.data.sort((a: any, b: any) => a.name.localeCompare(b.name, 'tr-TR'));
              setTurkeyData(sortedProvinces);
          }
@@ -144,12 +145,10 @@ export default function Dashboard() {
   // 🚀 İL SEÇİLDİĞİNDE İLÇELERİ FİLTRELEME MANTIĞI
   useEffect(() => {
     if(shopSettings.city && turkeyData.length > 0) {
-        // Seçilen şehri buluyoruz
         const selectedCityData = turkeyData.find(c => 
           c.name.toLocaleUpperCase('tr-TR') === shopSettings.city.toLocaleUpperCase('tr-TR')
         );
         if(selectedCityData && selectedCityData.districts) {
-            // O şehrin ilçelerini de A'dan Z'ye sıralıyoruz
             const sortedDistricts = selectedCityData.districts
                .map((d: any) => d.name)
                .sort((a: string, b: string) => a.localeCompare(b, 'tr-TR'));
@@ -201,7 +200,7 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [isWhatsappModalOpen, whatsappStatus, user?.id]);
 
-  // --- İŞLEMLER (CRUD) ---
+  // --- İŞLEMLER (CRUD) --- 🚀 (HEPSİ SWEETALERT2 İLE GÜNCELLENDİ)
   const downloadQRCode = () => {
     const canvas = document.getElementById("shop-qr-code") as HTMLCanvasElement;
     if(canvas) {
@@ -226,93 +225,212 @@ export default function Dashboard() {
         });
         
         if (res.ok) {
-            alert("Profil bilgileri başarıyla güncellendi! ✅");
+            Swal.fire({
+              title: "Harika!",
+              text: "Profil bilgileri başarıyla güncellendi! ✅",
+              icon: "success",
+              confirmButtonColor: "#2563eb", // Blue
+              background: "#111827",
+              color: "#fff"
+            });
             fetchData(token); 
         } else {
-            alert("Güncelleme başarısız.");
+            Swal.fire({
+              title: "Dikkat!",
+              text: "Güncelleme başarısız oldu.",
+              icon: "error",
+              confirmButtonColor: "#ef4444",
+              background: "#111827",
+              color: "#fff"
+            });
         }
     } catch (e) {
-        alert("Hata oluştu.");
+        Swal.fire({ title: "Hata!", text: "Sunucu bağlantı hatası.", icon: "error", confirmButtonColor: "#ef4444", background: "#111827", color: "#fff" });
     }
   };
 
   const handleSaveNote = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    try { await fetch(`https://konca-saas-backend.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); setNoteModalOpen(false); alert("Müşteri notu güncellendi! ✅"); fetchData(token); } catch (error) { alert("Hata oluştu."); }
+    try { 
+      await fetch(`https://konca-saas-backend.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); 
+      setNoteModalOpen(false); 
+      Swal.fire({ title: "Kaydedildi!", text: "Müşteri notu güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
+      fetchData(token); 
+    } catch (error) { 
+      Swal.fire({ title: "Hata!", text: "Not kaydedilemedi.", icon: "error", background: "#111827", color: "#fff" });
+    }
   };
 
   const handleAddClosure = async () => {
-    if(!newClosure.date) return alert("Tarih seçiniz");
+    if(!newClosure.date) return Swal.fire({ title: "Uyarı", text: "Lütfen bir tarih seçiniz.", icon: "warning", confirmButtonColor: "#f59e0b", background: "#111827", color: "#fff" });
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/closures", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newClosure)}); setNewClosure({ date: "", reason: "" }); fetchData(token);
+    await fetch("https://konca-saas-backend.onrender.com/closures", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newClosure)}); 
+    setNewClosure({ date: "", reason: "" }); 
+    fetchData(token);
+    Swal.fire({ title: "Eklendi!", text: "Kapalı gün başarıyla kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+
   const handleDeleteClosure = async (id: number) => {
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/closures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token);
+    await fetch(`https://konca-saas-backend.onrender.com/closures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
+    fetchData(token);
   };
+
   const handleAddLeave = async () => {
-    if(!newLeave.staffId || !newLeave.date) return alert("Personel ve tarih seçiniz");
+    if(!newLeave.staffId || !newLeave.date) return Swal.fire({ title: "Uyarı", text: "Lütfen personel ve tarih seçiniz.", icon: "warning", confirmButtonColor: "#f59e0b", background: "#111827", color: "#fff" });
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/leaves", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newLeave)}); setNewLeave({ staffId: "", date: "" }); fetchData(token);
+    await fetch("https://konca-saas-backend.onrender.com/leaves", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newLeave)}); 
+    setNewLeave({ staffId: "", date: "" }); 
+    fetchData(token);
+    Swal.fire({ title: "Eklendi!", text: "Personel izni kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+
   const handleDeleteLeave = async (id: number) => {
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/leaves/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token);
+    await fetch(`https://konca-saas-backend.onrender.com/leaves/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
+    fetchData(token);
   };
+
   const handleToggleServiceStatus = async (service: any) => {
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); fetchData(token);
+    await fetch(`https://konca-saas-backend.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); 
+    fetchData(token);
   };
+
   const handleAddService = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); setServiceModalOpen(false); fetchData(token);
+    await fetch("https://konca-saas-backend.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); 
+    setServiceModalOpen(false); 
+    fetchData(token);
+    Swal.fire({ title: "Eklendi!", text: "Hizmet başarıyla eklendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+
   const handleUpdateService = async () => {
     if (!editingService) return;
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token);
+    await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); 
+    setEditServiceModalOpen(false); 
+    fetchData(token);
+    Swal.fire({ title: "Güncellendi!", text: "Hizmet başarıyla güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+
   const handleDeleteService = async (id: number) => {
-    if(!confirm("Silmek istiyor musunuz?")) return;
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token);
+    Swal.fire({
+      title: 'Emin misin?',
+      text: "Bu hizmeti silmek istediğine emin misin?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#374151',
+      confirmButtonText: 'Evet, Sil!',
+      cancelButtonText: 'İptal',
+      background: "#111827", color: "#fff"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token"); if (!token) return;
+        await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
+        fetchData(token);
+        Swal.fire({ title: 'Silindi!', text: 'Hizmet silindi.', icon: 'success', background: "#111827", color: "#fff" });
+      }
+    });
   };
+
   const handleAddStaff = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff)}); setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); fetchData(token);
+    await fetch("https://konca-saas-backend.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff)}); 
+    setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); 
+    fetchData(token);
+    Swal.fire({ title: "Eklendi!", text: "Personel başarıyla eklendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+
   const handleUpdateStaff = async () => {
     if (!editingStaff) return;
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); setEditStaffModalOpen(false); fetchData(token);
+    await fetch(`https://konca-saas-backend.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); 
+    setEditStaffModalOpen(false); 
+    fetchData(token);
+    Swal.fire({ title: "Güncellendi!", text: "Personel bilgileri güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+
   const handleDeleteStaff = async (id: number) => {
-    if(!confirm("Silmek istiyor musunuz?")) return;
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token);
+    Swal.fire({
+      title: 'Emin misin?',
+      text: "Bu personeli silmek istediğine emin misin?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#374151',
+      confirmButtonText: 'Evet, Sil!',
+      cancelButtonText: 'İptal',
+      background: "#111827", color: "#fff"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token"); if (!token) return;
+        await fetch(`https://konca-saas-backend.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
+        fetchData(token);
+        Swal.fire({ title: 'Silindi!', text: 'Personel kaydı silindi.', icon: 'success', background: "#111827", color: "#fff" });
+      }
+    });
   };
 
   const handleUpdateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("token"); if (!token) return;
     let cancelReason = "";
+    
     if (status === 'CANCELLED') {
-        const reason = window.prompt("İptal Sebebi (Müşteriye SMS/WhatsApp ile gidecektir):", "Örn: Ustamızın acil bir işi çıktı.");
-        if (reason === null) return; cancelReason = reason;
+        const { value: reason } = await Swal.fire({
+          title: 'İptal Sebebi',
+          input: 'text',
+          inputLabel: 'Müşteriye gönderilecek iptal sebebini yazınız:',
+          inputPlaceholder: 'Örn: Ustamızın acil bir işi çıktı.',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#374151',
+          confirmButtonText: 'İptal Et',
+          cancelButtonText: 'Vazgeç',
+          background: "#111827", color: "#fff"
+        });
+
+        if (!reason) return; // Vazgeçtiyse veya boş bıraktıysa çık
+        cancelReason = reason;
     }
+    
     try {
         await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); 
         fetchData(token);
-    } catch (error) { alert("Bir hata oluştu."); }
+        Swal.fire({ title: "Başarılı!", text: `Randevu durumu güncellendi.`, icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
+    } catch (error) { 
+        Swal.fire({ title: "Hata!", text: "Durum güncellenemedi.", icon: "error", background: "#111827", color: "#fff" }); 
+    }
   };
 
   const handleDeleteAppointment = async (id: number) => {
-    if(!confirm("Randevuyu silmek istiyor musunuz?")) return;
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token);
+    Swal.fire({
+      title: 'Randevuyu Sil?',
+      text: "Bu randevu kaydını tamamen silmek istediğinize emin misiniz?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#374151',
+      confirmButtonText: 'Evet, Sil!',
+      cancelButtonText: 'İptal',
+      background: "#111827", color: "#fff"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token"); if (!token) return;
+        await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
+        fetchData(token);
+        Swal.fire({ title: 'Silindi!', text: 'Randevu başarıyla silindi.', icon: 'success', toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
+      }
+    });
   };
+
   const handleUpdateHours = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); alert("Saatler güncellendi!"); fetchData(token);
+    await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); 
+    setHoursModalOpen(false); 
+    fetchData(token);
+    Swal.fire({ title: "Güncellendi!", text: "Çalışma saatleriniz kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
 
   // --- İSTATİSTİKLER ---
@@ -508,7 +626,6 @@ export default function Dashboard() {
                               className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none"
                               value={shopSettings.city}
                               onChange={(e) => {
-                                // İl değiştiğinde ilçeyi sıfırla
                                 setShopSettings({...shopSettings, city: e.target.value, district: ""});
                               }}
                           >

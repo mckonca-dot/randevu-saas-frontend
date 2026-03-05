@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -17,7 +19,7 @@ export default function ProfilePage() {
         return; 
       }
 
-      // Backend'den mevcut bilgileri çek (Port 3000)
+      // Backend'den mevcut bilgileri çek
       try {
         const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -59,15 +61,32 @@ export default function ProfilePage() {
 
       if (!res.ok) throw new Error("Güncellenemedi");
 
-      alert("Profil Başarıyla Güncellendi!");
+      // 🚀 ŞIK BAŞARI MESAJI (SweetAlert)
+      Swal.fire({
+        title: "Harika!",
+        text: "Profil bilgileriniz başarıyla güncellendi! ✅",
+        icon: "success",
+        confirmButtonColor: "#2563eb", // Butonla uyumlu mavi
+        background: "#1f2937", // Koyu tema arka plan
+        color: "#fff"
+      });
+      
       setPassword(""); // Şifre kutusunu temizle
       
     } catch (error) {
-      alert("Hata oluştu.");
+      // 🚀 ŞIK HATA MESAJI (SweetAlert)
+      Swal.fire({
+        title: "Hata!",
+        text: "Profil güncellenirken bir sorun oluştu.",
+        icon: "error",
+        confirmButtonColor: "#ef4444", // Kırmızı
+        background: "#1f2937",
+        color: "#fff"
+      });
     }
   };
 
-  if (loading) return <div className="p-10 text-white">Yükleniyor...</div>;
+  if (loading) return <div className="p-10 text-white min-h-screen bg-gray-900 flex items-center justify-center">Yükleniyor...</div>;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">

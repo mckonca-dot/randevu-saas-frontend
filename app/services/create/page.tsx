@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function CreateServicePage() {
   const router = useRouter();
@@ -22,7 +24,7 @@ export default function CreateServicePage() {
     }
 
     try {
-      // Backend'e Hizmet Ekleme İsteği (Port 3000)
+      // Backend'e Hizmet Ekleme İsteği
       const res = await fetch("https://konca-saas-backend.onrender.com/services", {
         method: "POST",
         headers: {
@@ -38,11 +40,29 @@ export default function CreateServicePage() {
 
       if (!res.ok) throw new Error("Hizmet eklenemedi");
 
-      alert("Hizmet Başarıyla Eklendi!");
-      router.push("/dashboard"); // İş bitince panele dön
+      // 🚀 ŞIK BAŞARI MESAJI (Otomatik kapanır ve yönlendirir)
+      Swal.fire({
+        title: "Eklendi!",
+        text: "Hizmet başarıyla listeye eklendi.",
+        icon: "success",
+        showConfirmButton: false, // Butonu gizliyoruz
+        timer: 1500, // 1.5 saniye sonra kapanacak
+        background: "#1f2937",
+        color: "#fff"
+      }).then(() => {
+        router.push("/dashboard"); // Animasyon bitince panele dön
+      });
       
     } catch (error) {
-      alert("Hata oluştu!");
+      // 🚀 ŞIK HATA MESAJI
+      Swal.fire({
+        title: "Hata!",
+        text: "Hizmet eklenirken bir sorun oluştu.",
+        icon: "error",
+        confirmButtonColor: "#ef4444", // Kırmızı buton
+        background: "#1f2937",
+        color: "#fff"
+      });
     } finally {
       setLoading(false);
     }
@@ -97,6 +117,14 @@ export default function CreateServicePage() {
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded font-bold transition disabled:opacity-50"
           >
             {loading ? "Kaydediliyor..." : "Kaydet"}
+          </button>
+          
+          <button 
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="w-full py-3 bg-transparent border border-gray-600 hover:bg-gray-700 rounded font-bold transition text-gray-400 mt-2"
+          >
+            İptal - Geri Dön
           </button>
         </form>
       </div>

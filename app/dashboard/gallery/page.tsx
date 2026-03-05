@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trash2, Upload, Image as ImageIcon, Plus } from "lucide-react";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function GalleryPage() {
   const router = useRouter();
   const [images, setImages] = useState<any[]>([]);
   const [newImage, setNewImage] = useState<string | null>(null);
-  const [modelName, setModelName] = useState(""); // 👇 YENİ: Model İsmi
+  const [modelName, setModelName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,9 +39,19 @@ export default function GalleryPage() {
     }
   };
 
-  // Fotoğrafı Yükleme İşlemi
+  // Fotoğrafı Yükleme İşlemi (SweetAlert Toast Entegreli)
   const handleUpload = async () => {
-    if (!newImage) return alert("Lütfen bir fotoğraf seçin.");
+    if (!newImage) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Eksik İşlem',
+        text: 'Lütfen önce yüklemek için bir fotoğraf seçin.',
+        confirmButtonColor: '#f59e0b',
+        background: '#1f2937',
+        color: '#fff'
+      });
+      return;
+    }
     
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -50,7 +62,6 @@ export default function GalleryPage() {
             "Content-Type": "application/json", 
             Authorization: `Bearer ${token}` 
         },
-        // 👇 İSMİ DE GÖNDERİYORUZ
         body: JSON.stringify({ image: newImage, modelName: modelName }) 
       });
 
@@ -58,24 +69,76 @@ export default function GalleryPage() {
         setNewImage(null);
         setModelName("");
         fetchGallery();
-        alert("Fotoğraf başarıyla eklendi! 📸");
+        
+        // 🚀 ŞIK VE KÜÇÜK BAŞARI BİLDİRİMİ (TOAST)
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Fotoğraf başarıyla eklendi! 📸',
+          showConfirmButton: false,
+          timer: 3000,
+          background: '#1f2937',
+          color: '#fff'
+        });
+      } else {
+        throw new Error("Yükleme reddedildi.");
       }
     } catch (error) {
-      console.error(error);
-      alert("Yükleme başarısız.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata',
+        text: 'Fotoğraf yüklenirken bir sorun oluştu.',
+        confirmButtonColor: '#ef4444',
+        background: '#1f2937',
+        color: '#fff'
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // 🚀 FOTOĞRAF SİLME ONAYI EKLENDİ
   const handleDelete = async (id: number) => {
-    if(!confirm("Bu fotoğrafı silmek istiyor musunuz?")) return;
-    const token = localStorage.getItem("token");
-    await fetch(`https://konca-saas-backend.onrender.com/gallery/${id}`, { 
-        method: "DELETE", 
-        headers: { Authorization: `Bearer ${token}` } 
+    Swal.fire({
+      title: 'Emin misin?',
+      text: "Bu fotoğrafı galerinizden silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#374151',
+      confirmButtonText: 'Evet, Sil!',
+      cancelButtonText: 'Vazgeç',
+      background: '#1f2937',
+      color: '#fff'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        try {
+          const res = await fetch(`https://konca-saas-backend.onrender.com/gallery/${id}`, { 
+              method: "DELETE", 
+              headers: { Authorization: `Bearer ${token}` } 
+          });
+          
+          if (res.ok) {
+             Swal.fire({
+                title: 'Silindi!',
+                text: 'Fotoğraf galeriden kaldırıldı.',
+                icon: 'success',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                background: '#1f2937',
+                color: '#fff'
+             });
+             fetchGallery();
+          }
+        } catch (error) {
+           Swal.fire('Hata!', 'Silme işlemi başarısız.', 'error');
+        }
+      }
     });
-    fetchGallery();
   };
 
   return (
@@ -93,7 +156,7 @@ export default function GalleryPage() {
       </div>
 
       {/* Yükleme Alanı */}
-      <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 mb-8 max-w-2xl">
+      <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 mb-8 max-w-2xl shadow-lg">
           <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
               <Upload size={20} className="text-blue-500"/> Yeni Fotoğraf Ekle
           </h2>
@@ -115,7 +178,7 @@ export default function GalleryPage() {
                       Fotoğraf seçmek için kutuya tıklayın. (Max 5MB)
                   </div>
                   
-                  {/* 👇 YENİ: Model İsmi Input */}
+                  {/* Model İsmi Input */}
                   <input 
                     type="text" 
                     placeholder="Model İsmi / Saç Tarzı (Örn: Fade Kesim)" 
@@ -127,7 +190,7 @@ export default function GalleryPage() {
                   <button 
                     onClick={handleUpload}
                     disabled={loading || !newImage}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold w-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold w-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
                   >
                     {loading ? 'Yükleniyor...' : 'Galeriyi Güncelle'}
                     {!loading && <Plus size={18}/>}
@@ -139,13 +202,13 @@ export default function GalleryPage() {
       {/* Galeri Listesi */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {images.map((img) => (
-              <div key={img.id} className="group relative aspect-square bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
+              <div key={img.id} className="group relative aspect-square bg-gray-800 rounded-xl overflow-hidden border border-gray-700 shadow-md">
                   <img src={img.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition duration-500"/>
                   
                   {/* Resim Üzerindeki Yazı ve Silme Butonu */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3">
                       {img.modelName && (
-                          <span className="text-white font-bold text-sm mb-1">{img.modelName}</span>
+                          <span className="text-white font-bold text-sm mb-1 drop-shadow-md">{img.modelName}</span>
                       )}
                       <button onClick={() => handleDelete(img.id)} className="bg-red-600/80 p-2 rounded-lg text-white hover:bg-red-600 transition w-fit">
                           <Trash2 size={16}/>
@@ -154,7 +217,9 @@ export default function GalleryPage() {
               </div>
           ))}
           {images.length === 0 && (
-              <p className="col-span-full text-gray-500 text-center py-10">Henüz fotoğraf yüklemediniz.</p>
+              <p className="col-span-full text-gray-500 text-center py-10 bg-gray-800/30 rounded-xl border border-gray-800 border-dashed">
+                 Henüz fotoğraf yüklemediniz.
+              </p>
           )}
       </div>
 

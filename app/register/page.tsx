@@ -1,30 +1,67 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [shopName, setShopName] = useState(""); // <-- YENİ STATE
+  const [shopName, setShopName] = useState(""); 
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("https://konca-saas-backend.onrender.com/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        email, 
-        password,
-        shopName // <-- Backend'e gönderiyoruz
-      }),
-    });
+    
+    try {
+      const res = await fetch("https://konca-saas-backend.onrender.com/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          email, 
+          password,
+          shopName 
+        }),
+      });
 
-    if (res.ok) {
-      alert("Kayıt Başarılı! Giriş yapabilirsiniz.");
-      router.push("/login");
-    } else {
-      alert("Kayıt başarısız. E-posta kullanımda olabilir.");
+      if (res.ok) {
+        // 🚀 ŞIK BAŞARI MESAJI VE OTOMATİK YÖNLENDİRME
+        Swal.fire({
+          icon: 'success',
+          title: 'Kayıt Başarılı!',
+          text: 'İşletme hesabınız oluşturuldu. Giriş ekranına yönlendiriliyorsunuz...',
+          showConfirmButton: false, // Butonu gizle
+          timer: 2000, // 2 saniye sonra otomatik kapanıp yönlendirsin
+          background: '#1f2937', // Koyu tema arka plan (bg-gray-800 ile uyumlu)
+          color: '#fff'
+        }).then(() => {
+          router.push("/login");
+        });
+      } else {
+        // Backend'den gelen hata mesajını yakalamaya çalışalım
+        const errorData = await res.json().catch(() => ({}));
+        
+        // 🚀 ŞIK HATA MESAJI
+        Swal.fire({
+          icon: 'error',
+          title: 'Kayıt Başarısız!',
+          text: errorData.message || 'Bu e-posta adresi zaten kullanımda olabilir. Lütfen başka bir e-posta deneyin.',
+          confirmButtonColor: '#ef4444', // Tailwind red-500
+          confirmButtonText: 'Tekrar Dene',
+          background: '#1f2937',
+          color: '#fff'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Bağlantı Hatası!',
+        text: 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Tamam',
+        background: '#1f2937',
+        color: '#fff'
+      });
     }
   };
 

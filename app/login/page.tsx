@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -27,12 +29,31 @@ export default function Login() {
       // Token'ı kaydet
       localStorage.setItem("token", data.access_token);
       
-      // Dashboard'a yönlendir
-      alert("Giriş Başarılı! 🚀");
-      router.push("/dashboard");
+      // 🚀 SWEETALERT İLE ŞIK BAŞARI MESAJI
+      Swal.fire({
+        icon: 'success',
+        title: 'Hoş Geldiniz!',
+        text: 'Giriş başarılı, panele yönlendiriliyorsunuz... 🚀',
+        showConfirmButton: false, // Butonu gizleyip otomatik kapanmasını sağlıyoruz
+        timer: 1500, // 1.5 saniye sonra kapanır
+        background: '#1f2937', // Panelin arka plan rengi
+        color: '#fff'
+      }).then(() => {
+        // Uyarı kapandıktan sonra Dashboard'a yönlendir
+        router.push("/dashboard");
+      });
 
     } catch (error: any) {
-      alert("Hata: " + error.message);
+      // 🚀 SWEETALERT İLE ŞIK HATA MESAJI
+      Swal.fire({
+        icon: 'error',
+        title: 'Giriş Başarısız!',
+        text: error.message === 'Credentials incorrect' ? 'E-posta veya şifre hatalı.' : error.message,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Tekrar Dene',
+        background: '#1f2937',
+        color: '#fff'
+      });
     }
   };
 

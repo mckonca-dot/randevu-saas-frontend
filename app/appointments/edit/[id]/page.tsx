@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function EditAppointmentPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -34,8 +36,6 @@ export default function EditAppointmentPage({ params }: { params: Promise<{ id: 
 
       try {
         // 1. Randevu Detayını Çek (Eski verileri görmek için)
-        // Not: Backend'de tek bir randevuyu çeken GET endpoint'i yapmadık ama
-        // listeyi çekip içinden bulabiliriz (Hızlı çözüm)
         const appRes = await fetch("https://konca-saas-backend.onrender.com/appointments", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -62,13 +62,21 @@ export default function EditAppointmentPage({ params }: { params: Promise<{ id: 
         setLoading(false);
 
       } catch (error) {
-        alert("Veriler yüklenemedi");
-        router.push("/dashboard");
+        Swal.fire({
+          icon: 'error',
+          title: 'Hata!',
+          text: 'Veriler yüklenirken bir sorun oluştu.',
+          confirmButtonColor: '#ef4444',
+          background: '#1f2937',
+          color: '#fff'
+        }).then(() => {
+          router.push("/dashboard");
+        });
       }
     };
 
     fetchData();
-  }, [resolvedParams]);
+  }, [resolvedParams, router]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,57 +101,84 @@ export default function EditAppointmentPage({ params }: { params: Promise<{ id: 
 
       if (!res.ok) throw new Error("Güncellenemedi");
 
-      alert("Randevu Güncellendi!");
-      router.push("/dashboard");
+      // 🚀 ŞIK BAŞARI MESAJI (Otomatik kapanır)
+      Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Randevu başarıyla güncellendi.',
+        showConfirmButton: false,
+        timer: 1500,
+        background: '#1f2937',
+        color: '#fff'
+      }).then(() => {
+        router.push("/dashboard");
+      });
+      
     } catch (error) {
-      alert("Hata oluştu.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: 'Randevu güncellenirken bir sorun oluştu.',
+        confirmButtonColor: '#ef4444',
+        background: '#1f2937',
+        color: '#fff'
+      });
     }
   };
 
-  if (loading) return <div className="p-10 text-white">Yükleniyor...</div>;
+  if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-blue-500 font-bold">Yükleniyor...</div>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
+      <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
         <h1 className="text-2xl font-bold mb-6 text-yellow-500">Randevuyu Düzenle</h1>
         
         <form onSubmit={handleUpdate} className="space-y-4">
           
           <div>
-            <label className="block text-sm mb-1">Müşteri</label>
-            <select className="w-full p-2 rounded bg-gray-700 border border-gray-600 outline-none"
+            <label className="block text-sm mb-1 text-gray-400">Müşteri</label>
+            <select className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-yellow-500 outline-none transition"
               value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
               {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Hizmet</label>
-            <select className="w-full p-2 rounded bg-gray-700 border border-gray-600 outline-none"
+            <label className="block text-sm mb-1 text-gray-400">Hizmet</label>
+            <select className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-yellow-500 outline-none transition"
               value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
               {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
           
           <div>
-            <label className="block text-sm mb-1">Tarih</label>
-            <input type="datetime-local" className="w-full p-2 rounded bg-gray-700 border border-gray-600 outline-none"
+            <label className="block text-sm mb-1 text-gray-400">Tarih ve Saat</label>
+            <input type="datetime-local" className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-yellow-500 outline-none transition"
               value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Durum</label>
-            <select className="w-full p-2 rounded bg-gray-700 border border-gray-600 outline-none"
+            <label className="block text-sm mb-1 text-gray-400">Durum</label>
+            <select className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-yellow-500 outline-none transition"
               value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="PENDING">Bekliyor (PENDING)</option>
-              <option value="CONFIRMED">Onaylandı (CONFIRMED)</option>
-              <option value="CANCELLED">İptal (CANCELLED)</option>
+              <option value="PENDING">Bekliyor</option>
+              <option value="CONFIRMED">Onaylandı</option>
+              <option value="CANCELLED">İptal</option>
             </select>
           </div>
 
-          <button className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 rounded font-bold transition">
-            Güncelle
-          </button>
+          <div className="pt-4 flex flex-col gap-2">
+            <button className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-bold transition shadow-lg">
+              Güncelle
+            </button>
+            <button 
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="w-full py-3 bg-transparent border border-gray-600 hover:bg-gray-700 rounded-lg font-bold transition text-gray-400"
+            >
+              İptal Et
+            </button>
+          </div>
         </form>
       </div>
     </div>

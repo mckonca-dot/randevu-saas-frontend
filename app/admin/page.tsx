@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Users, Store, DollarSign, TrendingUp, Trash2, Power, Star, ShieldCheck, MapPin, Search, ChevronRight, Menu, X } from "lucide-react";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function AdminPanel() {
   const router = useRouter();
@@ -28,7 +30,14 @@ export default function AdminPanel() {
       const userData = await userRes.json();
 
       if (!userData.isAdmin) {
-        alert("🚨 Yetkisiz Erişim! Bu alan sadece yöneticiye özeldir.");
+        Swal.fire({
+          title: "Dikkat!",
+          text: "🚨 Yetkisiz Erişim! Bu alan sadece yöneticiye özeldir.",
+          icon: "warning", // Uyarı ikonu kullanmak daha uygun
+          confirmButtonColor: "#f59e0b", 
+          background: '#171717',
+          color: '#fff'
+        });
         router.push("/dashboard"); // Admin değilse dükkan paneline gönder
         return;
       }
@@ -61,14 +70,58 @@ export default function AdminPanel() {
     fetchAdminData();
   };
 
+  // 🚀 DÜKKAN SİLME İŞLEMİ SWEETALERT2 İLE GÜNCELLENDİ
   const deleteShop = async (id: number) => {
-    if(!confirm("⚠️ DİKKAT: Bu dükkan ve tüm randevuları SİLİNECEK. Emin misin?")) return;
-    const token = localStorage.getItem("token");
-    await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
+    Swal.fire({
+      title: 'Dükkanı Sil?',
+      text: "⚠️ DİKKAT: Bu dükkan ve bu dükkana ait tüm randevular KALICI OLARAK SİLİNECEK. Bu işlem geri alınamaz! Emin misin?",
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444', // Kırmızı tehlike rengi
+      cancelButtonColor: '#27272a',  // Koyu gri iptal rengi
+      confirmButtonText: 'Evet, Tamamen Sil!',
+      cancelButtonText: 'Vazgeç',
+      background: '#171717',
+      color: '#fff'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        try {
+          const response = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (response.ok) {
+            Swal.fire({
+              title: 'Silindi!',
+              text: 'Dükkan ve tüm verileri sistemden başarıyla temizlendi.',
+              icon: 'success',
+              confirmButtonColor: '#f59e0b',
+              background: '#171717',
+              color: '#fff'
+            });
+            fetchAdminData();
+          } else {
+             Swal.fire({
+              title: 'Hata!',
+              text: 'Dükkan silinirken bir sorun oluştu.',
+              icon: 'error',
+              background: '#171717',
+              color: '#fff'
+            });
+          }
+        } catch (error) {
+           Swal.fire({
+              title: 'Bağlantı Hatası!',
+              text: 'Sunucuya ulaşılamadı.',
+              icon: 'error',
+              background: '#171717',
+              color: '#fff'
+            });
+        }
+      }
     });
-    fetchAdminData();
   };
 
   const filteredShops = shops.filter(s => s.shopName?.toLowerCase().includes(search.toLowerCase()));

@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { 
   Star, MapPin, Calendar, Clock, Scissors, 
-  User, Phone, AlertCircle, Check, ChevronRight, Menu, X
+  User, Phone, AlertCircle, Check, ChevronRight, Menu, X, ArrowLeft
 } from "lucide-react";
+
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function BookAppointment() {
   const params = useParams();
+  const router = useRouter(); // Yönlendirme için eklendi
   
   // --- STATE ---
   const [shop, setShop] = useState<any>(null);
@@ -30,6 +34,7 @@ export default function BookAppointment() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [shopError, setShopError] = useState(""); // Dükkan kapalı hatası için
 
   // --- VERİ ÇEKME ---
   useEffect(() => {
@@ -52,9 +57,12 @@ export default function BookAppointment() {
                fetch(`${baseUrl}/closures/${userId}`).then(r => r.ok ? r.json() : []).then(setClosures),
                fetch(`${baseUrl}/leaves/${userId}`).then(r => r.ok ? r.json() : []).then(setLeaves),
             ]).catch(err => console.log("Veri hatası:", err));
+        } else {
+            // Eğer backend 400 Bad Request atarsa (Dükkan Pasifse)
+            setShopError("Bu dükkan şu anda hizmet vermemektedir veya sistemden kaldırılmıştır.");
         }
       } catch (error) {
-        console.error("Bağlantı hatası:", error);
+        setShopError("Sunucu bağlantı hatası oluştu.");
       } finally {
         setLoading(false);
       }
@@ -139,17 +147,41 @@ export default function BookAppointment() {
   const isPastDate = date ? date < todayStr : false;
   const isShopClosed = closures.some((c: any) => c.date === date);
 
+  // 🚀 SWEET ALERT YARDIMCISI (Eski alertlerin yerine geçecek)
+  const showWarning = (text: string) => {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Eksik Bilgi',
+      text: text,
+      confirmButtonColor: '#f59e0b',
+      background: '#171717',
+      color: '#fff'
+    });
+  };
+
+  const handleError = (text: string) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Hata',
+      text: text,
+      confirmButtonColor: '#ef4444',
+      background: '#171717',
+      color: '#fff'
+    });
+  };
+
   const handleSubmit = async () => {
-    if (!selectedService) return alert("⚠️ Lütfen bir hizmet seçiniz.");
-    if (!date || !time) return alert("⚠️ Lütfen tarih ve saat seçiniz.");
-    if (!customerInfo.name) return alert("⚠️ Lütfen Adınızı giriniz.");
-    if (customerInfo.phone.length !== 14) return alert("⚠️ Lütfen geçerli bir telefon numarası giriniz.");
+    // 🚀 Doğrulamalar (Validation)
+    if (!selectedService) return showWarning("Lütfen bir hizmet seçiniz.");
+    if (!date || !time) return showWarning("Lütfen tarih ve saat seçiniz.");
+    if (!customerInfo.name) return showWarning("Lütfen Adınızı ve Soyadınızı giriniz.");
+    if (customerInfo.phone.length !== 14) return showWarning("Lütfen geçerli bir telefon numarası giriniz (10 haneli).");
 
     const selectedDateTime = new Date(`${date}T${time}`);
     
-    if (date < todayStr) return alert("⛔ Geçmiş bir tarihe randevu alamazsınız.");
-    if (date === todayStr && isSlotInPast(time)) return alert("⛔ Geçmiş bir saate randevu alamazsınız.");
-    if (selectedDateTime.getDay() === 0) return alert("⛔ Pazar günleri dükkanımız kapalıdır.");
+    if (date < todayStr) return handleError("Geçmiş bir tarihe randevu alamazsınız.");
+    if (date === todayStr && isSlotInPast(time)) return handleError("Geçmiş bir saate randevu alamazsınız.");
+    if (selectedDateTime.getDay() === 0) return handleError("Pazar günleri dükkanımız kapalıdır.");
 
     const [openH, openM] = (shop.workStart || "09:00").split(':').map(Number);
     const shopOpenMins = openH * 60 + openM;
@@ -160,10 +192,10 @@ export default function BookAppointment() {
     const selectedStartMins = selH * 60 + selM;
     const selectedEndMins = selectedStartMins + selectedService.duration;
 
-    if (selectedStartMins < shopOpenMins) return alert(`⛔ Dükkanımız saat ${shop.workStart}'da açılmaktadır.`);
-    if (selectedEndMins > shopCloseMins) return alert(`⛔ Seçtiğiniz hizmet süresi dükkan kapanışını aşıyor.`);
-    if (isShopClosed) return alert(`⛔ Üzgünüz, dükkanımız ${date} tarihinde kapalıdır.`);
-    if (isTimeSlotBusy(time)) return alert("⚠️ Bu saat aralığı maalesef dolu.");
+    if (selectedStartMins < shopOpenMins) return handleError(`Dükkanımız saat ${shop.workStart}'da açılmaktadır.`);
+    if (selectedEndMins > shopCloseMins) return handleError(`Seçtiğiniz hizmet süresi dükkan kapanış saatini (${shop.workEnd}) aşıyor.`);
+    if (isShopClosed) return handleError(`Üzgünüz, dükkanımız ${new Date(date).toLocaleDateString("tr-TR")} tarihinde kapalıdır.`);
+    if (isTimeSlotBusy(time)) return handleError("Bu saat aralığı maalesef dolu.");
 
     setSubmitting(true);
     try {
@@ -182,14 +214,27 @@ export default function BookAppointment() {
       });
 
       if (res.ok) {
-        alert("🎉 Randevunuz başarıyla oluşturuldu! Dükkan sahibinden onay mesajı bekleniyor.");
-        window.location.reload();
+        // 🚀 BAŞARI EKRANI (SweetAlert)
+        Swal.fire({
+          icon: 'success',
+          title: 'Randevunuz Alındı!',
+          text: 'Randevunuz başarıyla oluşturuldu. WhatsApp üzerinden bilgilendirme mesajı gönderilecektir.',
+          confirmButtonText: 'Tamam',
+          confirmButtonColor: '#f59e0b',
+          background: '#171717',
+          color: '#fff',
+          allowOutsideClick: false
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload();
+          }
+        });
       } else {
         const err = await res.json();
-        alert("Hata: " + (err.message || "Bir sorun oluştu."));
+        handleError(err.message || "Bir sorun oluştu.");
       }
     } catch (e) {
-      alert("Sunucu hatası.");
+      handleError("Sunucu bağlantı hatası.");
     } finally {
       setSubmitting(false);
     }
@@ -209,11 +254,30 @@ export default function BookAppointment() {
   if (loading) return (
       <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-amber-500">
           <Scissors className="animate-spin mb-4" size={48} />
-          <h2 className="text-xl font-bold tracking-widest animate-pulse">PREMIUM DENEYİM YÜKLENİYOR...</h2>
+          <h2 className="text-xl font-bold tracking-widest animate-pulse font-heading">PREMIUM DENEYİM YÜKLENİYOR...</h2>
       </div>
   );
   
-  if (!shop) return <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-gray-500">Dükkan bilgileri alınamadı.</div>;
+  // 🚀 DÜKKAN GİZLİYSE (PASİFSE) VEYA YOKSA ÇIKACAK ŞIK HATA EKRANI
+  if (shopError || !shop) return (
+    <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-4">
+       <div className="bg-[#171717] p-8 md:p-12 rounded-3xl border border-zinc-800 flex flex-col items-center text-center max-w-lg shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+             <AlertCircle className="text-red-500" size={40} />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4 tracking-wider">HİZMET DIŞI</h2>
+          <p className="text-gray-400 font-body mb-8 leading-relaxed">
+            {shopError || "Dükkan bilgileri alınamadı. Bu işletme sistemde kayıtlı olmayabilir."}
+          </p>
+          <button 
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 bg-amber-500 text-black px-8 py-3 rounded-xl font-bold font-heading tracking-widest hover:bg-yellow-400 transition"
+          >
+            <ArrowLeft size={20} /> ANA SAYFAYA DÖN
+          </button>
+       </div>
+    </div>
+  );
 
   return (
     <div className="bg-[#0a0a0a] text-[#e5e5e5] font-sans antialiased min-h-screen scroll-smooth overflow-x-hidden">
@@ -391,7 +455,6 @@ export default function BookAppointment() {
             <div className="lg:col-span-2 space-y-6 md:space-y-10">
               
               {/* 1. Hizmet Seçimi */}
-              {/* 🚀 Mobilde p-4, bilgisayarda p-8 yapıldı */}
               <div className="bg-[#0a0a0a] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">1</div>
@@ -421,7 +484,6 @@ export default function BookAppointment() {
               </div>
 
               {/* 2. Uzman Tercihi */}
-              {/* 🚀 Mobilde p-4, bilgisayarda p-8 yapıldı */}
               <div className="bg-[#0a0a0a] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-100">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">2</div>
@@ -454,7 +516,6 @@ export default function BookAppointment() {
               </div>
 
               {/* 3. Tarih ve Saat */}
-              {/* 🚀 Mobilde p-4, bilgisayarda p-8 yapıldı */}
               <div className="bg-[#0a0a0a] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-200">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">3</div>
@@ -531,7 +592,6 @@ export default function BookAppointment() {
               </div>
 
               {/* 4. İletişim */}
-              {/* 🚀 Mobilde p-4, bilgisayarda p-8 yapıldı */}
               <div className="bg-[#0a0a0a] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-300">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">4</div>
@@ -636,9 +696,8 @@ export default function BookAppointment() {
                   </div>
                 </div>
 
-                {/* 🚀 Orijinal ve Kusursuz Google Maps Yol Tarifi Linki */}
                 <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
+                  href={`http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 w-full bg-amber-500 text-black py-3 md:py-4 rounded-xl font-heading font-bold text-lg md:text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
@@ -650,7 +709,6 @@ export default function BookAppointment() {
 
             {/* Sağ: Dinamik Google Maps */}
             <div className="bg-[#171717] p-2 rounded-2xl border border-zinc-800 h-full min-h-[300px] md:min-h-[400px] animate-fade-in-up delay-100 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-               {/* 🚀 Orijinal ve Kusursuz Google Maps Iframe (Embed) Linki */}
                <iframe 
                   width="100%" 
                   height="100%" 

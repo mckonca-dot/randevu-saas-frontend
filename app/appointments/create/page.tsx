@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+// 🚀 SWEETALERT2 EKLENDİ
+import Swal from 'sweetalert2';
 
 export default function CreateAppointmentPage() {
   const router = useRouter();
@@ -60,7 +62,7 @@ export default function CreateAppointmentPage() {
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,20 +83,35 @@ export default function CreateAppointmentPage() {
         }),
       });
 
-      // --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
       if (!res.ok) {
         // Backend'den gelen hata mesajını oku
         const errorData = await res.json();
         throw new Error(errorData.message || "Randevu oluşturulamadı");
       }
-      // ----------------------------------
 
-      alert("Randevu Başarıyla Oluşturuldu!");
-      router.push("/dashboard");
+      // 🚀 ŞIK BAŞARI MESAJI (Otomatik Kapanır)
+      Swal.fire({
+        icon: 'success',
+        title: 'Harika!',
+        text: 'Randevu Başarıyla Oluşturuldu!',
+        showConfirmButton: false,
+        timer: 1500,
+        background: '#1f2937',
+        color: '#fff'
+      }).then(() => {
+        router.push("/dashboard");
+      });
       
-    } catch (error: any) { // 'any' ekledik ki error.message'a kızmasın
-      // Backend'den gelen mesajı alert olarak göster
-      alert(error.message || "Hata oluştu.");
+    } catch (error: any) { 
+      // 🚀 ŞIK HATA MESAJI (Backend'den gelen dolu uyarısı vb.)
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || "Bir sorun oluştu.",
+        confirmButtonColor: '#ef4444',
+        background: '#1f2937',
+        color: '#fff'
+      });
     } finally {
       setLoading(false);
     }
@@ -117,7 +134,6 @@ export default function CreateAppointmentPage() {
               onChange={(e) => setCustomerId(e.target.value)}
             >
               <option value="">Bir müşteri seçin...</option>
-              {/* customers?.map kullanarak dizi yoksa hata vermemesini sağlıyoruz */}
               {customers?.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -157,6 +173,14 @@ export default function CreateAppointmentPage() {
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded font-bold transition disabled:opacity-50"
           >
             {loading ? "Oluşturuluyor..." : "Randevuyu Kaydet"}
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="w-full py-3 bg-transparent border border-gray-600 hover:bg-gray-700 rounded font-bold transition text-gray-400 mt-2"
+          >
+            İptal - Geri Dön
           </button>
         </form>
       </div>
