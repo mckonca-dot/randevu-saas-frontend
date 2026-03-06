@@ -11,7 +11,6 @@ import {
   Menu, X, Phone, RefreshCw, MapPin
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-// 🚀 SWEETALERT2 EKLENDİ
 import Swal from 'sweetalert2';
 
 export default function Dashboard() {
@@ -28,9 +27,13 @@ export default function Dashboard() {
   const [closures, setClosures] = useState<any[]>([]); 
   const [leaves, setLeaves] = useState<any[]>([]);      
   
-  const [shopSettings, setShopSettings] = useState({ shopName: "", phone: "", tagline: "", address: "", city: "", district: "" });
+  // 🚀 YENİ: addressTitle ve fullAddress eklendi
+  const [shopSettings, setShopSettings] = useState({ 
+      shopName: "", phone: "", tagline: "", 
+      address: "", addressTitle: "", fullAddress: "", 
+      city: "", district: "" 
+  });
 
-  // 🚀 DİNAMİK İL - İLÇE STATE'LERİ
   const [turkeyData, setTurkeyData] = useState<any[]>([]);
   const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
 
@@ -65,6 +68,23 @@ export default function Dashboard() {
   const [editingStaff, setEditingStaff] = useState<any>(null);
   const [editingService, setEditingService] = useState<any>(null);
 
+  // 🚀 TELEFON FORMATLAYICI (Otomatik +90 ve Parantezler)
+  const formatPhoneNumber = (value: string) => {
+    let cleaned = value.replace(/\D/g, '');
+    if (cleaned === '' || cleaned === '90') return ''; // Tamamen silmeye izin ver
+
+    if (cleaned.startsWith('90')) cleaned = cleaned.substring(2);
+    if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+    cleaned = cleaned.substring(0, 10);
+    
+    let res = "+90 ";
+    if (cleaned.length > 0) res += "(" + cleaned.substring(0, 3);
+    if (cleaned.length >= 4) res += ") " + cleaned.substring(3, 6);
+    if (cleaned.length >= 7) res += " " + cleaned.substring(6, 8);
+    if (cleaned.length >= 9) res += " " + cleaned.substring(8, 10);
+    return res;
+  };
+
   // --- VERİ ÇEKME ---
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -74,7 +94,6 @@ export default function Dashboard() {
     }
     fetchData(token);
 
-    // 🚀 TÜRKİYE İL VE İLÇE VERİLERİNİ GÜVENİLİR YENİ API'DEN ÇEK
     fetch("https://turkiyeapi.dev/api/v1/provinces")
       .then(res => res.json())
       .then(json => {
@@ -84,17 +103,12 @@ export default function Dashboard() {
          }
       })
       .catch(err => console.error("İl/İlçe datası çekilemedi:", err));
-
   }, []);
 
   const fetchData = async (token: string) => {
     try {
       const t = Date.now(); 
-      const headers = { 
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-      };
+      const headers = { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };
       
       const [userRes, servicesRes, appRes, staffRes, closureRes, leaveRes] = await Promise.all([
         fetch(`https://konca-saas-backend.onrender.com/users/me?t=${t}`, { headers }),
@@ -111,8 +125,6 @@ export default function Dashboard() {
         return;
       }
 
-      if (!userRes.ok) throw new Error("Veri çekilemedi");
-
       const userData = await userRes.json();
       setUser(userData);
       
@@ -123,6 +135,8 @@ export default function Dashboard() {
               phone: userData.phone || "",
               tagline: userData.tagline || "",
               address: userData.address || "",
+              addressTitle: userData.addressTitle || "", // 🚀 YENİ
+              fullAddress: userData.fullAddress || "",   // 🚀 YENİ
               city: userData.city || "",
               district: userData.district || ""
           });
@@ -142,23 +156,14 @@ export default function Dashboard() {
     }
   };
 
-  // 🚀 İL SEÇİLDİĞİNDE İLÇELERİ FİLTRELEME MANTIĞI
   useEffect(() => {
     if(shopSettings.city && turkeyData.length > 0) {
-        const selectedCityData = turkeyData.find(c => 
-          c.name.toLocaleUpperCase('tr-TR') === shopSettings.city.toLocaleUpperCase('tr-TR')
-        );
+        const selectedCityData = turkeyData.find(c => c.name.toLocaleUpperCase('tr-TR') === shopSettings.city.toLocaleUpperCase('tr-TR'));
         if(selectedCityData && selectedCityData.districts) {
-            const sortedDistricts = selectedCityData.districts
-               .map((d: any) => d.name)
-               .sort((a: string, b: string) => a.localeCompare(b, 'tr-TR'));
+            const sortedDistricts = selectedCityData.districts.map((d: any) => d.name).sort((a: string, b: string) => a.localeCompare(b, 'tr-TR'));
             setAvailableDistricts(sortedDistricts);
-        } else {
-            setAvailableDistricts([]);
-        }
-    } else {
-        setAvailableDistricts([]);
-    }
+        } else { setAvailableDistricts([]); }
+    } else { setAvailableDistricts([]); }
   }, [shopSettings.city, turkeyData]);
 
   // WhatsApp Fonksiyonları
@@ -177,19 +182,12 @@ export default function Dashboard() {
   const startWhatsapp = async () => {
     if (!user?.id) return;
     setIsWhatsappLoading(true);
-    try {
-      await fetch(`https://konca-saas-backend.onrender.com/whatsapp/start/${user.id}`, { method: 'POST' });
-      fetchWhatsappStatus();
-    } catch (e) { console.error(e); } finally { setIsWhatsappLoading(false); }
+    try { await fetch(`https://konca-saas-backend.onrender.com/whatsapp/start/${user.id}`, { method: 'POST' }); fetchWhatsappStatus(); } catch (e) { console.error(e); } finally { setIsWhatsappLoading(false); }
   };
 
   const logoutWhatsapp = async () => {
     if (!user?.id) return;
-    try {
-      await fetch(`https://konca-saas-backend.onrender.com/whatsapp/logout/${user.id}`, { method: 'POST' });
-      setWhatsappStatus("DISCONNECTED");
-      setWhatsappQr(null);
-    } catch (e) { console.error(e); }
+    try { await fetch(`https://konca-saas-backend.onrender.com/whatsapp/logout/${user.id}`, { method: 'POST' }); setWhatsappStatus("DISCONNECTED"); setWhatsappQr(null); } catch (e) { console.error(e); }
   };
 
   useEffect(() => {
@@ -200,7 +198,7 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [isWhatsappModalOpen, whatsappStatus, user?.id]);
 
-  // --- İŞLEMLER (CRUD) --- 🚀 (HEPSİ SWEETALERT2 İLE GÜNCELLENDİ)
+  // --- İŞLEMLER ---
   const downloadQRCode = () => {
     const canvas = document.getElementById("shop-qr-code") as HTMLCanvasElement;
     if(canvas) {
@@ -208,230 +206,67 @@ export default function Dashboard() {
         const downloadLink = document.createElement("a");
         downloadLink.href = pngUrl;
         downloadLink.download = `konca-randevu-qr.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
     }
   };
 
   const handleUpdateProfile = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const token = localStorage.getItem("token"); if (!token) return;
     try {
         const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify(shopSettings)
         });
-        
         if (res.ok) {
-            Swal.fire({
-              title: "Harika!",
-              text: "Profil bilgileri başarıyla güncellendi! ✅",
-              icon: "success",
-              confirmButtonColor: "#2563eb", // Blue
-              background: "#111827",
-              color: "#fff"
-            });
+            Swal.fire({ title: "Harika!", text: "Profil bilgileri güncellendi! ✅", icon: "success", confirmButtonColor: "#2563eb", background: "#111827", color: "#fff" });
             fetchData(token); 
         } else {
-            Swal.fire({
-              title: "Dikkat!",
-              text: "Güncelleme başarısız oldu.",
-              icon: "error",
-              confirmButtonColor: "#ef4444",
-              background: "#111827",
-              color: "#fff"
-            });
+            Swal.fire({ title: "Dikkat!", text: "Güncelleme başarısız.", icon: "error", confirmButtonColor: "#ef4444", background: "#111827", color: "#fff" });
         }
-    } catch (e) {
-        Swal.fire({ title: "Hata!", text: "Sunucu bağlantı hatası.", icon: "error", confirmButtonColor: "#ef4444", background: "#111827", color: "#fff" });
-    }
+    } catch (e) { Swal.fire({ title: "Hata!", text: "Bağlantı hatası.", icon: "error", confirmButtonColor: "#ef4444", background: "#111827", color: "#fff" }); }
   };
 
   const handleSaveNote = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    try { 
-      await fetch(`https://konca-saas-backend.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); 
-      setNoteModalOpen(false); 
-      Swal.fire({ title: "Kaydedildi!", text: "Müşteri notu güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-      fetchData(token); 
-    } catch (error) { 
-      Swal.fire({ title: "Hata!", text: "Not kaydedilemedi.", icon: "error", background: "#111827", color: "#fff" });
-    }
+    try { await fetch(`https://konca-saas-backend.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); setNoteModalOpen(false); Swal.fire({ title: "Kaydedildi!", text: "Müşteri notu güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); fetchData(token); } catch (error) {}
   };
 
   const handleAddClosure = async () => {
     if(!newClosure.date) return Swal.fire({ title: "Uyarı", text: "Lütfen bir tarih seçiniz.", icon: "warning", confirmButtonColor: "#f59e0b", background: "#111827", color: "#fff" });
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/closures", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newClosure)}); 
-    setNewClosure({ date: "", reason: "" }); 
-    fetchData(token);
-    Swal.fire({ title: "Eklendi!", text: "Kapalı gün başarıyla kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
+    await fetch("https://konca-saas-backend.onrender.com/closures", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newClosure)}); setNewClosure({ date: "", reason: "" }); fetchData(token); Swal.fire({ title: "Eklendi!", text: "Kapalı gün kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
-
-  const handleDeleteClosure = async (id: number) => {
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/closures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
-    fetchData(token);
-  };
+  const handleDeleteClosure = async (id: number) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/closures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); };
 
   const handleAddLeave = async () => {
-    if(!newLeave.staffId || !newLeave.date) return Swal.fire({ title: "Uyarı", text: "Lütfen personel ve tarih seçiniz.", icon: "warning", confirmButtonColor: "#f59e0b", background: "#111827", color: "#fff" });
+    if(!newLeave.staffId || !newLeave.date) return;
     const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/leaves", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newLeave)}); 
-    setNewLeave({ staffId: "", date: "" }); 
-    fetchData(token);
-    Swal.fire({ title: "Eklendi!", text: "Personel izni kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
+    await fetch("https://konca-saas-backend.onrender.com/leaves", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newLeave)}); setNewLeave({ staffId: "", date: "" }); fetchData(token); Swal.fire({ title: "Eklendi!", text: "İzin kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
   };
+  const handleDeleteLeave = async (id: number) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/leaves/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); };
 
-  const handleDeleteLeave = async (id: number) => {
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/leaves/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
-    fetchData(token);
-  };
+  const handleToggleServiceStatus = async (service: any) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); fetchData(token); };
+  
+  const handleAddService = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); setServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  const handleToggleServiceStatus = async (service: any) => {
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); 
-    fetchData(token);
-  };
-
-  const handleAddService = async () => {
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); 
-    setServiceModalOpen(false); 
-    fetchData(token);
-    Swal.fire({ title: "Eklendi!", text: "Hizmet başarıyla eklendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-  };
-
-  const handleUpdateService = async () => {
-    if (!editingService) return;
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); 
-    setEditServiceModalOpen(false); 
-    fetchData(token);
-    Swal.fire({ title: "Güncellendi!", text: "Hizmet başarıyla güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-  };
-
-  const handleDeleteService = async (id: number) => {
-    Swal.fire({
-      title: 'Emin misin?',
-      text: "Bu hizmeti silmek istediğine emin misin?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#374151',
-      confirmButtonText: 'Evet, Sil!',
-      cancelButtonText: 'İptal',
-      background: "#111827", color: "#fff"
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const token = localStorage.getItem("token"); if (!token) return;
-        await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
-        fetchData(token);
-        Swal.fire({ title: 'Silindi!', text: 'Hizmet silindi.', icon: 'success', background: "#111827", color: "#fff" });
-      }
-    });
-  };
-
-  const handleAddStaff = async () => {
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff)}); 
-    setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); 
-    fetchData(token);
-    Swal.fire({ title: "Eklendi!", text: "Personel başarıyla eklendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-  };
-
-  const handleUpdateStaff = async () => {
-    if (!editingStaff) return;
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch(`https://konca-saas-backend.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); 
-    setEditStaffModalOpen(false); 
-    fetchData(token);
-    Swal.fire({ title: "Güncellendi!", text: "Personel bilgileri güncellendi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-  };
-
-  const handleDeleteStaff = async (id: number) => {
-    Swal.fire({
-      title: 'Emin misin?',
-      text: "Bu personeli silmek istediğine emin misin?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#374151',
-      confirmButtonText: 'Evet, Sil!',
-      cancelButtonText: 'İptal',
-      background: "#111827", color: "#fff"
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const token = localStorage.getItem("token"); if (!token) return;
-        await fetch(`https://konca-saas-backend.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
-        fetchData(token);
-        Swal.fire({ title: 'Silindi!', text: 'Personel kaydı silindi.', icon: 'success', background: "#111827", color: "#fff" });
-      }
-    });
-  };
+  const handleAddStaff = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff)}); setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleUpdateStaff = async () => { if (!editingStaff) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); setEditStaffModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleDeleteStaff = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
   const handleUpdateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("token"); if (!token) return;
     let cancelReason = "";
-    
     if (status === 'CANCELLED') {
-        const { value: reason } = await Swal.fire({
-          title: 'İptal Sebebi',
-          input: 'text',
-          inputLabel: 'Müşteriye gönderilecek iptal sebebini yazınız:',
-          inputPlaceholder: 'Örn: Ustamızın acil bir işi çıktı.',
-          showCancelButton: true,
-          confirmButtonColor: '#ef4444',
-          cancelButtonColor: '#374151',
-          confirmButtonText: 'İptal Et',
-          cancelButtonText: 'Vazgeç',
-          background: "#111827", color: "#fff"
-        });
-
-        if (!reason) return; // Vazgeçtiyse veya boş bıraktıysa çık
-        cancelReason = reason;
+        const { value: reason } = await Swal.fire({ title: 'İptal Sebebi', input: 'text', inputPlaceholder: 'Örn: Acil iş çıktı.', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'İptal Et', background: "#111827", color: "#fff" });
+        if (!reason) return; cancelReason = reason;
     }
-    
-    try {
-        await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); 
-        fetchData(token);
-        Swal.fire({ title: "Başarılı!", text: `Randevu durumu güncellendi.`, icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-    } catch (error) { 
-        Swal.fire({ title: "Hata!", text: "Durum güncellenemedi.", icon: "error", background: "#111827", color: "#fff" }); 
-    }
+    try { await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); fetchData(token); Swal.fire({ title: "Başarılı!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); } catch (error) {}
   };
+  const handleDeleteAppointment = async (id: number) => { Swal.fire({ title: 'Randevuyu Sil?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  const handleDeleteAppointment = async (id: number) => {
-    Swal.fire({
-      title: 'Randevuyu Sil?',
-      text: "Bu randevu kaydını tamamen silmek istediğinize emin misiniz?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#374151',
-      confirmButtonText: 'Evet, Sil!',
-      cancelButtonText: 'İptal',
-      background: "#111827", color: "#fff"
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const token = localStorage.getItem("token"); if (!token) return;
-        await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); 
-        fetchData(token);
-        Swal.fire({ title: 'Silindi!', text: 'Randevu başarıyla silindi.', icon: 'success', toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-      }
-    });
-  };
-
-  const handleUpdateHours = async () => {
-    const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); 
-    setHoursModalOpen(false); 
-    fetchData(token);
-    Swal.fire({ title: "Güncellendi!", text: "Çalışma saatleriniz kaydedildi.", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" });
-  };
+  const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
 
   // --- İSTATİSTİKLER ---
   const totalEarnings = appointments.filter(a => a.status !== 'CANCELLED').reduce((acc, curr) => acc + Number(curr.service?.price || 0), 0);
@@ -585,128 +420,97 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'services' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Hizmet Listesi</h2><button onClick={() => setServiceModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Yeni Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{services.map((s: any) => (<div key={s.id} className={`bg-gray-900 p-5 rounded-xl border transition group relative ${s.isActive === false ? 'border-red-900 opacity-60' : 'border-gray-800 hover:border-gray-600'}`}><div className="flex justify-between items-start mb-2"><h3 className="font-bold text-lg text-white">{s.name}</h3><span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold border border-gray-700">{s.price} ₺</span></div><p className="text-gray-400 text-sm flex items-center gap-1"><Clock size={14}/> {s.duration} dakika</p>{s.isActive === false && <p className="text-red-500 text-xs mt-2 font-bold">⚠️ Şu an pasif</p>}<div className="absolute bottom-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingService(s); setEditServiceModalOpen(true); }} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition"><Edit size={16}/></button><button onClick={() => handleDeleteService(s.id)} className="p-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
-        {activeTab === 'staff' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Ekip Arkadaşlarım</h2><button onClick={() => setStaffModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Personel Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{staffs.map((s: any) => (<div key={s.id} className="bg-gray-900 p-5 rounded-xl border border-gray-800 hover:border-gray-600 transition group flex items-center gap-4 relative"><div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">{s.name.charAt(0).toUpperCase()}</div><div><h3 className="font-bold text-lg text-white">{s.name}</h3><p className="text-gray-400 text-sm">{s.phone}</p></div><div className="absolute top-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingStaff(s); setEditStaffModalOpen(true); }} className="p-1.5 text-blue-400 hover:text-white transition"><Edit size={16}/></button><button onClick={() => handleDeleteStaff(s.id)} className="p-1.5 text-red-400 hover:text-white transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
+        {activeTab === 'staff' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Ekip Arkadaşlarım</h2><button onClick={() => { setNewStaff({name: "", phone: "+90 ", email: ""}); setStaffModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Personel Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{staffs.map((s: any) => (<div key={s.id} className="bg-gray-900 p-5 rounded-xl border border-gray-800 hover:border-gray-600 transition group flex items-center gap-4 relative"><div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">{s.name.charAt(0).toUpperCase()}</div><div><h3 className="font-bold text-lg text-white">{s.name}</h3><p className="text-gray-400 text-sm">{s.phone}</p></div><div className="absolute top-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingStaff(s); setEditStaffModalOpen(true); }} className="p-1.5 text-blue-400 hover:text-white transition"><Edit size={16}/></button><button onClick={() => handleDeleteStaff(s.id)} className="p-1.5 text-red-400 hover:text-white transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         
-        {/* 🚀 DİNAMİK KOORDİNAT VE İL - İLÇE SİSTEMLİ MAĞAZA YÖNETİMİ */}
+        {/* 🚀 DİNAMİK KOORDİNAT VE ADRES SİSTEMLİ MAĞAZA YÖNETİMİ */}
         {activeTab === 'settings' && (
           <div className="animate-fade-in space-y-6">
               
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                      <Store size={20} className="text-blue-500"/> Profil ve Dükkan Bilgileri
+                      <Store size={20} className="text-blue-500"/> Profil ve Adres Bilgileri
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                           <label className="text-xs text-gray-500 mb-2 block font-bold">Dükkan İsmi</label>
-                          <input 
-                              type="text" 
-                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition"
-                              placeholder="Örn: Konca Kuaför"
-                              value={shopSettings.shopName}
-                              onChange={(e) => setShopSettings({...shopSettings, shopName: e.target.value})}
-                          />
+                          <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition" placeholder="Örn: Konca Kuaför" value={shopSettings.shopName} onChange={(e) => setShopSettings({...shopSettings, shopName: e.target.value})} />
                       </div>
                       
                       <div>
                           <label className="text-xs text-gray-500 mb-2 block font-bold">İletişim Telefonu</label>
-                          <input 
-                              type="text" 
-                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition"
-                              placeholder="05XX XXX XX XX"
-                              value={shopSettings.phone}
-                              onChange={(e) => setShopSettings({...shopSettings, phone: e.target.value})}
-                          />
+                          <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition" placeholder="05XX XXX XX XX" value={shopSettings.phone} onChange={(e) => setShopSettings({...shopSettings, phone: formatPhoneNumber(e.target.value)})} />
                       </div>
 
-                      {/* 🚀 YENİ DİNAMİK İL SEÇİCİ */}
-                      <div>
-                          <label className="text-xs text-gray-500 mb-2 block font-bold">İl (Şehir)</label>
-                          <select 
-                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none"
-                              value={shopSettings.city}
-                              onChange={(e) => {
-                                setShopSettings({...shopSettings, city: e.target.value, district: ""});
-                              }}
-                          >
-                              <option value="">Şehir Seçiniz...</option>
-                              {turkeyData.map(c => (
-                                <option key={c.id} value={c.name}>{c.name}</option>
-                              ))}
-                          </select>
-                      </div>
-                      
-                      {/* 🚀 YENİ DİNAMİK İLÇE SEÇİCİ */}
-                      <div>
-                          <label className="text-xs text-gray-500 mb-2 block font-bold">İlçe</label>
-                          <select 
-                              className={`w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none ${(!shopSettings.city || availableDistricts.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
-                              value={shopSettings.district}
-                              onChange={(e) => setShopSettings({...shopSettings, district: e.target.value})}
-                              disabled={!shopSettings.city || availableDistricts.length === 0}
-                          >
-                              <option value="">{shopSettings.city ? "İlçe Seçiniz..." : "Önce İl Seçin"}</option>
-                              {availableDistricts.map(d => (
-                                <option key={d} value={d}>{d}</option>
-                              ))}
-                          </select>
+                      <div className="md:col-span-2 border-t border-gray-800 pt-6 mt-2">
+                          <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><MapPin size={16} className="text-amber-500"/> Detaylı Adres Yönetimi</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold">İl (Şehir)</label>
+                                  <select className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none" value={shopSettings.city} onChange={(e) => { setShopSettings({...shopSettings, city: e.target.value, district: ""}); }} >
+                                      <option value="">Şehir Seçiniz...</option>
+                                      {turkeyData.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                                  </select>
+                              </div>
+                              
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold">İlçe</label>
+                                  <select className={`w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition appearance-none ${(!shopSettings.city || availableDistricts.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`} value={shopSettings.district} onChange={(e) => setShopSettings({...shopSettings, district: e.target.value})} disabled={!shopSettings.city || availableDistricts.length === 0} >
+                                      <option value="">{shopSettings.city ? "İlçe Seçiniz..." : "Önce İl Seçin"}</option>
+                                      {availableDistricts.map(d => <option key={d} value={d}>{d}</option> )}
+                                  </select>
+                              </div>
+
+                              {/* 🚀 YENİ: ADRES BAŞLIĞI VE AÇIK ADRES */}
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold">Adres Başlığı (Harita Linki İçin)</label>
+                                  <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition" placeholder="Örn: Merkez Şube / Meydan AVM" value={shopSettings.addressTitle} onChange={(e) => setShopSettings({...shopSettings, addressTitle: e.target.value})} />
+                              </div>
+
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold">Harita Koordinatları (Zorunlu)</label>
+                                  <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition" placeholder="Örn: 40.8373988, 31.1668614" value={shopSettings.address} onChange={(e) => setShopSettings({...shopSettings, address: e.target.value})} />
+                              </div>
+
+                              <div className="md:col-span-2">
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold">Açık Adres (Yol Tarifi)</label>
+                                  <textarea className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition resize-none h-24" placeholder="Müşterilerinizin dükkanı kolayca bulabilmesi için detaylı tarif yazın. Örn: PTT arkası, caminin hemen yanındaki sokak..." value={shopSettings.fullAddress} onChange={(e) => setShopSettings({...shopSettings, fullAddress: e.target.value})} />
+                              </div>
+
+                              {/* 🚀 YENİ: SİTEDE GÖRÜNECEK KART ÖNİZLEMESİ */}
+                              <div className="md:col-span-2 bg-[#171717] p-5 rounded-2xl border border-gray-700 shadow-inner">
+                                  <h4 className="text-xs text-gray-400 mb-4 uppercase tracking-widest font-bold">Vitrin Adres Kartı (Canlı Önizleme)</h4>
+                                  <div className="space-y-3">
+                                      {shopSettings.addressTitle ? (
+                                          <a 
+                                              href={`https://maps.google.com/?q=${encodeURIComponent(shopSettings.address || shopSettings.shopName || '')}`} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-amber-500 hover:text-yellow-400 font-bold text-xl flex items-center gap-2 underline decoration-amber-500/30 underline-offset-4"
+                                          >
+                                              <MapPin size={22}/> {shopSettings.addressTitle}
+                                          </a>
+                                      ) : (
+                                          <span className="text-gray-600 text-sm italic">Adres başlığı girildiğinde burada tıklanabilir bir harita linki oluşur...</span>
+                                      )}
+                                      <p className="text-gray-300 text-sm leading-relaxed">
+                                          {shopSettings.fullAddress || "Açık adres ve yol tarifi burada görünecektir..."}
+                                      </p>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
 
-                      <div className="md:col-span-2">
+                      <div className="md:col-span-2 border-t border-gray-800 pt-6 mt-2">
                           <label className="text-xs text-gray-500 mb-2 block font-bold">Slogan / Alt Yazı</label>
-                          <input 
-                              type="text" 
-                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition"
-                              placeholder="Örn: Lüks ve konforun buluştuğu nokta."
-                              value={shopSettings.tagline}
-                              onChange={(e) => setShopSettings({...shopSettings, tagline: e.target.value})}
-                          />
-                          <p className="text-[10px] text-gray-500 mt-1">Bu yazı, müşterilerin gördüğü randevu sayfasında ismin hemen altında yer alır.</p>
+                          <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition" placeholder="Örn: Lüks ve konforun buluştuğu nokta." value={shopSettings.tagline} onChange={(e) => setShopSettings({...shopSettings, tagline: e.target.value})} />
                       </div>
 
-                      <div className="md:col-span-2">
-                          <label className="text-xs text-gray-500 mb-2 block font-bold flex items-center gap-1">
-                              <MapPin size={14}/> Harita Koordinatları (Enlem, Boylam)
-                          </label>
-                          <input 
-                              type="text"
-                              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition"
-                              placeholder="Örn: 40.8373988, 31.1668614"
-                              value={shopSettings.address}
-                              onChange={(e) => setShopSettings({...shopSettings, address: e.target.value})}
-                          />
-                          <p className="text-[10px] text-gray-500 mt-1">Google Haritalar'dan dükkanınızın konumuna sağ tıklayıp koordinatları kopyalayarak buraya yapıştırın.</p>
-                      </div>
-
-                      <div className="md:col-span-2">
-                         <label className="text-xs text-gray-500 mb-2 block font-bold flex items-center gap-1">
-                             <MapPin size={14} className="text-blue-500"/> Harita Önizleme (Müşterilerin Göreceği)
-                         </label>
-                         <div className="w-full h-48 bg-gray-800 rounded-lg border border-gray-700 overflow-hidden shadow-inner">
-                           {shopSettings.address || shopSettings.shopName ? (
-                             <iframe
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0 }}
-                                loading="lazy"
-                                allowFullScreen
-                                src={`https://maps.google.com/maps?q=${encodeURIComponent(shopSettings.address || shopSettings.shopName || 'Türkiye')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                             ></iframe>
-                           ) : (
-                             <div className="flex items-center justify-center w-full h-full text-gray-500 text-sm">
-                                Koordinat veya dükkan ismi girdiğinizde harita burada görünecektir.
-                             </div>
-                           )}
-                         </div>
-                      </div>
                   </div>
 
-                  <div className="mt-6 flex justify-end">
-                      <button 
-                          onClick={handleUpdateProfile} 
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-bold transition flex items-center gap-2 shadow-lg shadow-blue-900/20"
-                      >
-                          <CheckCircle size={18}/> Bilgileri Kaydet
+                  <div className="mt-8 flex justify-end">
+                      <button onClick={handleUpdateProfile} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold transition flex items-center gap-2 shadow-lg shadow-blue-900/20" >
+                          <CheckCircle size={20}/> Ayarları Kaydet
                       </button>
                   </div>
               </div>
@@ -726,9 +530,14 @@ export default function Dashboard() {
       {isNoteModalOpen && ( <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><div className="flex items-center gap-3 mb-4"><div className="p-3 bg-purple-500/20 rounded-full text-purple-400"><NotebookPen size={24}/></div><div><h3 className="text-xl font-bold text-white">Müşteri Notu</h3><p className="text-sm text-gray-400">{selectedCustomerNote.name}</p></div></div><textarea className="w-full h-32 p-4 bg-gray-800 rounded-xl border border-gray-700 text-white outline-none focus:border-purple-500 transition resize-none leading-relaxed" placeholder="Notunuz..." value={selectedCustomerNote.note} onChange={(e) => setSelectedCustomerNote({...selectedCustomerNote, note: e.target.value})}/><div className="flex justify-end gap-2 mt-4"><button onClick={() => setNoteModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white transition">Vazgeç</button><button onClick={handleSaveNote} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold">Kaydet</button></div></div></div>)}
       {isServiceModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Hizmet Ekle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Hizmet Adı" onChange={(e) => setNewService({...newService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" placeholder="Süre (dk)" onChange={(e) => setNewService({...newService, duration: +e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Fiyat (TL)" onChange={(e) => setNewService({...newService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
       {isHoursModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-sm border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Çalışma Saatleri</h3><div className="space-y-4"><div><label className="text-sm text-gray-400">Açılış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.start} onChange={(e) => setWorkHours({...workHours, start: e.target.value})} /></div><div><label className="text-sm text-gray-400">Kapanış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.end} onChange={(e) => setWorkHours({...workHours, end: e.target.value})} /></div></div><div className="flex justify-end gap-2 mt-6"><button onClick={() => setHoursModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateHours} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
-      {isStaffModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Personel</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Ad Soyad" onChange={(e) => setNewStaff({...newStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Telefon" onChange={(e) => setNewStaff({...newStaff, phone: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="E-posta" onChange={(e) => setNewStaff({...newStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
+      
+      {/* 🚀 PERSONEL EKLEME MODALI (Telefon Formatı ile) */}
+      {isStaffModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Personel</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Ad Soyad" onChange={(e) => setNewStaff({...newStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="+90 (5XX) XXX XX XX" value={newStaff.phone} onChange={(e) => setNewStaff({...newStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="E-posta" onChange={(e) => setNewStaff({...newStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
+      
       {isEditServiceModalOpen && editingService && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Hizmeti Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.name} onChange={(e) => setEditingService({...editingService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" value={editingService.duration} onChange={(e) => setEditingService({...editingService, duration: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.price} onChange={(e) => setEditingService({...editingService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
-      {isEditStaffModalOpen && editingStaff && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Personel Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.name} onChange={(e) => setEditingStaff({...editingStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.phone} onChange={(e) => setEditingStaff({...editingStaff, phone: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.email || ""} onChange={(e) => setEditingStaff({...editingStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
+      
+      {/* 🚀 PERSONEL DÜZENLEME MODALI (Telefon Formatı ile) */}
+      {isEditStaffModalOpen && editingStaff && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Personel Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.name} onChange={(e) => setEditingStaff({...editingStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.phone} onChange={(e) => setEditingStaff({...editingStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.email || ""} onChange={(e) => setEditingStaff({...editingStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
 
     </div>
   );
