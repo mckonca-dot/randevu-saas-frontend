@@ -249,16 +249,49 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer className="bg-[#050505] pt-16 pb-8 border-t border-zinc-900">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Scissors className="text-amber-500" size={24}/>
-            <span className="font-heading text-2xl font-bold tracking-wider">KONCA SAAS</span>
-          </div>
-          <p className="text-gray-500 text-sm mb-8">© {new Date().getFullYear()} Konca SaaS. Tüm hakları saklıdır.</p>
-        </div>
-      </footer>
+      {/* --- YENİ DETAYLI FOOTER --- */}
+      <footer className="bg-[#050505] pt-16 pb-8 border-t border-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Scissors className="text-amber-500" size={24}/>
+                <span className="font-heading text-xl font-bold tracking-wider text-white">KONCA SAAS</span>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                Türkiye'nin en gelişmiş yeni nesil online kuaför randevu ve salon yönetim sistemi.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-4">MÜŞTERİLER İÇİN</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-amber-500 transition">Salon Keşfet</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition">Nasıl Çalışır?</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition">Sıkça Sorulan Sorular</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-4">KUAFÖRLER İÇİN</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="/register" className="text-amber-500 hover:text-yellow-400 transition font-bold">Hemen Kayıt Ol (30 Gün Ücretsiz)</Link></li>
+                <li><Link href="/login" className="hover:text-amber-500 transition">Yönetici Girişi</Link></li>
+                <li><a href="#pricing" className="hover:text-amber-500 transition">Fiyatlandırma & Paketler</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition">İletişim & Destek</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+            <p>© {new Date().getFullYear()} Konca SaaS Yönetim Sistemleri. Tüm hakları saklıdır.</p>
+            <div className="flex gap-4">
+              <a href="#" className="hover:text-white transition">Gizlilik Politikası</a>
+              <a href="#" className="hover:text-white transition">Kullanım Şartları</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 }
