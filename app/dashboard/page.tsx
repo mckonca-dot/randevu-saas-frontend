@@ -8,7 +8,8 @@ import {
   LogOut, Plus, Trash2, Edit, CheckCircle, XCircle, 
   Clock, TrendingUp, DollarSign, Store, CalendarX, Power,
   Image as ImageIcon, NotebookPen, QrCode, Download,
-  Menu, X, Phone, RefreshCw, MapPin
+  Menu, X, Phone, RefreshCw, MapPin, 
+  Instagram, Twitter, Facebook // 🚀 YENİ İKONLAR
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Swal from 'sweetalert2';
@@ -27,11 +28,12 @@ export default function Dashboard() {
   const [closures, setClosures] = useState<any[]>([]); 
   const [leaves, setLeaves] = useState<any[]>([]);      
   
-  // 🚀 YENİ: addressTitle ve fullAddress eklendi
+  // 🚀 GÜNCELLENDİ: Sosyal medya linkleri eklendi!
   const [shopSettings, setShopSettings] = useState({ 
       shopName: "", phone: "", tagline: "", 
       address: "", addressTitle: "", fullAddress: "", 
-      city: "", district: "" 
+      city: "", district: "",
+      instagram: "", facebook: "", twitter: "" 
   });
 
   const [turkeyData, setTurkeyData] = useState<any[]>([]);
@@ -68,10 +70,10 @@ export default function Dashboard() {
   const [editingStaff, setEditingStaff] = useState<any>(null);
   const [editingService, setEditingService] = useState<any>(null);
 
-  // 🚀 TELEFON FORMATLAYICI (Otomatik +90 ve Parantezler)
+  // 🚀 TELEFON FORMATLAYICI
   const formatPhoneNumber = (value: string) => {
     let cleaned = value.replace(/\D/g, '');
-    if (cleaned === '' || cleaned === '90') return ''; // Tamamen silmeye izin ver
+    if (cleaned === '' || cleaned === '90') return ''; 
 
     if (cleaned.startsWith('90')) cleaned = cleaned.substring(2);
     if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
@@ -135,10 +137,13 @@ export default function Dashboard() {
               phone: userData.phone || "",
               tagline: userData.tagline || "",
               address: userData.address || "",
-              addressTitle: userData.addressTitle || "", // 🚀 YENİ
-              fullAddress: userData.fullAddress || "",   // 🚀 YENİ
+              addressTitle: userData.addressTitle || "",
+              fullAddress: userData.fullAddress || "",
               city: userData.city || "",
-              district: userData.district || ""
+              district: userData.district || "",
+              instagram: userData.instagram || "", // 🚀 SOSYAL MEDYA
+              facebook: userData.facebook || "",   
+              twitter: userData.twitter || ""      
           });
       }
 
@@ -422,7 +427,7 @@ export default function Dashboard() {
         {activeTab === 'services' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Hizmet Listesi</h2><button onClick={() => setServiceModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Yeni Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{services.map((s: any) => (<div key={s.id} className={`bg-gray-900 p-5 rounded-xl border transition group relative ${s.isActive === false ? 'border-red-900 opacity-60' : 'border-gray-800 hover:border-gray-600'}`}><div className="flex justify-between items-start mb-2"><h3 className="font-bold text-lg text-white">{s.name}</h3><span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold border border-gray-700">{s.price} ₺</span></div><p className="text-gray-400 text-sm flex items-center gap-1"><Clock size={14}/> {s.duration} dakika</p>{s.isActive === false && <p className="text-red-500 text-xs mt-2 font-bold">⚠️ Şu an pasif</p>}<div className="absolute bottom-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingService(s); setEditServiceModalOpen(true); }} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition"><Edit size={16}/></button><button onClick={() => handleDeleteService(s.id)} className="p-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         {activeTab === 'staff' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Ekip Arkadaşlarım</h2><button onClick={() => { setNewStaff({name: "", phone: "+90 ", email: ""}); setStaffModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Personel Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{staffs.map((s: any) => (<div key={s.id} className="bg-gray-900 p-5 rounded-xl border border-gray-800 hover:border-gray-600 transition group flex items-center gap-4 relative"><div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">{s.name.charAt(0).toUpperCase()}</div><div><h3 className="font-bold text-lg text-white">{s.name}</h3><p className="text-gray-400 text-sm">{s.phone}</p></div><div className="absolute top-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingStaff(s); setEditStaffModalOpen(true); }} className="p-1.5 text-blue-400 hover:text-white transition"><Edit size={16}/></button><button onClick={() => handleDeleteStaff(s.id)} className="p-1.5 text-red-400 hover:text-white transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         
-        {/* 🚀 DİNAMİK KOORDİNAT VE ADRES SİSTEMLİ MAĞAZA YÖNETİMİ */}
+        {/* 🚀 DİNAMİK KOORDİNAT, ADRES VE SOSYAL MEDYA YÖNETİMİ */}
         {activeTab === 'settings' && (
           <div className="animate-fade-in space-y-6">
               
@@ -461,7 +466,6 @@ export default function Dashboard() {
                                   </select>
                               </div>
 
-                              {/* 🚀 YENİ: ADRES BAŞLIĞI VE AÇIK ADRES */}
                               <div>
                                   <label className="text-xs text-gray-500 mb-2 block font-bold">Adres Başlığı (Harita Linki İçin)</label>
                                   <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition" placeholder="Örn: Merkez Şube / Meydan AVM" value={shopSettings.addressTitle} onChange={(e) => setShopSettings({...shopSettings, addressTitle: e.target.value})} />
@@ -477,7 +481,6 @@ export default function Dashboard() {
                                   <textarea className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition resize-none h-24" placeholder="Müşterilerinizin dükkanı kolayca bulabilmesi için detaylı tarif yazın. Örn: PTT arkası, caminin hemen yanındaki sokak..." value={shopSettings.fullAddress} onChange={(e) => setShopSettings({...shopSettings, fullAddress: e.target.value})} />
                               </div>
 
-                              {/* 🚀 YENİ: SİTEDE GÖRÜNECEK KART ÖNİZLEMESİ */}
                               <div className="md:col-span-2 bg-[#171717] p-5 rounded-2xl border border-gray-700 shadow-inner">
                                   <h4 className="text-xs text-gray-400 mb-4 uppercase tracking-widest font-bold">Vitrin Adres Kartı (Canlı Önizleme)</h4>
                                   <div className="space-y-3">
@@ -497,6 +500,25 @@ export default function Dashboard() {
                                           {shopSettings.fullAddress || "Açık adres ve yol tarifi burada görünecektir..."}
                                       </p>
                                   </div>
+                              </div>
+                          </div>
+                      </div>
+
+                      {/* 🚀 YENİ: SOSYAL MEDYA LİNKLERİ BÖLÜMÜ */}
+                      <div className="md:col-span-2 border-t border-gray-800 pt-6 mt-2">
+                          <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><Instagram size={16} className="text-pink-500"/> Sosyal Medya & Vitrin Linkleri</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold flex items-center gap-1"><Instagram size={14}/> Instagram</label>
+                                  <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-pink-500 outline-none transition" placeholder="https://instagram.com/..." value={shopSettings.instagram} onChange={(e) => setShopSettings({...shopSettings, instagram: e.target.value})} />
+                              </div>
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold flex items-center gap-1"><Twitter size={14}/> Twitter (X)</label>
+                                  <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-400 outline-none transition" placeholder="https://twitter.com/..." value={shopSettings.twitter} onChange={(e) => setShopSettings({...shopSettings, twitter: e.target.value})} />
+                              </div>
+                              <div>
+                                  <label className="text-xs text-gray-500 mb-2 block font-bold flex items-center gap-1"><Facebook size={14}/> Facebook</label>
+                                  <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-600 outline-none transition" placeholder="https://facebook.com/..." value={shopSettings.facebook} onChange={(e) => setShopSettings({...shopSettings, facebook: e.target.value})} />
                               </div>
                           </div>
                       </div>
@@ -524,19 +546,16 @@ export default function Dashboard() {
         )}
       </main>
 
-      {/* --- MODALLAR --- */}
+      {/* --- MODALLAR (AYNEN KORUNDU) --- */}
       {isWhatsappModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 md:p-8 rounded-2xl w-full max-w-sm text-center border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2"><Phone className="text-[#25D366]"/> WhatsApp Entegrasyonu</h3><p className="text-sm text-gray-400">Müşterilerinize randevu mesajları sizin numaranızdan gider.</p><div className="my-6 min-h-[200px] flex flex-col items-center justify-center bg-gray-800 rounded-xl border border-gray-700 p-4">{whatsappStatus === 'CONNECTED' ? (<div className="text-[#25D366] flex flex-col items-center"><CheckCircle size={56} className="mb-3"/><p className="font-bold text-xl">Bağlı ve Hazır!</p><p className="text-sm text-gray-400 mt-2">Mesajlarınız otomatik gönderiliyor.</p></div>) : whatsappStatus === 'QR_READY' && whatsappQr ? (<div className="flex flex-col items-center"><div className="p-2 bg-white rounded-xl mb-4"><img src={whatsappQr} alt="WhatsApp QR" className="w-48 h-48"/></div><p className="text-sm text-gray-300">Telefonunuzdan WhatsApp ayarlarına girip <b>"Bağlı Cihazlar"</b> menüsünden bu QR kodu okutun.</p></div>) : whatsappStatus === 'INITIALIZING' || isWhatsappLoading ? (<div className="text-blue-500 flex flex-col items-center"><RefreshCw size={40} className="animate-spin mb-4"/><p className="font-bold text-white">Sistem Hazırlanıyor...</p><p className="text-xs text-gray-400 mt-2">Bu işlem birkaç saniye sürebilir, bekleyin.</p></div>) : (<div className="text-gray-400 flex flex-col items-center"><Phone size={48} className="mb-4 opacity-30"/><p className="mb-4 text-sm text-gray-300">Sistem şu an bağlı değil.</p><button onClick={startWhatsapp} className="bg-[#25D366] hover:bg-[#1DA851] text-white px-6 py-2.5 rounded-lg font-bold shadow-lg shadow-green-900/20 transition">Bağlantıyı Başlat</button></div>)}</div><div className="flex gap-2"><button onClick={() => setWhatsappModalOpen(false)} className="flex-1 px-4 py-3 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-700 transition">Kapat</button>{whatsappStatus === 'CONNECTED' && (<button onClick={logoutWhatsapp} className="flex-1 px-4 py-3 bg-red-600/20 text-red-500 rounded-xl font-bold hover:bg-red-600 hover:text-white transition">Çıkış Yap</button>)}</div></div></div>)}
       {isQrModalOpen && ( <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-white p-6 md:p-8 rounded-2xl w-full max-w-sm text-center shadow-2xl"><h3 className="text-2xl font-bold text-gray-900 mb-2">Dükkan Karekodunuz</h3><p className="text-gray-500 text-sm mb-6">Müşterileriniz bunu okutarak randevu alabilir.</p><div className="bg-white p-2 rounded-xl border border-gray-200 inline-block mb-6 shadow-sm"><QRCodeCanvas id="shop-qr-code" value={typeof window !== "undefined" ? `${window.location.origin}/book/${user?.id}` : ""} size={200} level={"H"} includeMargin={true}/></div><div className="flex gap-2"><button onClick={() => setQrModalOpen(false)} className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">Kapat</button><button onClick={downloadQRCode} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition"><Download size={20}/> İndir</button></div></div></div>)}
       {isNoteModalOpen && ( <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><div className="flex items-center gap-3 mb-4"><div className="p-3 bg-purple-500/20 rounded-full text-purple-400"><NotebookPen size={24}/></div><div><h3 className="text-xl font-bold text-white">Müşteri Notu</h3><p className="text-sm text-gray-400">{selectedCustomerNote.name}</p></div></div><textarea className="w-full h-32 p-4 bg-gray-800 rounded-xl border border-gray-700 text-white outline-none focus:border-purple-500 transition resize-none leading-relaxed" placeholder="Notunuz..." value={selectedCustomerNote.note} onChange={(e) => setSelectedCustomerNote({...selectedCustomerNote, note: e.target.value})}/><div className="flex justify-end gap-2 mt-4"><button onClick={() => setNoteModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white transition">Vazgeç</button><button onClick={handleSaveNote} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold">Kaydet</button></div></div></div>)}
       {isServiceModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Hizmet Ekle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Hizmet Adı" onChange={(e) => setNewService({...newService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" placeholder="Süre (dk)" onChange={(e) => setNewService({...newService, duration: +e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Fiyat (TL)" onChange={(e) => setNewService({...newService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
       {isHoursModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-sm border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Çalışma Saatleri</h3><div className="space-y-4"><div><label className="text-sm text-gray-400">Açılış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.start} onChange={(e) => setWorkHours({...workHours, start: e.target.value})} /></div><div><label className="text-sm text-gray-400">Kapanış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.end} onChange={(e) => setWorkHours({...workHours, end: e.target.value})} /></div></div><div className="flex justify-end gap-2 mt-6"><button onClick={() => setHoursModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateHours} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
       
-      {/* 🚀 PERSONEL EKLEME MODALI (Telefon Formatı ile) */}
+      {/* PERSONEL MODALLARI (Telefon formatlı) */}
       {isStaffModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Personel</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Ad Soyad" onChange={(e) => setNewStaff({...newStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="+90 (5XX) XXX XX XX" value={newStaff.phone} onChange={(e) => setNewStaff({...newStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="E-posta" onChange={(e) => setNewStaff({...newStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
-      
       {isEditServiceModalOpen && editingService && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Hizmeti Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.name} onChange={(e) => setEditingService({...editingService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" value={editingService.duration} onChange={(e) => setEditingService({...editingService, duration: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.price} onChange={(e) => setEditingService({...editingService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
-      
-      {/* 🚀 PERSONEL DÜZENLEME MODALI (Telefon Formatı ile) */}
       {isEditStaffModalOpen && editingStaff && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Personel Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.name} onChange={(e) => setEditingStaff({...editingStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.phone} onChange={(e) => setEditingStaff({...editingStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.email || ""} onChange={(e) => setEditingStaff({...editingStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
 
     </div>
