@@ -695,7 +695,7 @@ export default function BookAppointment() {
             {/* Marka & Hakkında */}
             <div className="space-y-4">
               <h3 className="font-heading text-2xl font-bold tracking-wider text-white">
-                {shop?.shopName || "KUAFÖR"}<span className="text-amber-500">.</span>
+                {shop?.shopName || "KUAFÖR"}<span className="text-amber-500"></span>
               </h3>
               <p className="text-gray-400 text-sm font-body leading-relaxed">
                 {shop?.tagline || "Premium erkek bakım standartlarını yeniden yazıyoruz. Sadece tıraş değil, bir kimlik tasarımı."}
