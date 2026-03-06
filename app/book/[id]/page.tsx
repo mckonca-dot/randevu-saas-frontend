@@ -4,15 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   Star, MapPin, Calendar, Clock, Scissors, 
-  User, Phone, AlertCircle, Check, ChevronRight, Menu, X, ArrowLeft
+  User, Phone, AlertCircle, Check, ChevronRight, Menu, X, ArrowLeft,
+  Instagram, Twitter, Facebook, Mail
 } from "lucide-react";
-
-// 🚀 SWEETALERT2 EKLENDİ
 import Swal from 'sweetalert2';
 
 export default function BookAppointment() {
   const params = useParams();
-  const router = useRouter(); // Yönlendirme için eklendi
+  const router = useRouter();
   
   // --- STATE ---
   const [shop, setShop] = useState<any>(null);
@@ -34,7 +33,7 @@ export default function BookAppointment() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [shopError, setShopError] = useState(""); // Dükkan kapalı hatası için
+  const [shopError, setShopError] = useState(""); 
 
   // --- VERİ ÇEKME ---
   useEffect(() => {
@@ -58,7 +57,6 @@ export default function BookAppointment() {
                fetch(`${baseUrl}/leaves/${userId}`).then(r => r.ok ? r.json() : []).then(setLeaves),
             ]).catch(err => console.log("Veri hatası:", err));
         } else {
-            // Eğer backend 400 Bad Request atarsa (Dükkan Pasifse)
             setShopError("Bu dükkan şu anda hizmet vermemektedir veya sistemden kaldırılmıştır.");
         }
       } catch (error) {
@@ -147,31 +145,15 @@ export default function BookAppointment() {
   const isPastDate = date ? date < todayStr : false;
   const isShopClosed = closures.some((c: any) => c.date === date);
 
-  // 🚀 SWEET ALERT YARDIMCISI (Eski alertlerin yerine geçecek)
   const showWarning = (text: string) => {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Eksik Bilgi',
-      text: text,
-      confirmButtonColor: '#f59e0b',
-      background: '#171717',
-      color: '#fff'
-    });
+    Swal.fire({ icon: 'warning', title: 'Eksik Bilgi', text: text, confirmButtonColor: '#f59e0b', background: '#171717', color: '#fff' });
   };
 
   const handleError = (text: string) => {
-    Swal.fire({
-      icon: 'error',
-      title: 'Hata',
-      text: text,
-      confirmButtonColor: '#ef4444',
-      background: '#171717',
-      color: '#fff'
-    });
+    Swal.fire({ icon: 'error', title: 'Hata', text: text, confirmButtonColor: '#ef4444', background: '#171717', color: '#fff' });
   };
 
   const handleSubmit = async () => {
-    // 🚀 Doğrulamalar (Validation)
     if (!selectedService) return showWarning("Lütfen bir hizmet seçiniz.");
     if (!date || !time) return showWarning("Lütfen tarih ve saat seçiniz.");
     if (!customerInfo.name) return showWarning("Lütfen Adınızı ve Soyadınızı giriniz.");
@@ -200,8 +182,7 @@ export default function BookAppointment() {
     setSubmitting(true);
     try {
       const res = await fetch("https://konca-saas-backend.onrender.com/public/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shopId: Number(params.id),
           serviceId: selectedService.id,
@@ -214,30 +195,17 @@ export default function BookAppointment() {
       });
 
       if (res.ok) {
-        // 🚀 BAŞARI EKRANI (SweetAlert)
         Swal.fire({
-          icon: 'success',
-          title: 'Randevunuz Alındı!',
+          icon: 'success', title: 'Randevunuz Alındı!',
           text: 'Randevunuz başarıyla oluşturuldu. WhatsApp üzerinden bilgilendirme mesajı gönderilecektir.',
-          confirmButtonText: 'Tamam',
-          confirmButtonColor: '#f59e0b',
-          background: '#171717',
-          color: '#fff',
-          allowOutsideClick: false
+          confirmButtonText: 'Tamam', confirmButtonColor: '#f59e0b', background: '#171717', color: '#fff', allowOutsideClick: false
         }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.reload();
-          }
+          if (result.isConfirmed) { window.location.reload(); }
         });
       } else {
-        const err = await res.json();
-        handleError(err.message || "Bir sorun oluştu.");
+        const err = await res.json(); handleError(err.message || "Bir sorun oluştu.");
       }
-    } catch (e) {
-      handleError("Sunucu bağlantı hatası.");
-    } finally {
-      setSubmitting(false);
-    }
+    } catch (e) { handleError("Sunucu bağlantı hatası."); } finally { setSubmitting(false); }
   };
 
   const generateTimeSlots = () => {
@@ -258,23 +226,13 @@ export default function BookAppointment() {
       </div>
   );
   
-  // 🚀 DÜKKAN GİZLİYSE (PASİFSE) VEYA YOKSA ÇIKACAK ŞIK HATA EKRANI
   if (shopError || !shop) return (
     <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-4">
        <div className="bg-[#171717] p-8 md:p-12 rounded-3xl border border-zinc-800 flex flex-col items-center text-center max-w-lg shadow-[0_0_30px_rgba(0,0,0,0.8)]">
-          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
-             <AlertCircle className="text-red-500" size={40} />
-          </div>
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6"><AlertCircle className="text-red-500" size={40} /></div>
           <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4 tracking-wider">HİZMET DIŞI</h2>
-          <p className="text-gray-400 font-body mb-8 leading-relaxed">
-            {shopError || "Dükkan bilgileri alınamadı. Bu işletme sistemde kayıtlı olmayabilir."}
-          </p>
-          <button 
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 bg-amber-500 text-black px-8 py-3 rounded-xl font-bold font-heading tracking-widest hover:bg-yellow-400 transition"
-          >
-            <ArrowLeft size={20} /> ANA SAYFAYA DÖN
-          </button>
+          <p className="text-gray-400 font-body mb-8 leading-relaxed">{shopError || "Dükkan bilgileri alınamadı. Bu işletme sistemde kayıtlı olmayabilir."}</p>
+          <button onClick={() => router.push('/')} className="flex items-center gap-2 bg-amber-500 text-black px-8 py-3 rounded-xl font-bold font-heading tracking-widest hover:bg-yellow-400 transition"><ArrowLeft size={20} /> ANA SAYFAYA DÖN</button>
        </div>
     </div>
   );
@@ -669,7 +627,7 @@ export default function BookAppointment() {
 
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
             
-            {/* Sol: İletişim Bilgileri */}
+            {/* Sol: İletişim Bilgileri (GÜNCELLENDİ: addressTitle ve fullAddress eklendi) */}
             <div className="space-y-8 animate-fade-in-up">
               <div className="bg-[#171717] p-6 md:p-8 rounded-2xl border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                 <h3 className="text-xl md:text-2xl font-bold text-white font-heading mb-6 border-b border-zinc-800 pb-4">Salon Bilgileri</h3>
@@ -680,8 +638,13 @@ export default function BookAppointment() {
                       <MapPin className="text-amber-500" size={20}/>
                     </div>
                     <div>
-                      <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Adres</p>
-                      <p className="text-white font-body leading-relaxed text-sm md:text-base">{shop?.address || "Adres bilgisi henüz eklenmedi."}</p>
+                      {/* 🚀 EĞER BAŞLIK VARSA GÖSTER, YOKSA KLASİK "ADRES" YAZ */}
+                      <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">
+                        {shop?.addressTitle || "Açık Adres"}
+                      </p>
+                      <p className="text-white font-body leading-relaxed text-sm md:text-base">
+                        {shop?.fullAddress || shop?.address || "Adres bilgisi henüz eklenmedi."}
+                      </p>
                     </div>
                   </div>
 
@@ -696,8 +659,9 @@ export default function BookAppointment() {
                   </div>
                 </div>
 
+                {/* 🚀 YOL TARİFİ BUTONU - KOORDİNATLARI (shop.address) KULLANIR */}
                 <a 
-                  href={`http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
+                  href={`https://maps.google.com/?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 w-full bg-amber-500 text-black py-3 md:py-4 rounded-xl font-heading font-bold text-lg md:text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
@@ -723,15 +687,81 @@ export default function BookAppointment() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer className="bg-black py-8 border-t border-zinc-900 text-center">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
-          <a href="#" className="font-heading text-2xl md:text-3xl font-bold tracking-wider text-white mb-4">
-            {shop?.shopName || "Kuaför"}<span className="text-amber-500"></span>
-          </a>
-          <p className="text-gray-500 text-xs md:text-sm font-body">
-            © 2026 {shop?.shopName || "Kuaför"}. Tüm hakları saklıdır.
-          </p>
+      {/* --- YEPYENİ DETAYLI FOOTER --- */}
+      <footer className="bg-black pt-16 pb-8 border-t border-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">
+            
+            {/* Marka & Hakkında */}
+            <div className="space-y-4">
+              <h3 className="font-heading text-2xl font-bold tracking-wider text-white">
+                {shop?.shopName || "KUAFÖR"}<span className="text-amber-500">.</span>
+              </h3>
+              <p className="text-gray-400 text-sm font-body leading-relaxed">
+                {shop?.tagline || "Premium erkek bakım standartlarını yeniden yazıyoruz. Sadece tıraş değil, bir kimlik tasarımı."}
+              </p>
+              <div className="flex items-center gap-4 pt-2">
+                <a href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition"><Instagram size={18}/></a>
+                <a href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition"><Twitter size={18}/></a>
+                <a href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition"><Facebook size={18}/></a>
+              </div>
+            </div>
+
+            {/* Hızlı Linkler */}
+            <div>
+              <h4 className="font-heading text-lg font-bold text-white mb-4 tracking-wide">Hızlı Linkler</h4>
+              <ul className="space-y-2 font-body text-sm text-gray-400">
+                <li><a href="#hakkimizda" className="hover:text-amber-500 transition">Hakkımızda</a></li>
+                <li><a href="#hizmetler" className="hover:text-amber-500 transition">Hizmet Menüsü</a></li>
+                <li><a href="#galeri" className="hover:text-amber-500 transition">Galeri / Çalışmalar</a></li>
+                <li><a href="#randevu" className="hover:text-amber-500 transition text-white font-bold">Randevu Al</a></li>
+              </ul>
+            </div>
+
+            {/* Çalışma Saatleri */}
+            <div>
+              <h4 className="font-heading text-lg font-bold text-white mb-4 tracking-wide">Çalışma Saatleri</h4>
+              <ul className="space-y-3 font-body text-sm text-gray-400">
+                <li className="flex justify-between border-b border-zinc-800 pb-2">
+                  <span>Pazartesi - Cumartesi</span>
+                  <span className="text-white font-bold">{shop?.workStart || "09:00"} - {shop?.workEnd || "20:00"}</span>
+                </li>
+                <li className="flex justify-between text-red-500 font-bold pt-1">
+                  <span>Pazar</span>
+                  <span>Kapalı</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* İletişim */}
+            <div>
+              <h4 className="font-heading text-lg font-bold text-white mb-4 tracking-wide">İletişim</h4>
+              <ul className="space-y-3 font-body text-sm text-gray-400">
+                <li className="flex items-start gap-3">
+                  <MapPin size={18} className="text-amber-500 flex-shrink-0 mt-0.5"/>
+                  <span>{shop?.fullAddress || shop?.city || "Adres bilgisi eklenmedi."}</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone size={18} className="text-amber-500 flex-shrink-0"/>
+                  <span className="text-white font-bold">{shop?.phone || "Telefon eklenmedi"}</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail size={18} className="text-amber-500 flex-shrink-0"/>
+                  <span>{shop?.email || "info@kuafor.com"}</span>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div className="pt-8 border-t border-zinc-900 text-center flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-xs font-body">
+              © {new Date().getFullYear()} {shop?.shopName || "Kuaför"}. Tüm hakları saklıdır.
+            </p>
+            <p className="text-gray-600 text-xs font-body flex items-center gap-1">
+              Powered by <span className="text-amber-500 font-bold font-heading tracking-widest">KONCA SAAS</span>
+            </p>
+          </div>
         </div>
       </footer>
       
