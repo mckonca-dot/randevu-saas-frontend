@@ -617,7 +617,7 @@ export default function BookAppointment() {
         </div>
       </section>
 
-      {/* --- İLETİŞİM VE HARİTA --- */}
+      {/* --- İLETİŞİM VE HARİTA (GÜNCELLENDİ) --- */}
       <section id="iletisim" className="py-20 md:py-24 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
@@ -627,7 +627,7 @@ export default function BookAppointment() {
 
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
             
-            {/* Sol: İletişim Bilgileri (GÜNCELLENDİ: addressTitle ve fullAddress eklendi) */}
+            {/* Sol: İletişim Bilgileri */}
             <div className="space-y-8 animate-fade-in-up">
               <div className="bg-[#171717] p-6 md:p-8 rounded-2xl border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                 <h3 className="text-xl md:text-2xl font-bold text-white font-heading mb-6 border-b border-zinc-800 pb-4">Salon Bilgileri</h3>
@@ -638,7 +638,7 @@ export default function BookAppointment() {
                       <MapPin className="text-amber-500" size={20}/>
                     </div>
                     <div>
-                      {/* 🚀 EĞER BAŞLIK VARSA GÖSTER, YOKSA KLASİK "ADRES" YAZ */}
+                      {/* 🚀 ADRES BAŞLIĞI VE DETAYLI ADRES (Gerçekten Güncellendi) */}
                       <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">
                         {shop?.addressTitle || "Açık Adres"}
                       </p>
@@ -700,10 +700,24 @@ export default function BookAppointment() {
               <p className="text-gray-400 text-sm font-body leading-relaxed">
                 {shop?.tagline || "Premium erkek bakım standartlarını yeniden yazıyoruz. Sadece tıraş değil, bir kimlik tasarımı."}
               </p>
+              
+              {/* 🚀 DİNAMİK SOSYAL MEDYA LİNKLERİ (Sadece doldurulanlar görünür) */}
               <div className="flex items-center gap-4 pt-2">
-                <a href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition"><Instagram size={18}/></a>
-                <a href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition"><Twitter size={18}/></a>
-                <a href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition"><Facebook size={18}/></a>
+                {shop?.instagram && (
+                  <a href={shop.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition">
+                    <Instagram size={18}/>
+                  </a>
+                )}
+                {shop?.twitter && (
+                  <a href={shop.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition">
+                    <Twitter size={18}/>
+                  </a>
+                )}
+                {shop?.facebook && (
+                  <a href={shop.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition">
+                    <Facebook size={18}/>
+                  </a>
+                )}
               </div>
             </div>
 
@@ -739,7 +753,10 @@ export default function BookAppointment() {
               <ul className="space-y-3 font-body text-sm text-gray-400">
                 <li className="flex items-start gap-3">
                   <MapPin size={18} className="text-amber-500 flex-shrink-0 mt-0.5"/>
-                  <span>{shop?.fullAddress || shop?.city || "Adres bilgisi eklenmedi."}</span>
+                  <div className="flex flex-col">
+                    {shop?.addressTitle && <span className="font-bold text-white text-xs uppercase tracking-wider mb-1">{shop.addressTitle}</span>}
+                    <span>{shop?.fullAddress || shop?.city || "Adres bilgisi eklenmedi."}</span>
+                  </div>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="text-amber-500 flex-shrink-0"/>
@@ -747,7 +764,7 @@ export default function BookAppointment() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail size={18} className="text-amber-500 flex-shrink-0"/>
-                  <span>{shop?.email || "info@kuafor.com"}</span>
+                  <span>{shop?.email || "İletişim e-postası bulunmuyor"}</span>
                 </li>
               </ul>
             </div>
