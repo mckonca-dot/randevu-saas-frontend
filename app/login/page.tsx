@@ -28,6 +28,13 @@ export default function Login() {
 
       // Token'ı kaydet
       localStorage.setItem("token", data.access_token);
+      const intendedPlan = localStorage.getItem("intendedPlan");
+          if (intendedPlan) {
+            localStorage.removeItem("intendedPlan"); // Hafızayı temizle
+            router.push(`/checkout?plan=${intendedPlan}`); // Kasaya geri yolla
+          } else {
+            router.push("/dashboard"); // Normal girişse panele yolla
+          }
       
       // 🚀 SWEETALERT İLE ŞIK BAŞARI MESAJI
       Swal.fire({

@@ -79,6 +79,13 @@ export default function Register() {
       if (res.ok) {
         // Token'ı kaydet ve içeri al
         localStorage.setItem("token", data.access_token);
+        const intendedPlan = localStorage.getItem("intendedPlan");
+          if (intendedPlan) {
+            localStorage.removeItem("intendedPlan"); // Hafızayı temizle
+            router.push(`/checkout?plan=${intendedPlan}`); // Kasaya geri yolla
+          } else {
+            router.push("/dashboard"); // Normal girişse panele yolla
+          }
         
         Swal.fire({
           icon: 'success',

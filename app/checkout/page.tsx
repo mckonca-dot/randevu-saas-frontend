@@ -31,6 +31,9 @@ function CheckoutContent() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
+      // 🚀 SİHİRLİ DOKUNUŞ: Müşterinin hangi paketi almak istediğini hafızaya yazıyoruz
+      localStorage.setItem("intendedPlan", planQuery || "PRO");
+
       Swal.fire({
         title: "Kayıt Gerekli!",
         text: "Ödeme yapabilmek için önce dükkan hesabınızı oluşturmalısınız.",
@@ -46,7 +49,7 @@ function CheckoutContent() {
         }
       });
     }
-  }, [router]);
+  }, [router, planQuery]);
 
   const plan = plans[selectedPlan];
 
