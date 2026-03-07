@@ -9,7 +9,7 @@ import {
   Clock, TrendingUp, DollarSign, Store, CalendarX, Power,
   Image as ImageIcon, NotebookPen, QrCode, Download,
   Menu, X, Phone, RefreshCw, MapPin, 
-  Instagram, Twitter, Facebook // 🚀 YENİ İKONLAR
+  Instagram, Twitter, Facebook, MessageSquare // 🚀 YENİ İKONLAR
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Swal from 'sweetalert2';
@@ -388,6 +388,10 @@ export default function Dashboard() {
              </button>
           ))}
           <button onClick={() => { router.push('/dashboard/gallery'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-400 hover:bg-gray-800 hover:text-white`}> <ImageIcon size={20} /> Galeri Yönetimi </button>
+          
+          {/* 🚀 YENİ EKLENEN MESAJ ŞABLONLARI BUTONU */}
+          <button onClick={() => { router.push('/dashboard/messages'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-400 hover:bg-gray-800 hover:text-white`}> <MessageSquare size={20} /> Mesaj Şablonları </button>
+
           <button onClick={() => { setQrModalOpen(true); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-400 hover:bg-gray-800 hover:text-white`}> <QrCode size={20} /> QR Kodum </button>
         </nav>
         <div className="p-4 border-t border-gray-800">
