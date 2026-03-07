@@ -256,7 +256,47 @@ export default function Dashboard() {
   const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
   const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  const handleAddStaff = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff)}); setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  // 🚀 PERSONEL EKLEME: LİMİT KONTROLLÜ
+  const handleAddStaff = async () => { 
+    const planLimits: any = { 'TRIAL': 5, 'BASIC': 5, 'PRO': 10, 'ULTRA': 999 };
+    const currentLimit = planLimits[user?.plan || 'TRIAL'];
+    
+    if(staffs.length >= currentLimit) {
+        return Swal.fire({ icon: 'warning', title: 'Limit Doldu', text: `${user?.plan} planında en fazla ${currentLimit} personel ekleyebilirsiniz. Lütfen planınızı yükseltin.`, confirmButtonColor: '#f59e0b', background: '#171717', color: '#fff'});
+    }
+    
+    const token = localStorage.getItem("token"); if (!token) return; 
+    
+    try {
+        const res = await fetch("https://konca-saas-backend.onrender.com/staffs", { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, 
+            body: JSON.stringify(newStaff)
+        });
+        
+        // 🚨 BACKEND'DEN GELEN LİMİT HATASINI YAKALA
+        if (!res.ok) {
+            const errorData = await res.json();
+            return Swal.fire({ 
+              icon: 'error', 
+              title: 'İşlem Başarısız', 
+              text: errorData.message || 'Personel eklenemedi.', 
+              confirmButtonColor: '#ef4444', 
+              background: '#171717', 
+              color: '#fff' 
+            });
+        }
+
+        setStaffModalOpen(false); 
+        setNewStaff({ name: "", phone: "", email: "" }); 
+        fetchData(token); 
+        Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#171717", color: "#fff" }); 
+    } catch (err) {
+        console.error(err);
+        Swal.fire({ icon: 'error', title: 'Hata', text: 'Sunucu bağlantı hatası.', background: '#171717', color: '#fff' });
+    }
+  };
+
   const handleUpdateStaff = async () => { if (!editingStaff) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); setEditStaffModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
   const handleDeleteStaff = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
@@ -553,7 +593,7 @@ export default function Dashboard() {
       {isServiceModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Hizmet Ekle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Hizmet Adı" onChange={(e) => setNewService({...newService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" placeholder="Süre (dk)" onChange={(e) => setNewService({...newService, duration: +e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Fiyat (TL)" onChange={(e) => setNewService({...newService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
       {isHoursModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-sm border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Çalışma Saatleri</h3><div className="space-y-4"><div><label className="text-sm text-gray-400">Açılış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.start} onChange={(e) => setWorkHours({...workHours, start: e.target.value})} /></div><div><label className="text-sm text-gray-400">Kapanış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.end} onChange={(e) => setWorkHours({...workHours, end: e.target.value})} /></div></div><div className="flex justify-end gap-2 mt-6"><button onClick={() => setHoursModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateHours} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
       
-      {/* PERSONEL MODALLARI (Telefon formatlı) */}
+      {/* PERSONEL MODALLARI (Telefon formatlı ve LİMİT KONTROLLÜ) */}
       {isStaffModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Personel</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Ad Soyad" onChange={(e) => setNewStaff({...newStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="+90 (5XX) XXX XX XX" value={newStaff.phone} onChange={(e) => setNewStaff({...newStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="E-posta" onChange={(e) => setNewStaff({...newStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
       {isEditServiceModalOpen && editingService && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Hizmeti Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.name} onChange={(e) => setEditingService({...editingService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" value={editingService.duration} onChange={(e) => setEditingService({...editingService, duration: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.price} onChange={(e) => setEditingService({...editingService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
       {isEditStaffModalOpen && editingStaff && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Personel Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.name} onChange={(e) => setEditingStaff({...editingStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.phone} onChange={(e) => setEditingStaff({...editingStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.email || ""} onChange={(e) => setEditingStaff({...editingStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
