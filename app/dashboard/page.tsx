@@ -256,13 +256,30 @@ export default function Dashboard() {
   const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
   const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  // 🚀 PERSONEL EKLEME: LİMİT KONTROLLÜ
+  // 🚀 PERSONEL EKLEME: YÖNLENDİRMELİ LİMİT KONTROLÜ
   const handleAddStaff = async () => { 
     const planLimits: any = { 'TRIAL': 5, 'BASIC': 5, 'PRO': 10, 'ULTRA': 999 };
     const currentLimit = planLimits[user?.plan || 'TRIAL'];
     
+    // 1. FRONTEND LİMİT KONTROLÜ
     if(staffs.length >= currentLimit) {
-        return Swal.fire({ icon: 'warning', title: 'Limit Doldu', text: `${user?.plan} planında en fazla ${currentLimit} personel ekleyebilirsiniz. Lütfen planınızı yükseltin.`, confirmButtonColor: '#f59e0b', background: '#171717', color: '#fff'});
+        return Swal.fire({ 
+            icon: 'warning', 
+            title: 'Limit Doldu!', 
+            text: `${user?.plan} planında en fazla ${currentLimit} personel ekleyebilirsiniz. Sınırları kaldırmak için planınızı yükseltin.`, 
+            showCancelButton: true,
+            confirmButtonText: '🚀 Paketleri İncele',
+            cancelButtonText: 'Vazgeç',
+            confirmButtonColor: '#f59e0b', // Amber rengi
+            cancelButtonColor: '#374151',  // Gri
+            background: '#171717', 
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Fiyatlandırma bölümüne ışınla
+                router.push("/#pricing"); 
+            }
+        });
     }
     
     const token = localStorage.getItem("token"); if (!token) return; 
@@ -274,16 +291,24 @@ export default function Dashboard() {
             body: JSON.stringify(newStaff)
         });
         
-        // 🚨 BACKEND'DEN GELEN LİMİT HATASINI YAKALA
+        // 2. BACKEND LİMİT KONTROLÜ
         if (!res.ok) {
             const errorData = await res.json();
             return Swal.fire({ 
               icon: 'error', 
               title: 'İşlem Başarısız', 
               text: errorData.message || 'Personel eklenemedi.', 
-              confirmButtonColor: '#ef4444', 
+              showCancelButton: true,
+              confirmButtonText: '🚀 Paketleri İncele',
+              cancelButtonText: 'Vazgeç',
+              confirmButtonColor: '#f59e0b', 
+              cancelButtonColor: '#374151',
               background: '#171717', 
               color: '#fff' 
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.push("/#pricing"); 
+                }
             });
         }
 
