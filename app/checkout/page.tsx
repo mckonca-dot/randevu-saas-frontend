@@ -1,18 +1,17 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { CreditCard, ShieldCheck, Lock, CheckCircle2, User, MapPin, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { ShoppingBag, ShieldCheck, CheckCircle2, User, MapPin, ArrowLeft, Phone, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 
-// 🚀 Next.js 13+ kuralları gereği searchParams kullanan yapılar Suspense içine alınmalı.
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planQuery = searchParams.get("plan");
 
   const [selectedPlan, setSelectedPlan] = useState("PRO");
+  const [user, setUser] = useState<any>(null);
 
   const plans: any = {
     BASIC: { name: "Başlangıç", price: 500, features: ["5 Personel", "QR Kod Sistemi", "Sınırsız Randevu"] },
@@ -20,20 +19,17 @@ function CheckoutContent() {
     ULTRA: { name: "Ultra VIP", price: 1500, features: ["Sınırsız Personel", "Vitrinde Öne Çıkma", "7/24 Öncelikli Destek"] }
   };
 
-  // Ana sayfadan gelen parametreyi yakala ve paketi seç
   useEffect(() => {
     if (planQuery && (planQuery === "BASIC" || planQuery === "PRO" || planQuery === "ULTRA")) {
       setSelectedPlan(planQuery);
     }
   }, [planQuery]);
 
-  // Giriş Yapmamış Müşteriyi Koru
+  // Giriş kontrolü ve Kullanıcı Bilgilerini çekme
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      // 🚀 SİHİRLİ DOKUNUŞ: Müşterinin hangi paketi almak istediğini hafızaya yazıyoruz
       localStorage.setItem("intendedPlan", planQuery || "PRO");
-
       Swal.fire({
         title: "Kayıt Gerekli!",
         text: "Ödeme yapabilmek için önce dükkan hesabınızı oluşturmalısınız.",
@@ -48,42 +44,55 @@ function CheckoutContent() {
           router.push("/register");
         }
       });
+    } else {
+      // Backend'den kullanıcı bilgilerini çekip forma otomatik dolduralım
+      fetch("https://konca-saas-backend.onrender.com/users/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        setUser(data);
+        setFormData(prev => ({
+          ...prev,
+          firstName: data.shopName?.split(" ")[0] || "",
+          lastName: data.shopName?.split(" ").slice(1).join(" ") || "Kuaför",
+          phone: data.phone || "",
+          email: data.email || "",
+          city: data.city || "",
+          address: data.fullAddress || ""
+        }));
+      });
     }
   }, [router, planQuery]);
 
   const plan = plans[selectedPlan];
 
-  // Form State
+  // Shopier İçin Gerekli Form State (Kredi kartı yok!)
   const [formData, setFormData] = useState({
-    cardName: "", cardNumber: "", expiry: "", cvc: "", tcNumber: "", city: "", address: ""
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    city: "",
+    address: ""
   });
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 🚀 BURASI SHOPIER BACKEND ENTEGRASYONU GELDİĞİNDE TETİKLENECEK
     Swal.fire({
-      title: "Hazırlanıyor...",
-      text: "Ödeme altyapısı (Iyzico) entegrasyonu bekleniyor.",
+      title: "Shopier'e Yönlendiriliyorsunuz...",
+      text: "Güvenli ödeme sayfasına aktarılıyorsunuz, lütfen bekleyin.",
       icon: "info",
-      confirmButtonColor: "#f59e0b",
+      showConfirmButton: false,
       background: "#171717",
-      color: "#fff"
+      color: "#fff",
+      timer: 2000
     });
-  };
 
-  const handleCardNumberChange = (e: any) => {
-    let value = e.target.value.replace(/\D/g, "");
-    let formattedValue = "";
-    for (let i = 0; i < value.length; i++) {
-      if (i > 0 && i % 4 === 0) formattedValue += " ";
-      formattedValue += value[i];
-    }
-    setFormData({ ...formData, cardNumber: formattedValue.substring(0, 19) });
-  };
-
-  const handleExpiryChange = (e: any) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length >= 3) value = value.substring(0, 2) + "/" + value.substring(2, 4);
-    setFormData({ ...formData, expiry: value });
+    // TODO: Backend'e istek atılacak. Backend Shopier'in HTML formunu dönecek
+    // ve biz de o formu ekrana basıp otomatik submit edeceğiz (Shopier mantığı böyledir).
   };
 
   return (
@@ -105,66 +114,60 @@ function CheckoutContent() {
           <div className="lg:col-span-2 space-y-8 animate-fade-in">
             <div>
               <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">Abonelik Başlat</h1>
-              <p className="text-gray-500">Iyzico güvencesiyle 256-bit SSL şifreli ödeme noktası.</p>
+              <p className="text-gray-500">Shopier güvencesiyle hızlı ve şirket gerektirmeyen ödeme noktası.</p>
             </div>
 
             <form onSubmit={handlePayment} className="space-y-8">
-              {/* FATURA BİLGİLERİ */}
+              {/* ALICI BİLGİLERİ (Shopier Zorunlu Tutar) */}
               <div className="bg-[#0a0a0a] p-6 md:p-8 rounded-3xl border border-zinc-900 shadow-2xl">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-zinc-900 pb-4">
-                  <User className="text-amber-500" size={20}/> Fatura Detayları
+                  <User className="text-amber-500" size={20}/> Alıcı Bilgileri
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">TC Kimlik Numarası (Zorunlu)</label>
-                    <input type="text" maxLength={11} required placeholder="11 Haneli TC Kimlik No" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.tcNumber} onChange={(e) => setFormData({...formData, tcNumber: e.target.value.replace(/\D/g, "")})} />
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Adınız</label>
+                    <input type="text" required placeholder="Adınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
                   </div>
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Soyadınız</label>
+                    <input type="text" required placeholder="Soyadınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Telefon Numarası</label>
+                    <div className="relative">
+                      <input type="text" required placeholder="05XX XXX XX XX" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">E-Posta Adresi</label>
+                    <div className="relative">
+                      <input type="email" required placeholder="mail@ornek.com" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    </div>
+                  </div>
+                  
+                  <div className="md:col-span-2 border-t border-zinc-900 pt-6 mt-2">
+                    <h3 className="text-sm font-bold text-gray-300 mb-4 flex items-center gap-2"><MapPin size={16} className="text-amber-500"/> Fatura Adresi</h3>
+                  </div>
+
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Şehir</label>
                     <input type="text" required placeholder="Örn: İstanbul" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} />
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Açık Adres</label>
-                    <textarea required placeholder="Fatura adresinizi giriniz..." className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition h-24 resize-none" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
-                  </div>
-                </div>
-              </div>
-
-              {/* KART BİLGİLERİ */}
-              <div className="bg-[#0a0a0a] p-6 md:p-8 rounded-3xl border border-zinc-900 shadow-2xl relative overflow-hidden">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-zinc-900 pb-4">
-                  <CreditCard className="text-amber-500" size={20}/> Kart Bilgileri
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Kart Üzerindeki İsim</label>
-                    <input type="text" required placeholder="AD SOYAD" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition uppercase" value={formData.cardName} onChange={(e) => setFormData({...formData, cardName: e.target.value})} />
-                  </div>
-                  <div className="md:col-span-2 relative">
-                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Kart Numarası</label>
-                    <div className="relative">
-                      <input type="text" required placeholder="0000 0000 0000 0000" maxLength={19} className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition font-mono tracking-widest text-lg" value={formData.cardNumber} onChange={handleCardNumberChange} />
-                      <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Son Kullanma (AA/YY)</label>
-                    <input type="text" required placeholder="MM/YY" maxLength={5} className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition font-mono text-center text-lg" value={formData.expiry} onChange={handleExpiryChange} />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">CVC / CVV</label>
-                    <div className="relative">
-                      <input type="text" required placeholder="123" maxLength={3} className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition font-mono text-center text-lg" value={formData.cvc} onChange={(e) => setFormData({...formData, cvc: e.target.value.replace(/\D/g, "")})} />
-                      <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                    </div>
+                    <textarea required placeholder="Mahalle, sokak, no..." className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition h-24 resize-none" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
                   </div>
                 </div>
 
                 <div className="mt-8">
                   <button type="submit" className="w-full bg-amber-500 text-black font-black text-lg p-5 rounded-2xl hover:bg-yellow-400 transition-all flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
-                    <Lock size={20} /> {plan.price} ₺ ÖDE VE BAŞLA
+                    <ShoppingBag size={20} /> SHOPIER İLE GÜVENLİ ÖDE ({plan.price} ₺)
                   </button>
+                  <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+                    <ShieldCheck size={14} className="text-green-500"/> Kredi kartı adımına Shopier ekranında geçilecektir.
+                  </p>
                 </div>
               </div>
             </form>
@@ -200,10 +203,10 @@ function CheckoutContent() {
                 <div className="flex gap-4 opacity-50 grayscale">
                   <span className="font-black italic tracking-tighter">VISA</span>
                   <span className="font-black italic tracking-tighter">MasterCard</span>
-                  <span className="font-black italic tracking-tighter text-blue-500">iyzico</span>
+                  <span className="font-black italic tracking-tighter text-blue-400">Shopier</span>
                 </div>
                 <p className="text-[10px] text-gray-500 text-center mt-2">
-                  Altyapı Iyzico tarafından %100 güvenli sağlanmaktadır.
+                  Altyapı Shopier tarafından %100 güvenli sağlanmaktadır. Bireysel satış noktası.
                 </p>
               </div>
             </div>
