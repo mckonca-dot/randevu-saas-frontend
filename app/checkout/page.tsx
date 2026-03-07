@@ -80,19 +80,41 @@ function CheckoutContent() {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 🚀 BURASI SHOPIER BACKEND ENTEGRASYONU GELDİĞİNDE TETİKLENECEK
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     Swal.fire({
-      title: "Shopier'e Yönlendiriliyorsunuz...",
-      text: "Güvenli ödeme sayfasına aktarılıyorsunuz, lütfen bekleyin.",
+      title: "Hazırlanıyor...",
+      text: "Shopier güvenli ödeme noktasına aktarılıyorsunuz...",
       icon: "info",
       showConfirmButton: false,
+      allowOutsideClick: false,
       background: "#171717",
       color: "#fff",
-      timer: 2000
+      didOpen: () => Swal.showLoading()
     });
 
-    // TODO: Backend'e istek atılacak. Backend Shopier'in HTML formunu dönecek
-    // ve biz de o formu ekrana basıp otomatik submit edeceğiz (Shopier mantığı böyledir).
+    try {
+      // 🚀 Backend'e form bilgilerini gönder ve HTML'i al
+      const res = await fetch("https://konca-saas-backend.onrender.com/payment/shopier", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan: selectedPlan, buyerData: formData })
+      });
+
+      if (!res.ok) throw new Error("Ödeme başlatılamadı.");
+
+      const html = await res.text();
+      
+      // 🚀 SİHİRLİ DOKUNUŞ: Ekranı tamamen Shopier formuna dönüştür
+      document.open();
+      document.write(html);
+      document.close();
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire({ icon: 'error', title: 'Hata', text: 'Ödeme sistemiyle bağlantı kurulamadı.', background: '#171717', color: '#fff' });
+    }
   };
 
   return (
