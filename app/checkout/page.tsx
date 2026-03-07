@@ -1,37 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard, ShieldCheck, Lock, CheckCircle2, AlertCircle, ArrowLeft, Building2, User, MapPin } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { CreditCard, ShieldCheck, Lock, CheckCircle2, User, MapPin, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 
-export default function CheckoutPage() {
-  // 🚀 Şimdilik varsayılan olarak PRO paketi seçili gösteriyoruz.
-  // İleride bunu ana sayfadan tıklanan butona göre dinamik yapacağız.
+// 🚀 Next.js 13+ kuralları gereği searchParams kullanan yapılar Suspense içine alınmalı.
+function CheckoutContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const planQuery = searchParams.get("plan");
+
   const [selectedPlan, setSelectedPlan] = useState("PRO");
 
   const plans: any = {
-    BASIC: { name: "Başlangıç", price: 500, features: ["5 Personel", "QR Kod", "Sınırsız Randevu"] },
+    BASIC: { name: "Başlangıç", price: 500, features: ["5 Personel", "QR Kod Sistemi", "Sınırsız Randevu"] },
     PRO: { name: "Profesyonel", price: 800, features: ["10 Personel", "WhatsApp Bildirimleri", "Gelişmiş İstatistikler"] },
-    ULTRA: { name: "Ultra VIP", price: 1500, features: ["Sınırsız Personel", "Vitrinde Öne Çıkma", "7/24 Destek"] }
+    ULTRA: { name: "Ultra VIP", price: 1500, features: ["Sınırsız Personel", "Vitrinde Öne Çıkma", "7/24 Öncelikli Destek"] }
   };
+
+  // Ana sayfadan gelen parametreyi yakala ve paketi seç
+  useEffect(() => {
+    if (planQuery && (planQuery === "BASIC" || planQuery === "PRO" || planQuery === "ULTRA")) {
+      setSelectedPlan(planQuery);
+    }
+  }, [planQuery]);
+
+  // Giriş Yapmamış Müşteriyi Koru
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        title: "Kayıt Gerekli!",
+        text: "Ödeme yapabilmek için önce dükkan hesabınızı oluşturmalısınız.",
+        icon: "info",
+        confirmButtonText: "Kayıt Ol",
+        confirmButtonColor: "#f59e0b",
+        background: "#171717",
+        color: "#fff",
+        allowOutsideClick: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push("/register");
+        }
+      });
+    }
+  }, [router]);
 
   const plan = plans[selectedPlan];
 
   // Form State
   const [formData, setFormData] = useState({
-    cardName: "",
-    cardNumber: "",
-    expiry: "",
-    cvc: "",
-    tcNumber: "", // İyzico zorunlu tutar
-    city: "",
-    address: ""
+    cardName: "", cardNumber: "", expiry: "", cvc: "", tcNumber: "", city: "", address: ""
   });
 
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();
-    // 🚀 BURASI İYZİCO GELDİĞİNDE ÇALIŞACAK
     Swal.fire({
       title: "Hazırlanıyor...",
       text: "Ödeme altyapısı (Iyzico) entegrasyonu bekleniyor.",
@@ -42,7 +67,6 @@ export default function CheckoutPage() {
     });
   };
 
-  // Kredi Kartı Formatlayıcı (Görsel şölen için)
   const handleCardNumberChange = (e: any) => {
     let value = e.target.value.replace(/\D/g, "");
     let formattedValue = "";
@@ -55,23 +79,19 @@ export default function CheckoutPage() {
 
   const handleExpiryChange = (e: any) => {
     let value = e.target.value.replace(/\D/g, "");
-    if (value.length >= 3) {
-      value = value.substring(0, 2) + "/" + value.substring(2, 4);
-    }
+    if (value.length >= 3) value = value.substring(0, 2) + "/" + value.substring(2, 4);
     setFormData({ ...formData, expiry: value });
   };
 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-500 selection:text-black">
-      
-      {/* ÜST BAR */}
       <nav className="border-b border-zinc-900 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/dashboard" className="text-gray-400 hover:text-white flex items-center gap-2 transition">
-            <ArrowLeft size={20} /> Panele Dön
-          </Link>
-          <div className="flex items-center gap-2 text-amber-500 font-bold tracking-widest uppercase">
-            <ShieldCheck size={24} /> Güvenli Ödeme Noktası
+          <button onClick={() => router.back()} className="text-gray-400 hover:text-white flex items-center gap-2 transition">
+            <ArrowLeft size={20} /> Geri Dön
+          </button>
+          <div className="flex items-center gap-2 text-amber-500 font-bold tracking-widest uppercase text-sm md:text-base">
+            <ShieldCheck size={24} /> Güvenli Ödeme
           </div>
         </div>
       </nav>
@@ -79,16 +99,14 @@ export default function CheckoutPage() {
       <main className="max-w-7xl mx-auto px-4 py-12 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
-          {/* SOL TARAF: ÖDEME FORMU */}
           <div className="lg:col-span-2 space-y-8 animate-fade-in">
             <div>
-              <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">Ödeme Bilgileri</h1>
-              <p className="text-gray-500">Aboneliğinizi başlatmak için bilgilerinizi güvenle girin.</p>
+              <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">Abonelik Başlat</h1>
+              <p className="text-gray-500">Iyzico güvencesiyle 256-bit SSL şifreli ödeme noktası.</p>
             </div>
 
             <form onSubmit={handlePayment} className="space-y-8">
-              
-              {/* 1. FATURA BİLGİLERİ (İyzico için zorunlu) */}
+              {/* FATURA BİLGİLERİ */}
               <div className="bg-[#0a0a0a] p-6 md:p-8 rounded-3xl border border-zinc-900 shadow-2xl">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-zinc-900 pb-4">
                   <User className="text-amber-500" size={20}/> Fatura Detayları
@@ -109,11 +127,9 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* 2. KREDİ KARTI BİLGİLERİ */}
+              {/* KART BİLGİLERİ */}
               <div className="bg-[#0a0a0a] p-6 md:p-8 rounded-3xl border border-zinc-900 shadow-2xl relative overflow-hidden">
-                {/* Şık Arkaplan Efekti */}
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-zinc-900 pb-4">
                   <CreditCard className="text-amber-500" size={20}/> Kart Bilgileri
                 </h2>
@@ -146,30 +162,24 @@ export default function CheckoutPage() {
                   <button type="submit" className="w-full bg-amber-500 text-black font-black text-lg p-5 rounded-2xl hover:bg-yellow-400 transition-all flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                     <Lock size={20} /> {plan.price} ₺ ÖDE VE BAŞLA
                   </button>
-                  <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
-                    <ShieldCheck size={14} className="text-green-500"/> 256-bit SSL sertifikası ile %100 güvenli ödeme.
-                  </p>
                 </div>
               </div>
-
             </form>
           </div>
 
-          {/* SAĞ TARAF: SİPARİŞ ÖZETİ */}
+          {/* SİPARİŞ ÖZETİ */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-[#171717] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
               <h3 className="text-lg font-black uppercase tracking-wider mb-6 border-b border-zinc-800 pb-4">Sipariş Özeti</h3>
-              
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <p className="text-amber-500 font-bold text-sm tracking-widest uppercase mb-1">{plan.name} PAKETİ</p>
-                  <p className="text-gray-400 text-xs">1 Aylık Abonelik</p>
+                  <p className="text-gray-400 text-xs">Aylık Abonelik Ücreti</p>
                 </div>
                 <div className="text-2xl font-black">{plan.price} ₺</div>
               </div>
-
               <div className="space-y-4 mb-8">
-                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Pakete Dahil Olanlar:</p>
+                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Paket İçeriği:</p>
                 {plan.features.map((feature: string, idx: number) => (
                   <div key={idx} className="flex items-center gap-3 text-sm text-gray-300">
                     <CheckCircle2 size={16} className="text-amber-500 flex-shrink-0" />
@@ -177,40 +187,35 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-
               <div className="border-t border-zinc-800 pt-6 space-y-3">
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>Ara Toplam</span>
-                  <span>{plan.price} ₺</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>KDV (%20)</span>
-                  <span>Dahil</span>
-                </div>
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-zinc-800">
+                <div className="flex justify-between items-center pt-2">
                   <span className="font-bold">Ödenecek Tutar</span>
                   <span className="text-3xl font-black text-amber-500">{plan.price} ₺</span>
                 </div>
               </div>
-
-              {/* GÜVENLİK ROZETLERİ */}
               <div className="mt-8 bg-[#0a0a0a] rounded-2xl p-4 border border-zinc-800 flex flex-col items-center justify-center gap-2">
                 <div className="flex gap-4 opacity-50 grayscale">
-                  {/* Örnek Kart Logoları (İkon olarak) */}
                   <span className="font-black italic tracking-tighter">VISA</span>
                   <span className="font-black italic tracking-tighter">MasterCard</span>
                   <span className="font-black italic tracking-tighter text-blue-500">iyzico</span>
                 </div>
                 <p className="text-[10px] text-gray-500 text-center mt-2">
-                  Kredi kartı bilgileriniz sistemimizde saklanmaz. Ödeme altyapısı Iyzico tarafından sağlanmaktadır.
+                  Altyapı Iyzico tarafından %100 güvenli sağlanmaktadır.
                 </p>
               </div>
-
             </div>
           </div>
-
         </div>
       </main>
     </div>
+  );
+}
+
+// Suspense sarmalayıcısı (Next.js kuralı)
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050505] text-amber-500 flex items-center justify-center font-bold tracking-widest">KASA HAZIRLANIYOR...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

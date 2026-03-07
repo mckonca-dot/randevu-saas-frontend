@@ -222,7 +222,9 @@ export default function Home() {
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> 5 Personel Ekleme</li>
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> QR Kod Sistemi</li>
                     </ul>
-                    <Link href="/register" className="block w-full text-center bg-zinc-800 text-white py-3 rounded-xl font-bold hover:bg-zinc-700 transition">Hemen Başla</Link>
+                    <Link href="/checkout?plan=BASIC" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
+                      Hemen Başla
+                    </Link>
                 </div>
                 {/* Pro */}
                 <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl">
@@ -233,7 +235,9 @@ export default function Home() {
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> 10 Personel Ekleme</li>
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> WhatsApp Bildirimleri</li>
                     </ul>
-                    <Link href="/register" className="block w-full text-center bg-amber-500 text-black py-3 rounded-xl font-bold hover:bg-yellow-400 transition">Hemen Başla</Link>
+                    <Link href="/checkout?plan=PRO" className="block w-full py-3 px-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-8">
+                      Hemen Başla
+                    </Link>
                 </div>
                 {/* Ultra */}
                 <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
@@ -243,7 +247,9 @@ export default function Home() {
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> Sınırsız Personel</li>
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> Vitrinde Öne Çıkma</li>
                     </ul>
-                    <Link href="/register" className="block w-full text-center bg-zinc-800 text-white py-3 rounded-xl font-bold hover:bg-zinc-700 transition">Hemen Başla</Link>
+                    <Link href="/checkout?plan=ULTRA" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
+                      Hemen Başla
+                    </Link>
                 </div>
             </div>
         </div>
