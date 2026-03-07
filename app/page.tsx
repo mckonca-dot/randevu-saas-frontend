@@ -337,12 +337,10 @@ export default function Home() {
           {/* Alt Bar */}
           <div className="border-t border-zinc-800/50 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-600 font-body">
-              © {new Date().getFullYear()} Konca SaaS Yönetim Sistemleri. Tüm hakları saklıdır.
+               © {new Date().getFullYear()} Tüm hakları saklıdır.
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-600 font-body">
-              <span>Türkiye&apos;de</span>
-              <span className="text-red-500">♥</span>
-              <span>ile yapıldı</span>
+              Powered by <span className="text-amber-500 font-bold font-heading tracking-widest">KONCA SAAS</span>
             </div>
           </div>
 
