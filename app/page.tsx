@@ -212,7 +212,11 @@ export default function Home() {
       <section id="pricing" className="py-20 bg-[#171717] border-t border-zinc-900">
         <div className="max-w-7xl mx-auto px-4 text-center">
             <h4 className="text-amber-500 font-heading tracking-widest mb-2 font-bold">İŞLETMENİZİ DİJİTALE TAŞIYIN</h4>
-            <h2 className="text-3xl md:text-5xl font-bold font-heading text-white mb-12">PROFESYONEL PAKETLER</h2>
+            <h2 className="text-3xl md:text-5xl font-bold font-heading text-white mb-4">PROFESYONEL PAKETLER</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto mb-12">
+              Ödemenizi Shopier güvencesiyle tamamladıktan sonra hesabınız <strong>1-15 dakika içinde</strong> otomatik olarak aktifleştirilecektir.
+            </p>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
                 {/* Basic */}
                 <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
@@ -222,9 +226,10 @@ export default function Home() {
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> 5 Personel Ekleme</li>
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> QR Kod Sistemi</li>
                     </ul>
-                    <Link href="/checkout?plan=BASIC" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
+                    {/* 🚀 LİNK DEĞİŞTİRİLDİ */}
+                    <a href="https://www.shopier.com/randevum/45013825" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
                       Hemen Başla
-                    </Link>
+                    </a>
                 </div>
                 {/* Pro */}
                 <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl">
@@ -235,9 +240,10 @@ export default function Home() {
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> 10 Personel Ekleme</li>
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> WhatsApp Bildirimleri</li>
                     </ul>
-                    <Link href="/checkout?plan=PRO" className="block w-full py-3 px-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-8">
+                    {/* 🚀 LİNK DEĞİŞTİRİLDİ */}
+                    <a href="https://www.shopier.com/randevum/45013838" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-8">
                       Hemen Başla
-                    </Link>
+                    </a>
                 </div>
                 {/* Ultra */}
                 <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
@@ -247,11 +253,20 @@ export default function Home() {
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> Sınırsız Personel</li>
                         <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16}/> Vitrinde Öne Çıkma</li>
                     </ul>
-                    <Link href="/checkout?plan=ULTRA" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
+                    {/* 🚀 LİNK DEĞİŞTİRİLDİ */}
+                    <a href="https://www.shopier.com/randevum/45013858" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
                       Hemen Başla
-                    </Link>
+                    </a>
                 </div>
             </div>
+            
+            {/* 🔒 GÜVENLİK BİLDİRİMİ EKLENDİ */}
+            <div className="max-w-3xl mx-auto mt-12 bg-[#121212] border border-zinc-800 p-6 rounded-2xl flex items-center justify-between flex-col md:flex-row gap-4 text-left">
+              <div className="text-sm text-gray-400">
+                🔒 Ödemeleriniz <strong className="text-white">Shopier</strong> altyapısı ile 256-bit SSL güvencesi altındadır. Kredi kartı bilgileriniz sistemimizde tutulmaz.
+              </div>
+            </div>
+
         </div>
       </section>
 
@@ -270,10 +285,10 @@ export default function Home() {
             <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <h3 className="text-2xl md:text-3xl font-bold font-heading text-white mb-2">İŞLETMENİ DİJİTALE TAŞI</h3>
-                <p className="text-gray-400 font-body text-sm md:text-base">30 gün ücretsiz dene, kredi kartı gerekmez.</p>
+                <p className="text-gray-400 font-body text-sm md:text-base">Hemen kayıt ol ve dükkanını yönetmeye başla.</p>
               </div>
               <Link href="/register" className="flex-shrink-0 bg-amber-500 text-black px-8 py-4 rounded-xl font-heading font-bold tracking-widest text-sm hover:bg-yellow-400 transition-all shadow-[0_0_25px_rgba(245,158,11,0.3)] hover:shadow-[0_0_35px_rgba(245,158,11,0.5)]">
-                ÜCRETSİZ BAŞLA
+                ŞİMDİ BAŞLA
               </Link>
             </div>
           </div>

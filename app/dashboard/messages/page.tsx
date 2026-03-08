@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageSquare, Save, Smartphone, CheckCheck, Info, Bell, AlertTriangle } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -13,6 +13,27 @@ export default function MessagesPage() {
     iptal: "Sayın [MUSTERI_ADI],\n\n[TARIH] - [SAAT] tarihli [ISLEM] randevunuz iptal edilmiştir. Yeni bir randevu oluşturmak için sitemizi ziyaret edebilirsiniz. 😔\n\nİyi günler dileriz.\n📍 [DUKKAN_ADI]",
     hatirlatma: "Merhaba [MUSTERI_ADI]! 🌟\n\nYarın saat [SAAT]'te [ISLEM] randevunuz olduğunu hatırlatmak isteriz. Görüşmek üzere!\n\n📍 [DUKKAN_ADI]"
   });
+
+  // 🚀 Sayfa Yüklendiğinde Veritabanındaki Şablonları Çek
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("https://konca-saas-backend.onrender.com/users/me", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data) {
+        setTemplates({
+          onay: data.msgTemplateOnay || templates.onay,
+          iptal: data.msgTemplateIptal || templates.iptal,
+          hatirlatma: data.msgTemplateHatirlatma || templates.hatirlatma
+        });
+      }
+    }).catch(err => console.error(err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Dinamik Değişkenler
   const variables = [
@@ -31,18 +52,50 @@ export default function MessagesPage() {
     setTemplates({ ...templates, [activeTab]: templates[activeTab as keyof typeof templates] + " " + tag });
   };
 
-  const handleSave = () => {
-    // 🚀 İleride burayı Backend'e bağlayacağız
-    Swal.fire({
-      title: "Başarılı!",
-      text: "Mesaj şablonlarınız sisteme kaydedildi.",
-      icon: "success",
-      background: "#171717",
-      color: "#fff",
-      confirmButtonColor: "#f59e0b",
-      timer: 2000,
-      showConfirmButton: false
-    });
+  // 🚀 Değişiklikleri Veritabanına (Backend) Kaydet
+  const handleSave = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      Swal.fire({ 
+        title: 'Kaydediliyor...', 
+        background: '#171717', 
+        color: '#fff', 
+        didOpen: () => Swal.showLoading() 
+      });
+
+      const res = await fetch("https://konca-saas-backend.onrender.com/users/me/templates", {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json", 
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(templates)
+      });
+
+      if (!res.ok) throw new Error("Kaydedilemedi");
+
+      Swal.fire({
+        title: "Başarılı!",
+        text: "Mesaj şablonlarınız sisteme başarıyla kaydedildi.",
+        icon: "success",
+        background: "#171717",
+        color: "#fff",
+        confirmButtonColor: "#f59e0b",
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire({ 
+        icon: 'error', 
+        title: 'Hata', 
+        text: 'Kaydedilirken bir sorun oluştu.', 
+        background: '#171717', 
+        color: '#fff' 
+      });
+    }
   };
 
   // WhatsApp Canlı Önizleme İçin Sahte Veri Yerleştirme
@@ -160,7 +213,7 @@ export default function MessagesPage() {
                 Mesaj yazın
               </div>
               <div className="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center text-white">
-                <MessageSquare size={18} fill="currentColor"/>
+                <Smartphone size={18} fill="currentColor"/>
               </div>
             </div>
 
