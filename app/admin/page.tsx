@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { 
   Users, Store, DollarSign, TrendingUp, Trash2, Power, Star, 
   ShieldCheck, MapPin, Search, ChevronRight, Menu, X, 
-  Calendar, Clock, Edit3, AlertCircle 
+  Calendar, Clock, Edit3, AlertCircle, PlusCircle, Crown
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
@@ -66,7 +66,44 @@ export default function AdminPanel() {
     fetchAdminData();
   };
 
-  // 📅 SÜRE UZATMA/KISALTMA SİHRİ
+  // 👑 PAKET (PLAN) DEĞİŞTİRME SİHRİ
+  const changePlan = async (id: number, currentPlan: string) => {
+    const { value: newPlan } = await Swal.fire({
+      title: 'Paketi Güncelle',
+      input: 'select',
+      inputOptions: {
+        'TRIAL': 'Deneme Paketi (TRIAL)',
+        'BASIC': 'Başlangıç Paketi (BASIC)',
+        'PRO': 'Profesyonel Paket (PRO)',
+        'ULTRA': 'Ultra VIP Paket (ULTRA)'
+      },
+      inputValue: currentPlan,
+      showCancelButton: true,
+      confirmButtonText: 'Değiştir',
+      cancelButtonText: 'İptal',
+      confirmButtonColor: '#f59e0b',
+      background: '#171717', color: '#fff'
+    });
+
+    if (newPlan && newPlan !== currentPlan) {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ plan: newPlan })
+        });
+        if (res.ok) {
+          Swal.fire({ icon: 'success', title: 'Paket Güncellendi!', background: '#171717', color: '#fff', timer: 1500, showConfirmButton: false });
+          fetchAdminData();
+        }
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Hata oluştu!', background: '#171717', color: '#fff' });
+      }
+    }
+  };
+
+  // 📅 MANUEL SÜRE SEÇME
   const updateExpiryDate = async (id: number, currentPlan: string, currentExpiry: string) => {
     const { value: newDate } = await Swal.fire({
       title: 'Süre Yönetimi',
@@ -83,24 +120,37 @@ export default function AdminPanel() {
     });
 
     if (newDate) {
-      const token = localStorage.getItem("token");
-      // Backend'de plan tipine göre trialEndsAt veya subscriptionEnd güncellenir
-      const field = currentPlan === 'TRIAL' ? 'trialEndsAt' : 'subscriptionEnd';
-      
-      try {
-        const res = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ [field]: new Date(newDate).toISOString() })
-        });
+      applyDateUpdate(id, currentPlan, new Date(newDate));
+    }
+  };
 
-        if (res.ok) {
-          Swal.fire({ icon: 'success', title: 'Tarih Güncellendi!', background: '#171717', color: '#fff', timer: 1500, showConfirmButton: false });
-          fetchAdminData();
-        }
-      } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Hata!', text: 'Tarih güncellenemedi.' });
+  // ⚡ HIZLI +30 GÜN EKLEME
+  const add30Days = async (id: number, currentPlan: string, currentExpiry: string) => {
+    // Mevcut süre bitmemişse üzerine ekle, bitmişse bugünden itibaren 30 gün ekle
+    const baseDate = (currentExpiry && new Date(currentExpiry) > new Date()) ? new Date(currentExpiry) : new Date();
+    baseDate.setDate(baseDate.getDate() + 30);
+    
+    applyDateUpdate(id, currentPlan, baseDate);
+  };
+
+  // 🛠️ ORTAK TARİH GÜNCELLEME FONKSİYONU
+  const applyDateUpdate = async (id: number, currentPlan: string, targetDate: Date) => {
+    const token = localStorage.getItem("token");
+    const field = currentPlan === 'TRIAL' ? 'trialEndsAt' : 'subscriptionEnd';
+    
+    try {
+      const res = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ [field]: targetDate.toISOString() })
+      });
+
+      if (res.ok) {
+        Swal.fire({ icon: 'success', title: 'Süre Uzatıldı!', text: `Yeni bitiş: ${targetDate.toLocaleDateString('tr-TR')}`, background: '#171717', color: '#fff', timer: 2000, showConfirmButton: false });
+        fetchAdminData();
       }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Hata!', text: 'Tarih güncellenemedi.', background: '#171717', color: '#fff' });
     }
   };
 
@@ -186,12 +236,12 @@ export default function AdminPanel() {
         <table className="w-full text-left">
           <thead className="bg-zinc-800/50 text-gray-500 text-[10px] uppercase font-black tracking-[0.2em]">
             <tr>
-              <th className="p-6">Üyelik & Plan</th>
-              <th className="p-6">Kalan Süre</th>
-              <th className="p-6 text-center">İstatistik</th>
-              <th className="p-6 text-center">Öne Çıkar</th>
-              <th className="p-6 text-center">Durum</th>
-              <th className="p-6 text-right">Yönetim</th>
+              <th className="p-6">Dükkan & Katılım</th>
+              <th className="p-6">Paket (Plan)</th>
+              <th className="p-6">Süre Yönetimi</th>
+              <th className="p-6 text-center">Kazanç & Ciro</th>
+              <th className="p-6 text-center">Durum / Öne Çıkar</th>
+              <th className="p-6 text-right">Sil</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
@@ -201,53 +251,62 @@ export default function AdminPanel() {
               
               return (
                 <tr key={shop.id} className="hover:bg-white/[0.02] transition group">
+                  {/* DÜKKAN ADI */}
                   <td className="p-6">
                     <p className="font-bold text-lg group-hover:text-amber-500 transition">{shop.shopName || "İsimsiz"}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] font-black bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded uppercase">{shop.plan}</span>
-                        <span className="text-[10px] text-gray-600 font-bold italic">Katılım: {new Date(shop.createdAt).toLocaleDateString('tr-TR')}</span>
+                    <p className="text-[10px] text-gray-600 font-bold italic mt-1">{new Date(shop.createdAt).toLocaleDateString('tr-TR')}</p>
+                  </td>
+
+                  {/* PAKET YÖNETİMİ */}
+                  <td className="p-6">
+                    <div className="flex items-center gap-2">
+                        <span className={`text-[11px] font-black px-3 py-1 rounded uppercase tracking-wider ${shop.plan === 'PRO' ? 'bg-amber-500/20 text-amber-500' : shop.plan === 'ULTRA' ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-500/20 text-gray-400'}`}>
+                          {shop.plan}
+                        </span>
+                        <button onClick={() => changePlan(shop.id, shop.plan)} className="text-gray-500 hover:text-amber-500 transition" title="Paketi Değiştir">
+                          <Edit3 size={16}/>
+                        </button>
                     </div>
                   </td>
+
+                  {/* SÜRE YÖNETİMİ */}
                   <td className="p-6">
                     <div className="flex items-center gap-3">
                         <div className={`px-3 py-1 rounded-lg font-black text-xs ${daysLeft <= 0 ? 'bg-red-500/10 text-red-500' : daysLeft <= 7 ? 'bg-orange-500/10 text-orange-500' : 'bg-green-500/10 text-green-500'}`}>
                             {daysLeft > 0 ? `${daysLeft} GÜN KALDI` : "SÜRESİ DOLDU"}
                         </div>
-                        <button 
-                            onClick={() => updateExpiryDate(shop.id, shop.plan, expiryDate)}
-                            className="p-2 text-gray-500 hover:text-white hover:bg-zinc-800 rounded-lg transition"
-                            title="Süreyi Değiştir"
-                        >
+                        {/* Hızlı +30 Gün Butonu */}
+                        <button onClick={() => add30Days(shop.id, shop.plan, expiryDate)} className="p-1.5 text-green-500 hover:bg-green-500/20 rounded-lg transition border border-green-500/20" title="Hızlı +30 Gün Ekle">
+                            <PlusCircle size={18}/>
+                        </button>
+                        {/* Özel Tarih Seçme Butonu */}
+                        <button onClick={() => updateExpiryDate(shop.id, shop.plan, expiryDate)} className="p-1.5 text-gray-500 hover:text-white hover:bg-zinc-800 rounded-lg transition" title="Tarih Seç">
                             <Calendar size={18}/>
                         </button>
                     </div>
                   </td>
+
+                  {/* İSTATİSTİK */}
                   <td className="p-6 text-center">
                     <p className="text-sm font-bold text-gray-300">{shop.totalAppointments} <span className="text-[10px] text-gray-600">Randevu</span></p>
                     <p className="text-sm font-bold text-green-500">{shop.totalEarnings} ₺ <span className="text-[10px] text-gray-600">Ciro</span></p>
                   </td>
-                  <td className="p-6 text-center">
-                    <button 
-                      onClick={() => toggleStatus(shop.id, shop.isPromoted, 'isPromoted')}
-                      className={`p-3 rounded-2xl transition ${shop.isPromoted ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'bg-zinc-800 text-gray-600 hover:text-white'}`}
-                    >
-                      <Star size={18} fill={shop.isPromoted ? "currentColor" : "none"}/>
-                    </button>
-                  </td>
-                  <td className="p-6 text-center">
-                    <button 
-                      onClick={() => toggleStatus(shop.id, shop.isActive, 'isActive')}
-                      className={`px-4 py-2 rounded-xl text-[10px] font-black border transition ${shop.isActive ? 'bg-green-500/5 text-green-500 border-green-500/20' : 'bg-red-500/5 text-red-500 border-red-500/20'}`}
-                    >
+
+                  {/* DURUM / ÖNE ÇIKAR */}
+                  <td className="p-6 text-center flex justify-center gap-2">
+                    <button onClick={() => toggleStatus(shop.id, shop.isActive, 'isActive')} className={`px-3 py-2 rounded-xl text-[10px] font-black border transition ${shop.isActive ? 'bg-green-500/5 text-green-500 border-green-500/20' : 'bg-red-500/5 text-red-500 border-red-500/20'}`} title="Yayında / Gizli">
                       {shop.isActive ? "YAYINDA" : "GİZLİ"}
                     </button>
+                    <button onClick={() => toggleStatus(shop.id, shop.isPromoted, 'isPromoted')} className={`p-2 rounded-xl transition ${shop.isPromoted ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'bg-zinc-800 text-gray-600 hover:text-white'}`} title="Öne Çıkar">
+                      <Star size={16} fill={shop.isPromoted ? "currentColor" : "none"}/>
+                    </button>
                   </td>
+
+                  {/* SİL */}
                   <td className="p-6 text-right">
-                    <div className="flex justify-end gap-2">
-                        <button onClick={() => deleteShop(shop.id)} className="p-3 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition">
-                            <Trash2 size={20}/>
-                        </button>
-                    </div>
+                    <button onClick={() => deleteShop(shop.id)} className="p-2 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition">
+                        <Trash2 size={18}/>
+                    </button>
                   </td>
                 </tr>
               );
@@ -263,22 +322,31 @@ export default function AdminPanel() {
            const daysLeft = getRemainingDays(expiryDate);
            return (
               <div key={shop.id} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 relative">
+                
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <h3 className="font-black text-xl uppercase tracking-tighter">{shop.shopName || "İsimsiz"}</h3>
-                        <p className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded inline-block mt-1">{shop.plan} PAKETİ</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded inline-block">{shop.plan} PAKETİ</span>
+                          <button onClick={() => changePlan(shop.id, shop.plan)} className="text-gray-400 hover:text-white"><Edit3 size={14}/></button>
+                        </div>
                     </div>
-                    <button onClick={() => deleteShop(shop.id)} className="p-2 text-red-500"><Trash2 size={20}/></button>
+                    <button onClick={() => deleteShop(shop.id)} className="p-2 text-red-500 bg-red-500/10 rounded-lg"><Trash2 size={18}/></button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
+                    {/* SÜRE ALANI */}
                     <div className="bg-black/40 p-3 rounded-2xl border border-zinc-800">
                         <p className="text-[10px] text-gray-500 font-black mb-1">KALAN SÜRE</p>
                         <div className="flex items-center justify-between">
                             <span className={`text-sm font-black ${daysLeft <= 7 ? 'text-red-500' : 'text-green-500'}`}>{daysLeft} GÜN</span>
-                            <button onClick={() => updateExpiryDate(shop.id, shop.plan, expiryDate)} className="text-gray-400"><Edit3 size={14}/></button>
+                            <div className="flex gap-2">
+                              <button onClick={() => add30Days(shop.id, shop.plan, expiryDate)} className="text-green-500"><PlusCircle size={16}/></button>
+                              <button onClick={() => updateExpiryDate(shop.id, shop.plan, expiryDate)} className="text-gray-400"><Calendar size={16}/></button>
+                            </div>
                         </div>
                     </div>
+                    {/* CİRO ALANI */}
                     <div className="bg-black/40 p-3 rounded-2xl border border-zinc-800 text-center">
                         <p className="text-[10px] text-gray-500 font-black mb-1">TOPLAM CİRO</p>
                         <p className="text-sm font-black text-green-500">{shop.totalEarnings} ₺</p>
