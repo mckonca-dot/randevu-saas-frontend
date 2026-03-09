@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 // 🚀 SWEETALERT2 EKLENDİ
 import Swal from 'sweetalert2';
 
@@ -89,9 +90,17 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          
+          {/* 🚀 ŞİFREMİ UNUTTUM LİNKİ BURAYA EKLENDİ */}
+          <div className="flex justify-end mt-2">
+            <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-amber-500 transition font-bold">
+              Şifremi Unuttum
+            </Link>
+          </div>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition shadow-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition shadow-lg mt-4"
           >
             Giriş Yap
           </button>
