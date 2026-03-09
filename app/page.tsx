@@ -83,6 +83,17 @@ export default function Home() {
   const promotedShops = filteredShops.filter(s => s.isPromoted);
   const regularShops = filteredShops.filter(s => !s.isPromoted);
 
+  // 🚀 KAYDIRMA SİHRİ (Keşfet butonuna basınca sonuçlara kayar)
+  const scrollToResults = () => {
+    const resultsSection = document.getElementById("shops-section");
+    if (resultsSection) {
+      // Menü yüksekliği (navbar) kadar üstten boşluk bırakarak kaydırır
+      const yOffset = -100; 
+      const y = resultsSection.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans antialiased selection:bg-amber-500 selection:text-black">
 
@@ -151,7 +162,10 @@ export default function Home() {
               <Search className="text-amber-500 flex-shrink-0" size={20} />
               <input type="text" placeholder="Salon adı ara..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-transparent text-white outline-none pl-3 placeholder-gray-500" />
             </div>
-            <button className="bg-amber-500 text-black px-8 rounded-xl font-heading font-bold text-lg hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 h-14 md:col-span-2 lg:col-span-1">
+            <button 
+              onClick={scrollToResults} // 🚀 SİHİRLİ DOKUNUŞ BURADA
+              className="bg-amber-500 text-black px-8 rounded-xl font-heading font-bold text-lg hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 h-14 md:col-span-2 lg:col-span-1"
+            >
               KEŞFET <ChevronRight size={20} />
             </button>
           </div>
@@ -159,7 +173,8 @@ export default function Home() {
       </section>
 
       {/* --- ANA İÇERİK --- */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* 🚀 ID BURAYA EKLENDİ */}
+      <main id="shops-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-amber-500">
@@ -227,7 +242,6 @@ export default function Home() {
                 <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> 5 Personel Ekleme</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> QR Kod Sistemi</li>
               </ul>
-              {/* 🚀 LİNK DEĞİŞTİRİLDİ */}
               <a href="https://www.shopier.com/randevum/45013825" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
                 Hemen Başla
               </a>
@@ -241,7 +255,6 @@ export default function Home() {
                 <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> 10 Personel Ekleme</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> WhatsApp Bildirimleri</li>
               </ul>
-              {/* 🚀 LİNK DEĞİŞTİRİLDİ */}
               <a href="https://www.shopier.com/randevum/45013838" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-8">
                 Hemen Başla
               </a>
@@ -254,7 +267,6 @@ export default function Home() {
                 <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Sınırsız Personel</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Vitrinde Öne Çıkma</li>
               </ul>
-              {/* 🚀 LİNK DEĞİŞTİRİLDİ */}
               <a href="https://www.shopier.com/randevum/45013858" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
                 Hemen Başla
               </a>
