@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { 
   Star, MapPin, Calendar, Clock, Scissors, 
   User, Phone, AlertCircle, Check, ChevronRight, Menu, X, ArrowLeft,
-  Instagram, Twitter, Facebook, Mail
+  Instagram, Twitter, Facebook, Mail, Home
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
@@ -255,27 +255,51 @@ export default function BookAppointment() {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}} />
 
-      {/* --- NAVBAR --- */}
+      {/* --- NAVBAR (GERİ DÖN BUTONU ENTEGRE EDİLDİ) --- */}
       <nav className="fixed w-full z-50 top-0 transition-all duration-300 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#171717]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex-shrink-0 flex items-center gap-3">
-              {shop?.logo && <img src={shop.logo} className="w-10 h-10 rounded-full border border-amber-500 object-cover" />}
-              <a href="#" className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white truncate max-w-[200px] md:max-w-none">
-                {shop?.shopName || "KUAFÖR"}
-              </a>
+            
+            {/* ⬅️ SOL KISIM: GERİ DÖN + LOGO */}
+            <div className="flex-shrink-0 flex items-center gap-4">
+              {/* GERİ DÖN BUTONU */}
+              <button 
+                onClick={() => router.back()} // Müşterinin önceki filtrelerini korur
+                className="group flex items-center gap-2 text-gray-400 hover:text-amber-500 transition-all font-semibold"
+              >
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-amber-500/50 group-hover:bg-amber-500/10 transition-all">
+                  <ArrowLeft size={20} />
+                </div>
+                <span className="hidden sm:inline text-xs md:text-sm tracking-wide">TÜM SALONLAR</span>
+              </button>
+
+              <div className="h-8 w-px bg-zinc-800 mx-1 hidden sm:block"></div> {/* Ayırıcı */}
+
+              {/* LOGO & DÜKKAN ADI */}
+              <div className="flex items-center gap-3">
+                {shop?.logo && <img src={shop.logo} className="w-10 h-10 rounded-full border border-amber-500 object-cover" />}
+                <a href="#" className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white truncate max-w-[120px] md:max-w-none">
+                  {shop?.shopName || "KUAFÖR"}
+                </a>
+              </div>
             </div>
+
+            {/* MERKEZ MENÜ */}
             <div className="hidden md:flex space-x-8">
-              <a href="#hakkimizda" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">Hakkımızda</a>
-              <a href="#hizmetler" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">Hizmetler</a>
-              <a href="#galeri" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">Galeri</a>
-              <a href="#iletisim" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide">İletişim</a>
+              <a href="#hakkimizda" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide text-xs lg:text-sm">Hakkımızda</a>
+              <a href="#hizmetler" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide text-xs lg:text-sm">Hizmetler</a>
+              <a href="#galeri" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide text-xs lg:text-sm">Galeri</a>
+              <a href="#iletisim" className="text-gray-300 hover:text-amber-500 transition duration-300 font-semibold tracking-wide text-xs lg:text-sm">İletişim</a>
             </div>
+
+            {/* SAĞ BUTON */}
             <div className="hidden md:flex">
-              <a href="#randevu" className="px-6 py-2 text-amber-500 font-heading tracking-wider hover:bg-amber-500 hover:text-black transition duration-300 neon-gold-border cursor-pointer">
+              <a href="#randevu" className="px-6 py-2 text-amber-500 font-heading tracking-wider hover:bg-amber-500 hover:text-black transition duration-300 neon-gold-border cursor-pointer text-sm">
                 RANDEVU AL
               </a>
             </div>
+
+            {/* MOBİL TETİKLEYİCİ */}
             <div className="md:hidden flex items-center">
               <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-gray-300 hover:text-amber-500 focus:outline-none">
                 {isMobileMenuOpen ? <X size={28}/> : <Menu size={28}/>}
@@ -617,7 +641,7 @@ export default function BookAppointment() {
         </div>
       </section>
 
-      {/* --- İLETİŞİM VE HARİTA (GÜNCELLENDİ) --- */}
+      {/* --- İLETİŞİM VE HARİTA --- */}
       <section id="iletisim" className="py-20 md:py-24 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
@@ -638,7 +662,6 @@ export default function BookAppointment() {
                       <MapPin className="text-amber-500" size={20}/>
                     </div>
                     <div>
-                      {/* 🚀 ADRES BAŞLIĞI VE DETAYLI ADRES (Gerçekten Güncellendi) */}
                       <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">
                         {shop?.addressTitle || "Açık Adres"}
                       </p>
@@ -659,7 +682,6 @@ export default function BookAppointment() {
                   </div>
                 </div>
 
-                {/* 🚀 YOL TARİFİ BUTONU - KOORDİNATLARI (shop.address) KULLANIR */}
                 <a 
                   href={`https://maps.google.com/?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
@@ -687,21 +709,19 @@ export default function BookAppointment() {
         </div>
       </section>
 
-      {/* --- YEPYENİ DETAYLI FOOTER --- */}
+      {/* --- FOOTER --- */}
       <footer className="bg-black pt-16 pb-8 border-t border-zinc-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">
             
-            {/* Marka & Hakkında */}
             <div className="space-y-4">
               <h3 className="font-heading text-2xl font-bold tracking-wider text-white">
-                {shop?.shopName || "KUAFÖR"}<span className="text-amber-500"></span>
+                {shop?.shopName || "KUAFÖR"}
               </h3>
               <p className="text-gray-400 text-sm font-body leading-relaxed">
                 {shop?.tagline || "Premium erkek bakım standartlarını yeniden yazıyoruz. Sadece tıraş değil, bir kimlik tasarımı."}
               </p>
               
-              {/* 🚀 DİNAMİK SOSYAL MEDYA LİNKLERİ (Sadece doldurulanlar görünür) */}
               <div className="flex items-center gap-4 pt-2">
                 {shop?.instagram && (
                   <a href={shop.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-zinc-800 transition">
@@ -721,7 +741,6 @@ export default function BookAppointment() {
               </div>
             </div>
 
-            {/* Hızlı Linkler */}
             <div>
               <h4 className="font-heading text-lg font-bold text-white mb-4 tracking-wide">Hızlı Linkler</h4>
               <ul className="space-y-2 font-body text-sm text-gray-400">
@@ -732,7 +751,6 @@ export default function BookAppointment() {
               </ul>
             </div>
 
-            {/* Çalışma Saatleri */}
             <div>
               <h4 className="font-heading text-lg font-bold text-white mb-4 tracking-wide">Çalışma Saatleri</h4>
               <ul className="space-y-3 font-body text-sm text-gray-400">
@@ -747,7 +765,6 @@ export default function BookAppointment() {
               </ul>
             </div>
 
-            {/* İletişim */}
             <div>
               <h4 className="font-heading text-lg font-bold text-white mb-4 tracking-wide">İletişim</h4>
               <ul className="space-y-3 font-body text-sm text-gray-400">
@@ -776,7 +793,7 @@ export default function BookAppointment() {
               © {new Date().getFullYear()} {shop?.shopName || "Kuaför"}. Tüm hakları saklıdır.
             </p>
             <p className="text-gray-600 text-xs font-body flex items-center gap-1">
-              Powered by <span className="text-amber-500 font-bold font-heading tracking-widest">KONCA SAAS</span>
+              Powered by <span className="text-amber-500 font-bold font-heading tracking-widest">MUHAMMET KONCA</span>
             </p>
           </div>
         </div>
