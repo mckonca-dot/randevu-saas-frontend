@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Trash2, Upload, Image as ImageIcon, Plus } from "lucide-react";
-// 🚀 SWEETALERT2 EKLENDİ
+import { ArrowLeft, Trash2, Upload, Image as ImageIcon, Plus, Scissors, Check } from "lucide-react";
 import Swal from 'sweetalert2';
 
 export default function GalleryPage() {
@@ -13,9 +12,26 @@ export default function GalleryPage() {
   const [modelName, setModelName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // 🚀 LOGO İÇİN YENİ STATELER
+  const [logo, setLogo] = useState<string | null>(null);
+  const [logoLoading, setLogoLoading] = useState(false);
+
   useEffect(() => {
     fetchGallery();
+    fetchLogo(); // Mevcut logoyu çek
   }, []);
+
+  // 🚀 MEVCUT LOGOYU ÇEKME
+  const fetchLogo = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch("https://konca-saas-backend.onrender.com/auth/profile", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const userData = await res.json();
+      setLogo(userData.logo);
+    }
+  };
 
   const fetchGallery = async () => {
     const token = localStorage.getItem("token");
@@ -27,7 +43,50 @@ export default function GalleryPage() {
     if (res.ok) setImages(await res.json());
   };
 
-  // Fotoğraf Seçme İşlemi
+  // 🚀 LOGO YÜKLEME İŞLEMİ
+  const handleLogoChange = async (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Logo = reader.result as string;
+      setLogoLoading(true);
+      const token = localStorage.getItem("token");
+
+      try {
+        const res = await fetch("https://konca-saas-backend.onrender.com/user/profile", {
+          method: "PATCH",
+          headers: { 
+            "Content-Type": "application/json", 
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ logo: base64Logo })
+        });
+
+        if (res.ok) {
+          setLogo(base64Logo);
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Salon logosu güncellendi! ✨',
+            showConfirmButton: false,
+            timer: 3000,
+            background: '#1f2937',
+            color: '#fff'
+          });
+        }
+      } catch (err) {
+        Swal.fire('Hata', 'Logo güncellenemedi.', 'error');
+      } finally {
+        setLogoLoading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Galeri Fotoğraf Seçme
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
@@ -39,17 +98,10 @@ export default function GalleryPage() {
     }
   };
 
-  // Fotoğrafı Yükleme İşlemi (SweetAlert Toast Entegreli)
+  // Galeri Fotoğraf Yükleme
   const handleUpload = async () => {
     if (!newImage) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Eksik İşlem',
-        text: 'Lütfen önce yüklemek için bir fotoğraf seçin.',
-        confirmButtonColor: '#f59e0b',
-        background: '#1f2937',
-        color: '#fff'
-      });
+      Swal.fire({ icon: 'warning', title: 'Eksik İşlem', text: 'Lütfen bir fotoğraf seçin.', background: '#1f2937', color: '#fff' });
       return;
     }
     
@@ -58,10 +110,7 @@ export default function GalleryPage() {
     try {
       const res = await fetch("https://konca-saas-backend.onrender.com/gallery", {
         method: "POST",
-        headers: { 
-            "Content-Type": "application/json", 
-            Authorization: `Bearer ${token}` 
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ image: newImage, modelName: modelName }) 
       });
 
@@ -69,73 +118,36 @@ export default function GalleryPage() {
         setNewImage(null);
         setModelName("");
         fetchGallery();
-        
-        // 🚀 ŞIK VE KÜÇÜK BAŞARI BİLDİRİMİ (TOAST)
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Fotoğraf başarıyla eklendi! 📸',
-          showConfirmButton: false,
-          timer: 3000,
-          background: '#1f2937',
-          color: '#fff'
-        });
-      } else {
-        throw new Error("Yükleme reddedildi.");
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Galeriye eklendi! 📸', showConfirmButton: false, timer: 3000, background: '#1f2937', color: '#fff' });
       }
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Hata',
-        text: 'Fotoğraf yüklenirken bir sorun oluştu.',
-        confirmButtonColor: '#ef4444',
-        background: '#1f2937',
-        color: '#fff'
-      });
+      Swal.fire({ icon: 'error', title: 'Hata', text: 'Yükleme başarısız.', background: '#1f2937', color: '#fff' });
     } finally {
       setLoading(false);
     }
   };
 
-  // 🚀 FOTOĞRAF SİLME ONAYI EKLENDİ
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: 'Emin misin?',
-      text: "Bu fotoğrafı galerinizden silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+      text: "Bu fotoğraf galeriden silinecek.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#374151',
       confirmButtonText: 'Evet, Sil!',
-      cancelButtonText: 'Vazgeç',
       background: '#1f2937',
       color: '#fff'
     }).then(async (result) => {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
-        try {
-          const res = await fetch(`https://konca-saas-backend.onrender.com/gallery/${id}`, { 
-              method: "DELETE", 
-              headers: { Authorization: `Bearer ${token}` } 
-          });
-          
-          if (res.ok) {
-             Swal.fire({
-                title: 'Silindi!',
-                text: 'Fotoğraf galeriden kaldırıldı.',
-                icon: 'success',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                background: '#1f2937',
-                color: '#fff'
-             });
-             fetchGallery();
-          }
-        } catch (error) {
-           Swal.fire('Hata!', 'Silme işlemi başarısız.', 'error');
+        const res = await fetch(`https://konca-saas-backend.onrender.com/gallery/${id}`, { 
+            method: "DELETE", 
+            headers: { Authorization: `Bearer ${token}` } 
+        });
+        if (res.ok) {
+           Swal.fire({ title: 'Silindi!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#1f2937', color: '#fff' });
+           fetchGallery();
         }
       }
     });
@@ -150,19 +162,49 @@ export default function GalleryPage() {
             <ArrowLeft size={24}/>
         </button>
         <div>
-            <h1 className="text-2xl font-bold">Galeri Yönetimi</h1>
-            <p className="text-gray-400 text-sm">Yaptığınız işleri sergileyin.</p>
+            <h1 className="text-2xl font-bold font-heading">Görsel Yönetimi</h1>
+            <p className="text-gray-400 text-sm">Logonuzu ve çalışma portfolyonuzu güncelleyin.</p>
         </div>
       </div>
 
-      {/* Yükleme Alanı */}
-      <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 mb-8 max-w-2xl shadow-lg">
-          <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Upload size={20} className="text-blue-500"/> Yeni Fotoğraf Ekle
-          </h2>
+      <div className="grid lg:grid-cols-3 gap-8 items-start">
+        
+        {/* 🚀 SOL TARAF: LOGO YÖNETİMİ (YENİ!) */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-lg">
+            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 text-amber-500 font-heading">
+                <Scissors size={20}/> Salon Logosu
+            </h2>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-40 h-40 bg-gray-900 rounded-full border-4 border-amber-500/20 flex items-center justify-center overflow-hidden relative group">
+                {logo ? (
+                  <img src={logo} className="w-full h-full object-contain p-4"/>
+                ) : (
+                  <ImageIcon size={48} className="text-gray-700"/>
+                )}
+                {logoLoading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-xs">Yükleniyor...</div>}
+                
+                <input type="file" accept="image/*" onChange={handleLogoChange} className="absolute inset-0 opacity-0 cursor-pointer z-10"/>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                   <span className="text-[10px] font-bold">DEĞİŞTİR</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-500 text-center italic">
+                * Kare formatta ve şeffaf (PNG) logolar önerilir. Bu logo tüm platformda markanızı temsil eder.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SAĞ TARAF: GALERİ EKLEME VE LİSTELEME */}
+        <div className="lg:col-span-2 space-y-8">
           
-          <div className="flex flex-col md:flex-row gap-4 items-start">
-              {/* Fotoğraf Önizleme */}
+          {/* Yeni Fotoğraf Ekleme Kartı */}
+          <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-lg">
+            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 font-heading">
+                <Upload size={20} className="text-blue-500"/> Galeriye Ekle
+            </h2>
+            <div className="flex flex-col md:flex-row gap-6 items-start">
               <div className="w-32 h-32 bg-gray-900 rounded-xl border-2 border-dashed border-gray-600 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                   {newImage ? (
                       <img src={newImage} className="w-full h-full object-cover"/>
@@ -171,58 +213,42 @@ export default function GalleryPage() {
                   )}
                   <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer"/>
               </div>
-
-              {/* Form Alanı */}
-              <div className="flex-1 w-full space-y-3">
-                  <div className="text-sm text-gray-400">
-                      Fotoğraf seçmek için kutuya tıklayın. (Max 5MB)
-                  </div>
-                  
-                  {/* Model İsmi Input */}
+              <div className="flex-1 w-full space-y-4">
                   <input 
                     type="text" 
-                    placeholder="Model İsmi / Saç Tarzı (Örn: Fade Kesim)" 
-                    className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition"
+                    placeholder="Saç Kesim Modeli (Örn: Modern Fade)" 
+                    className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-white outline-none focus:border-amber-500 transition"
                     value={modelName}
                     onChange={(e) => setModelName(e.target.value)}
                   />
-
                   <button 
                     onClick={handleUpload}
                     disabled={loading || !newImage}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold w-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
+                    className="bg-amber-500 hover:bg-amber-600 text-black px-6 py-3 rounded-lg font-bold w-full transition disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {loading ? 'Yükleniyor...' : 'Galeriyi Güncelle'}
+                    {loading ? 'YÜKLENİYOR...' : 'GALERİYE EKLE'}
                     {!loading && <Plus size={18}/>}
                   </button>
               </div>
+            </div>
           </div>
-      </div>
 
-      {/* Galeri Listesi */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {images.map((img) => (
-              <div key={img.id} className="group relative aspect-square bg-gray-800 rounded-xl overflow-hidden border border-gray-700 shadow-md">
-                  <img src={img.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition duration-500"/>
-                  
-                  {/* Resim Üzerindeki Yazı ve Silme Butonu */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3">
-                      {img.modelName && (
-                          <span className="text-white font-bold text-sm mb-1 drop-shadow-md">{img.modelName}</span>
-                      )}
-                      <button onClick={() => handleDelete(img.id)} className="bg-red-600/80 p-2 rounded-lg text-white hover:bg-red-600 transition w-fit">
-                          <Trash2 size={16}/>
-                      </button>
+          {/* Galeri Listesi Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {images.map((img) => (
+                  <div key={img.id} className="group relative aspect-square bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
+                      <img src={img.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition duration-500"/>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3">
+                          <span className="text-white font-bold text-[10px] mb-2">{img.modelName || "Model"}</span>
+                          <button onClick={() => handleDelete(img.id)} className="bg-red-600 p-2 rounded-lg text-white hover:bg-red-500 transition w-fit">
+                              <Trash2 size={14}/>
+                          </button>
+                      </div>
                   </div>
-              </div>
-          ))}
-          {images.length === 0 && (
-              <p className="col-span-full text-gray-500 text-center py-10 bg-gray-800/30 rounded-xl border border-gray-800 border-dashed">
-                 Henüz fotoğraf yüklemediniz.
-              </p>
-          )}
+              ))}
+          </div>
+        </div>
       </div>
-
     </div>
   );
 }
