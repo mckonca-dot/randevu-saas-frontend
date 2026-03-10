@@ -21,17 +21,27 @@ export default function GalleryPage() {
     fetchLogo(); // Mevcut logoyu çek
   }, []);
 
-  // 🚀 MEVCUT LOGOYU ÇEKME
-  const fetchLogo = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch("https://konca-saas-backend.onrender.com/auth/profile", {
+  // 🚀 fetchLogo fonksiyonunu bu adrese yönlendiriyoruz
+const fetchLogo = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    // BURASI DEĞİŞTİ: /auth/profile yerine /user/profile yapıldı
+    const res = await fetch("https://konca-saas-backend.onrender.com/user/profile", {
       headers: { Authorization: `Bearer ${token}` }
     });
+    
     if (res.ok) {
       const userData = await res.json();
       setLogo(userData.logo);
     }
-  };
+  } catch (error) {
+    console.error("Logo yüklenirken hata oluştu:", error);
+  } finally {
+    setLogoLoading(false); // Hata alsa bile 'Yükleniyor' yazısı kalksın
+  }
+};
 
   const fetchGallery = async () => {
     const token = localStorage.getItem("token");
