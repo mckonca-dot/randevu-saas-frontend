@@ -290,21 +290,25 @@ export default function Home() {
   );
 }
 
-// 🚀 LOGO ENTEGRELİ GÜNCEL DÜKKAN KARTI
+// 🎴 YENİ VİZYON: LOGO ANA PLANDA OLAN DÜKKAN KARTI
 function ShopCard({ shop, isPromoted }: { shop: any, isPromoted: boolean }) {
   return (
     <div className={`group bg-[#171717] rounded-2xl overflow-hidden border transition-all duration-500 hover:-translate-y-2 ${isPromoted ? 'border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.2)]' : 'border-zinc-800 hover:border-zinc-600'}`}>
       
       {/* GÖRSEL ALANI */}
-      <div className="relative h-56 overflow-hidden bg-[#0a0a0a]">
-        {/* Arka Plan: Kapak Fotoğrafı */}
-        <img src={shop.coverImage || "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80"} alt={shop.shopName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" />
+      <div className="relative h-56 overflow-hidden bg-[#050505] flex items-center justify-center">
+        
+        {/* 🚀 ANA GÖRSEL: Varsa LOGO, yoksa Kapak Foto, o da yoksa Varsayılan Resim */}
+        <img 
+          src={shop.logo || shop.coverImage || "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80"} 
+          alt={shop.shopName} 
+          className={`w-full h-full transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100 
+            ${shop.logo ? 'object-contain p-8' : 'object-cover'}`} 
+        />
 
-        {/* 🚀 YENİ: LOGO OVERLAY (Eğer logo varsa şık bir daire içinde göster) */}
+        {/* 🚀 LOGO VARSA ARKASINA HAFİF BİR PARLAMA VER (Premium His) */}
         {shop.logo && (
-          <div className="absolute bottom-3 left-3 w-16 h-16 rounded-full border-2 border-amber-500 bg-black overflow-hidden shadow-2xl z-30 transform group-hover:scale-110 transition-transform duration-500">
-             <img src={shop.logo} className="w-full h-full object-contain" alt="Salon Logosu" />
-          </div>
+          <div className="absolute inset-0 bg-amber-500/10 blur-[40px] pointer-events-none z-0"></div>
         )}
 
         {/* ÖNE ÇIKAN ETİKETİ */}
@@ -321,7 +325,8 @@ function ShopCard({ shop, isPromoted }: { shop: any, isPromoted: boolean }) {
         </div>
       </div>
 
-      <div className="p-6">
+      {/* KART İÇERİĞİ */}
+      <div className="p-6 relative z-10 bg-[#171717]">
         <div className="flex items-center gap-2 text-gray-500 text-xs mb-2 font-body">
           <MapPin size={14} className="text-amber-500" />
           <span className="truncate">{shop.district || "Merkez"}, {shop.city || "Türkiye"}</span>
