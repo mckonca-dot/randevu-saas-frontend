@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Trash2, Upload, Image as ImageIcon, Plus, Scissors, Check } from "lucide-react";
+import { ArrowLeft, Trash2, Upload, Image as ImageIcon, Plus, Scissors } from "lucide-react";
 import Swal from 'sweetalert2';
 
 export default function GalleryPage() {
@@ -12,48 +12,38 @@ export default function GalleryPage() {
   const [modelName, setModelName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🚀 LOGO İÇİN YENİ STATELER
+  // 🚀 LOGO STATELERİ
   const [logo, setLogo] = useState<string | null>(null);
-  const [logoLoading, setLogoLoading] = useState(false);
+  const [logoLoading, setLogoLoading] = useState(true);
 
   useEffect(() => {
     fetchGallery();
-    fetchLogo(); // Mevcut logoyu çek
+    fetchLogo(); // Sayfa açılınca mevcut logoyu getir
   }, []);
 
-  // 🚀 fetchLogo fonksiyonunu bu adrese yönlendiriyoruz
-const fetchLogo = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
-  try {
-    // BURASI DEĞİŞTİ: /auth/profile yerine /user/profile yapıldı
-    const res = await fetch("https://konca-saas-backend.onrender.com/user/profile", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    if (res.ok) {
-      const userData = await res.json();
-      setLogo(userData.logo);
-    }
-  } catch (error) {
-    console.error("Logo yüklenirken hata oluştu:", error);
-  } finally {
-    setLogoLoading(false); // Hata alsa bile 'Yükleniyor' yazısı kalksın
-  }
-};
-
-  const fetchGallery = async () => {
+  // 🚀 MEVCUT LOGOYU ÇEKME (DOĞRU ADRES: /users/me)
+  const fetchLogo = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return router.push("/login");
+    if (!token) return;
 
-    const res = await fetch("https://konca-saas-backend.onrender.com/gallery", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) setImages(await res.json());
+    try {
+      setLogoLoading(true);
+      const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const userData = await res.json();
+        setLogo(userData.logo);
+      }
+    } catch (error) {
+      console.error("Logo yüklenirken hata oluştu:", error);
+    } finally {
+      setLogoLoading(false);
+    }
   };
 
-  // 🚀 LOGO YÜKLEME İŞLEMİ
+  // 🚀 LOGO YÜKLEME VE GÜNCELLEME (DOĞRU ADRES: /users/me)
   const handleLogoChange = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -65,7 +55,7 @@ const fetchLogo = async () => {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await fetch("https://konca-saas-backend.onrender.com/user/profile", {
+        const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
           method: "PATCH",
           headers: { 
             "Content-Type": "application/json", 
@@ -86,9 +76,13 @@ const fetchLogo = async () => {
             background: '#1f2937',
             color: '#fff'
           });
+        } else if (res.status === 413) {
+           Swal.fire('Hata', 'Dosya çok büyük! Lütfen daha küçük boyutlu bir resim seçin.', 'error');
+        } else {
+           throw new Error("Güncelleme başarısız.");
         }
       } catch (err) {
-        Swal.fire('Hata', 'Logo güncellenemedi.', 'error');
+        Swal.fire('Hata', 'Sunucuya ulaşılamadı. Lütfen internetinizi veya backend push durumunu kontrol edin.', 'error');
       } finally {
         setLogoLoading(false);
       }
@@ -96,25 +90,31 @@ const fetchLogo = async () => {
     reader.readAsDataURL(file);
   };
 
-  // Galeri Fotoğraf Seçme
+  // --- GALERİ İŞLEMLERİ ---
+  const fetchGallery = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return router.push("/login");
+
+    const res = await fetch("https://konca-saas-backend.onrender.com/gallery", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) setImages(await res.json());
+  };
+
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewImage(reader.result as string);
-      };
+      reader.onloadend = () => { setNewImage(reader.result as string); };
       reader.readAsDataURL(file);
     }
   };
 
-  // Galeri Fotoğraf Yükleme
   const handleUpload = async () => {
     if (!newImage) {
       Swal.fire({ icon: 'warning', title: 'Eksik İşlem', text: 'Lütfen bir fotoğraf seçin.', background: '#1f2937', color: '#fff' });
       return;
     }
-    
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
@@ -129,6 +129,8 @@ const fetchLogo = async () => {
         setModelName("");
         fetchGallery();
         Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Galeriye eklendi! 📸', showConfirmButton: false, timer: 3000, background: '#1f2937', color: '#fff' });
+      } else if (res.status === 413) {
+        Swal.fire('Hata', 'Fotoğraf boyutu çok büyük!', 'error');
       }
     } catch (error) {
       Swal.fire({ icon: 'error', title: 'Hata', text: 'Yükleme başarısız.', background: '#1f2937', color: '#fff' });
@@ -140,7 +142,7 @@ const fetchLogo = async () => {
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: 'Emin misin?',
-      text: "Bu fotoğraf galeriden silinecek.",
+      text: "Bu fotoğraf silinecek.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -172,17 +174,17 @@ const fetchLogo = async () => {
             <ArrowLeft size={24}/>
         </button>
         <div>
-            <h1 className="text-2xl font-bold font-heading">Görsel Yönetimi</h1>
+            <h1 className="text-2xl font-bold">Görsel Yönetimi</h1>
             <p className="text-gray-400 text-sm">Logonuzu ve çalışma portfolyonuzu güncelleyin.</p>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8 items-start">
         
-        {/* 🚀 SOL TARAF: LOGO YÖNETİMİ (YENİ!) */}
+        {/* LOGO YÖNETİMİ */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-lg">
-            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 text-amber-500 font-heading">
+            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 text-amber-500">
                 <Scissors size={20}/> Salon Logosu
             </h2>
             <div className="flex flex-col items-center gap-4">
@@ -192,26 +194,29 @@ const fetchLogo = async () => {
                 ) : (
                   <ImageIcon size={48} className="text-gray-700"/>
                 )}
-                {logoLoading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-xs">Yükleniyor...</div>}
+                {logoLoading && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-xs">Yükleniyor...</div>
+                )}
                 
                 <input type="file" accept="image/*" onChange={handleLogoChange} className="absolute inset-0 opacity-0 cursor-pointer z-10"/>
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                   <span className="text-[10px] font-bold">DEĞİŞTİR</span>
-                </div>
+                
+                {!logoLoading && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                     <span className="text-[10px] font-bold">DEĞİŞTİR</span>
+                  </div>
+                )}
               </div>
               <p className="text-[11px] text-gray-500 text-center italic">
-                * Kare formatta ve şeffaf (PNG) logolar önerilir. Bu logo tüm platformda markanızı temsil eder.
+                * Kare formatta ve şeffaf (PNG) logolar önerilir.
               </p>
             </div>
           </div>
         </div>
 
-        {/* SAĞ TARAF: GALERİ EKLEME VE LİSTELEME */}
+        {/* GALERİ YÖNETİMİ */}
         <div className="lg:col-span-2 space-y-8">
-          
-          {/* Yeni Fotoğraf Ekleme Kartı */}
           <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-lg">
-            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 font-heading">
+            <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
                 <Upload size={20} className="text-blue-500"/> Galeriye Ekle
             </h2>
             <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -243,7 +248,6 @@ const fetchLogo = async () => {
             </div>
           </div>
 
-          {/* Galeri Listesi Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {images.map((img) => (
                   <div key={img.id} className="group relative aspect-square bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
