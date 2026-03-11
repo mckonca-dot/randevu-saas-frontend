@@ -128,7 +128,7 @@ export default function Home() {
             ŞEHRİNDEKİ EN İYİ <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-300">KUAFÖRLERİ KEŞFET</span>
           </h1>
           <p className="text-gray-400 text-base md:text-xl mb-12 font-body max-w-2xl mx-auto">
-            Sıra beklemeden, tarzına en uygun salonu bul ve saniyeler içinde online randevunu al.
+            Sıra beklemeden, tarzına en uygun kuaförü bul ve saniyeler içinde online randevunu al.
           </p>
 
           {/* ARAMA KUTUSU */}
@@ -174,7 +174,7 @@ export default function Home() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-amber-500">
             <Loader2 className="animate-spin mb-4" size={48} />
-            <h3 className="font-heading tracking-widest text-lg animate-pulse">SALONLAR YÜKLENİYOR...</h3>
+            <h3 className="font-heading tracking-widest text-lg animate-pulse">KUAFÖRLER YÜKLENİYOR...</h3>
           </div>
         ) : (
           <div className="space-y-24">
@@ -184,7 +184,7 @@ export default function Home() {
               <section className="animate-fade-in">
                 <div className="flex items-center gap-3 mb-10">
                   <Crown className="text-amber-500" size={32} />
-                  <h2 className="text-3xl font-bold font-heading">SÜPER SALONLAR (ÖNE ÇIKANLAR)</h2>
+                  <h2 className="text-3xl font-bold font-heading">SÜPER KUAFÖRLER (ÖNE ÇIKANLAR)</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {promotedShops.map((shop) => (
@@ -278,7 +278,7 @@ export default function Home() {
               <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
                 <Scissors size={22} />
               </div>
-              <span className="font-heading text-xl font-bold tracking-wider text-white">KONCA SAAS</span>
+              <span className="font-heading text-xl font-bold tracking-wider text-white">BERBERİM</span>
             </div>
             <p className="text-xs text-gray-600 font-body">
               © {new Date().getFullYear()} Konca Yazılım. Powered by <span className="text-amber-500 font-bold font-heading tracking-widest uppercase">Muhammet Konca</span>
