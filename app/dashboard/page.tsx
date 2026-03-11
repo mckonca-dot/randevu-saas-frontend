@@ -8,8 +8,8 @@ import {
   LogOut, Plus, Trash2, Edit, CheckCircle, XCircle, 
   Clock, TrendingUp, DollarSign, Store, CalendarX, Power,
   Image as ImageIcon, NotebookPen, QrCode, Download,
-  Menu, X, Phone, RefreshCw, MapPin, 
-  Instagram, Twitter, Facebook, MessageSquare // 🚀 YENİ İKONLAR
+  Menu, X, Phone, RefreshCw, MapPin, AlertCircle, // 🚀 AlertCircle EKLENDİ
+  Instagram, Twitter, Facebook, MessageSquare 
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Swal from 'sweetalert2';
@@ -26,9 +26,8 @@ export default function Dashboard() {
   
   // Mağaza Yönetimi
   const [closures, setClosures] = useState<any[]>([]); 
-  const [leaves, setLeaves] = useState<any[]>([]);      
+  const [leaves, setLeaves] = useState<any[]>([]);       
   
-  // 🚀 GÜNCELLENDİ: Sosyal medya linkleri eklendi!
   const [shopSettings, setShopSettings] = useState({ 
       shopName: "", phone: "", tagline: "", 
       address: "", addressTitle: "", fullAddress: "", 
@@ -70,7 +69,6 @@ export default function Dashboard() {
   const [editingStaff, setEditingStaff] = useState<any>(null);
   const [editingService, setEditingService] = useState<any>(null);
 
-  // 🚀 TELEFON FORMATLAYICI
   const formatPhoneNumber = (value: string) => {
     let cleaned = value.replace(/\D/g, '');
     if (cleaned === '' || cleaned === '90') return ''; 
@@ -141,7 +139,7 @@ export default function Dashboard() {
               fullAddress: userData.fullAddress || "",
               city: userData.city || "",
               district: userData.district || "",
-              instagram: userData.instagram || "", // 🚀 SOSYAL MEDYA
+              instagram: userData.instagram || "", 
               facebook: userData.facebook || "",   
               twitter: userData.twitter || ""      
           });
@@ -256,12 +254,10 @@ export default function Dashboard() {
   const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
   const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  // 🚀 PERSONEL EKLEME: YÖNLENDİRMELİ LİMİT KONTROLÜ
   const handleAddStaff = async () => { 
     const planLimits: any = { 'TRIAL': 5, 'BASIC': 5, 'PRO': 10, 'ULTRA': 999 };
     const currentLimit = planLimits[user?.plan || 'TRIAL'];
     
-    // 1. FRONTEND LİMİT KONTROLÜ
     if(staffs.length >= currentLimit) {
         return Swal.fire({ 
             icon: 'warning', 
@@ -270,15 +266,12 @@ export default function Dashboard() {
             showCancelButton: true,
             confirmButtonText: '🚀 Paketleri İncele',
             cancelButtonText: 'Vazgeç',
-            confirmButtonColor: '#f59e0b', // Amber rengi
-            cancelButtonColor: '#374151',  // Gri
+            confirmButtonColor: '#f59e0b', 
+            cancelButtonColor: '#374151',  
             background: '#171717', 
             color: '#fff'
         }).then((result) => {
-            if (result.isConfirmed) {
-                // Fiyatlandırma bölümüne ışınla
-                router.push("/#pricing"); 
-            }
+            if (result.isConfirmed) router.push("/#pricing"); 
         });
     }
     
@@ -291,7 +284,6 @@ export default function Dashboard() {
             body: JSON.stringify(newStaff)
         });
         
-        // 2. BACKEND LİMİT KONTROLÜ
         if (!res.ok) {
             const errorData = await res.json();
             return Swal.fire({ 
@@ -306,9 +298,7 @@ export default function Dashboard() {
               background: '#171717', 
               color: '#fff' 
             }).then((result) => {
-                if (result.isConfirmed) {
-                    router.push("/#pricing"); 
-                }
+                if (result.isConfirmed) router.push("/#pricing"); 
             });
         }
 
@@ -317,7 +307,6 @@ export default function Dashboard() {
         fetchData(token); 
         Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#171717", color: "#fff" }); 
     } catch (err) {
-        console.error(err);
         Swal.fire({ icon: 'error', title: 'Hata', text: 'Sunucu bağlantı hatası.', background: '#171717', color: '#fff' });
     }
   };
@@ -337,6 +326,28 @@ export default function Dashboard() {
   const handleDeleteAppointment = async (id: number) => { Swal.fire({ title: 'Randevuyu Sil?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', cancelButtonText: 'İptal', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
   const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+
+  // --- 🚀 ABONELİK HESAPLAMA (YENİ!) ---
+  const getSubscriptionStatus = () => {
+    if (!user || !user.subscriptionEnd) return null;
+    
+    const endDate = new Date(user.subscriptionEnd);
+    const today = new Date();
+    
+    // Saat farklarını sıfırlayarak sadece gün farkını bul
+    endDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return { expired: true, days: Math.abs(diffDays) };
+    if (diffDays <= 10) return { expired: false, days: diffDays };
+    
+    return null; // 10 günden fazlaysa hiçbir şey gösterme
+  };
+
+  const subStatus = getSubscriptionStatus();
 
   // --- İSTATİSTİKLER ---
   const totalEarnings = appointments.filter(a => a.status !== 'CANCELLED').reduce((acc, curr) => acc + Number(curr.service?.price || 0), 0);
@@ -388,10 +399,7 @@ export default function Dashboard() {
              </button>
           ))}
           <button onClick={() => { router.push('/dashboard/gallery'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-400 hover:bg-gray-800 hover:text-white`}> <ImageIcon size={20} /> Galeri Yönetimi </button>
-          
-          {/* 🚀 YENİ EKLENEN MESAJ ŞABLONLARI BUTONU */}
           <button onClick={() => { router.push('/dashboard/messages'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-400 hover:bg-gray-800 hover:text-white`}> <MessageSquare size={20} /> Mesaj Şablonları </button>
-
           <button onClick={() => { setQrModalOpen(true); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-400 hover:bg-gray-800 hover:text-white`}> <QrCode size={20} /> QR Kodum </button>
         </nav>
         <div className="p-4 border-t border-gray-800">
@@ -400,6 +408,36 @@ export default function Dashboard() {
       </aside>
 
       <main className="flex-1 p-4 md:p-10 w-full md:w-auto overflow-hidden">
+        
+        {/* 🚀 ABONELİK UYARI BANDI (Sadece süresi azalanlara veya bitenlere görünür) */}
+        {subStatus && (
+          <div className={`mb-8 p-4 md:p-5 rounded-2xl border flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl animate-fade-in
+            ${subStatus.expired ? 'bg-red-950/40 border-red-500/50' : 'bg-amber-950/40 border-amber-500/50'}`}>
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className={`p-3 rounded-full ${subStatus.expired ? 'bg-red-500/20 text-red-500' : 'bg-amber-500/20 text-amber-500'}`}>
+                {subStatus.expired ? <XCircle size={28} /> : <AlertCircle size={28} />}
+              </div>
+              <div>
+                <h3 className={`font-bold text-lg md:text-xl ${subStatus.expired ? 'text-red-400' : 'text-amber-400'}`}>
+                  {subStatus.expired ? 'Abonelik Süreniz Doldu!' : 'Aboneliğiniz Yakında Bitiyor!'}
+                </h3>
+                <p className="text-gray-300 text-xs md:text-sm mt-1 leading-relaxed">
+                  {subStatus.expired 
+                    ? 'Sistemi kullanmaya devam edebilmek ve randevu alabilmek için lütfen paketinizi yenileyin.'
+                    : `Mevcut paketinizin bitmesine sadece ${subStatus.days} gün kaldı. Hizmet kesintisi yaşamamak için yenileyin.`}
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => router.push('/#pricing')} 
+              className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold transition whitespace-nowrap shadow-lg flex justify-center items-center gap-2
+                ${subStatus.expired ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/50' : 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/50'}`}
+            >
+              <TrendingUp size={18}/> Paketi Yenile / Yükselt
+            </button>
+          </div>
+        )}
+
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div className="flex items-center gap-4 w-full md:w-auto">
              <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 bg-gray-800 rounded-lg text-white"><Menu size={24}/></button>
@@ -496,7 +534,6 @@ export default function Dashboard() {
         {activeTab === 'services' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Hizmet Listesi</h2><button onClick={() => setServiceModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Yeni Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{services.map((s: any) => (<div key={s.id} className={`bg-gray-900 p-5 rounded-xl border transition group relative ${s.isActive === false ? 'border-red-900 opacity-60' : 'border-gray-800 hover:border-gray-600'}`}><div className="flex justify-between items-start mb-2"><h3 className="font-bold text-lg text-white">{s.name}</h3><span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold border border-gray-700">{s.price} ₺</span></div><p className="text-gray-400 text-sm flex items-center gap-1"><Clock size={14}/> {s.duration} dakika</p>{s.isActive === false && <p className="text-red-500 text-xs mt-2 font-bold">⚠️ Şu an pasif</p>}<div className="absolute bottom-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingService(s); setEditServiceModalOpen(true); }} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition"><Edit size={16}/></button><button onClick={() => handleDeleteService(s.id)} className="p-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         {activeTab === 'staff' && ( <div className="animate-fade-in"><div className="flex justify-between items-center mb-6"><h2 className="text-lg md:text-xl font-bold">Ekip Arkadaşlarım</h2><button onClick={() => { setNewStaff({name: "", phone: "+90 ", email: ""}); setStaffModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm"><Plus size={18}/> <span className="hidden md:inline">Personel Ekle</span><span className="md:hidden">Ekle</span></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{staffs.map((s: any) => (<div key={s.id} className="bg-gray-900 p-5 rounded-xl border border-gray-800 hover:border-gray-600 transition group flex items-center gap-4 relative"><div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">{s.name.charAt(0).toUpperCase()}</div><div><h3 className="font-bold text-lg text-white">{s.name}</h3><p className="text-gray-400 text-sm">{s.phone}</p></div><div className="absolute top-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onClick={() => { setEditingStaff(s); setEditStaffModalOpen(true); }} className="p-1.5 text-blue-400 hover:text-white transition"><Edit size={16}/></button><button onClick={() => handleDeleteStaff(s.id)} className="p-1.5 text-red-400 hover:text-white transition"><Trash2 size={16}/></button></div></div>))}</div></div>)}
         
-        {/* 🚀 DİNAMİK KOORDİNAT, ADRES VE SOSYAL MEDYA YÖNETİMİ */}
         {activeTab === 'settings' && (
           <div className="animate-fade-in space-y-6">
               
@@ -573,7 +610,6 @@ export default function Dashboard() {
                           </div>
                       </div>
 
-                      {/* 🚀 YENİ: SOSYAL MEDYA LİNKLERİ BÖLÜMÜ */}
                       <div className="md:col-span-2 border-t border-gray-800 pt-6 mt-2">
                           <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><Instagram size={16} className="text-pink-500"/> Sosyal Medya & Vitrin Linkleri</h4>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -615,14 +651,14 @@ export default function Dashboard() {
         )}
       </main>
 
-      {/* --- MODALLAR (AYNEN KORUNDU) --- */}
+      {/* --- MODALLAR --- */}
       {isWhatsappModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 md:p-8 rounded-2xl w-full max-w-sm text-center border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2"><Phone className="text-[#25D366]"/> WhatsApp Entegrasyonu</h3><p className="text-sm text-gray-400">Müşterilerinize randevu mesajları sizin numaranızdan gider.</p><div className="my-6 min-h-[200px] flex flex-col items-center justify-center bg-gray-800 rounded-xl border border-gray-700 p-4">{whatsappStatus === 'CONNECTED' ? (<div className="text-[#25D366] flex flex-col items-center"><CheckCircle size={56} className="mb-3"/><p className="font-bold text-xl">Bağlı ve Hazır!</p><p className="text-sm text-gray-400 mt-2">Mesajlarınız otomatik gönderiliyor.</p></div>) : whatsappStatus === 'QR_READY' && whatsappQr ? (<div className="flex flex-col items-center"><div className="p-2 bg-white rounded-xl mb-4"><img src={whatsappQr} alt="WhatsApp QR" className="w-48 h-48"/></div><p className="text-sm text-gray-300">Telefonunuzdan WhatsApp ayarlarına girip <b>"Bağlı Cihazlar"</b> menüsünden bu QR kodu okutun.</p></div>) : whatsappStatus === 'INITIALIZING' || isWhatsappLoading ? (<div className="text-blue-500 flex flex-col items-center"><RefreshCw size={40} className="animate-spin mb-4"/><p className="font-bold text-white">Sistem Hazırlanıyor...</p><p className="text-xs text-gray-400 mt-2">Bu işlem birkaç saniye sürebilir, bekleyin.</p></div>) : (<div className="text-gray-400 flex flex-col items-center"><Phone size={48} className="mb-4 opacity-30"/><p className="mb-4 text-sm text-gray-300">Sistem şu an bağlı değil.</p><button onClick={startWhatsapp} className="bg-[#25D366] hover:bg-[#1DA851] text-white px-6 py-2.5 rounded-lg font-bold shadow-lg shadow-green-900/20 transition">Bağlantıyı Başlat</button></div>)}</div><div className="flex gap-2"><button onClick={() => setWhatsappModalOpen(false)} className="flex-1 px-4 py-3 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-700 transition">Kapat</button>{whatsappStatus === 'CONNECTED' && (<button onClick={logoutWhatsapp} className="flex-1 px-4 py-3 bg-red-600/20 text-red-500 rounded-xl font-bold hover:bg-red-600 hover:text-white transition">Çıkış Yap</button>)}</div></div></div>)}
       {isQrModalOpen && ( <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-white p-6 md:p-8 rounded-2xl w-full max-w-sm text-center shadow-2xl"><h3 className="text-2xl font-bold text-gray-900 mb-2">Dükkan Karekodunuz</h3><p className="text-gray-500 text-sm mb-6">Müşterileriniz bunu okutarak randevu alabilir.</p><div className="bg-white p-2 rounded-xl border border-gray-200 inline-block mb-6 shadow-sm"><QRCodeCanvas id="shop-qr-code" value={typeof window !== "undefined" ? `${window.location.origin}/book/${user?.id}` : ""} size={200} level={"H"} includeMargin={true}/></div><div className="flex gap-2"><button onClick={() => setQrModalOpen(false)} className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">Kapat</button><button onClick={downloadQRCode} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition"><Download size={20}/> İndir</button></div></div></div>)}
       {isNoteModalOpen && ( <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><div className="flex items-center gap-3 mb-4"><div className="p-3 bg-purple-500/20 rounded-full text-purple-400"><NotebookPen size={24}/></div><div><h3 className="text-xl font-bold text-white">Müşteri Notu</h3><p className="text-sm text-gray-400">{selectedCustomerNote.name}</p></div></div><textarea className="w-full h-32 p-4 bg-gray-800 rounded-xl border border-gray-700 text-white outline-none focus:border-purple-500 transition resize-none leading-relaxed" placeholder="Notunuz..." value={selectedCustomerNote.note} onChange={(e) => setSelectedCustomerNote({...selectedCustomerNote, note: e.target.value})}/><div className="flex justify-end gap-2 mt-4"><button onClick={() => setNoteModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white transition">Vazgeç</button><button onClick={handleSaveNote} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold">Kaydet</button></div></div></div>)}
       {isServiceModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Hizmet Ekle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Hizmet Adı" onChange={(e) => setNewService({...newService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" placeholder="Süre (dk)" onChange={(e) => setNewService({...newService, duration: +e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Fiyat (TL)" onChange={(e) => setNewService({...newService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
       {isHoursModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-sm border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Çalışma Saatleri</h3><div className="space-y-4"><div><label className="text-sm text-gray-400">Açılış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.start} onChange={(e) => setWorkHours({...workHours, start: e.target.value})} /></div><div><label className="text-sm text-gray-400">Kapanış</label><input type="time" className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={workHours.end} onChange={(e) => setWorkHours({...workHours, end: e.target.value})} /></div></div><div className="flex justify-end gap-2 mt-6"><button onClick={() => setHoursModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateHours} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
       
-      {/* PERSONEL MODALLARI (Telefon formatlı ve LİMİT KONTROLLÜ) */}
+      {/* PERSONEL MODALLARI */}
       {isStaffModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Yeni Personel</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="Ad Soyad" onChange={(e) => setNewStaff({...newStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" placeholder="+90 (5XX) XXX XX XX" value={newStaff.phone} onChange={(e) => setNewStaff({...newStaff, phone: formatPhoneNumber(e.target.value)})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleAddStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Kaydet</button></div></div></div>)}
       {isEditServiceModalOpen && editingService && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Hizmeti Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.name} onChange={(e) => setEditingService({...editingService, name: e.target.value})} /><div className="flex gap-3"><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" type="number" value={editingService.duration} onChange={(e) => setEditingService({...editingService, duration: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingService.price} onChange={(e) => setEditingService({...editingService, price: e.target.value})} /></div><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditServiceModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateService} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
       {isEditStaffModalOpen && editingStaff && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm"><div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl"><h3 className="text-xl font-bold mb-4 text-white">Personel Düzenle</h3><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.name} onChange={(e) => setEditingStaff({...editingStaff, name: e.target.value})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.phone} onChange={(e) => setEditingStaff({...editingStaff, phone: formatPhoneNumber(e.target.value)})} /><input className="w-full mb-3 p-3 bg-gray-800 rounded-lg border border-gray-700 text-white" value={editingStaff.email || ""} onChange={(e) => setEditingStaff({...editingStaff, email: e.target.value})} /><div className="flex justify-end gap-2 mt-4"><button onClick={() => setEditStaffModalOpen(false)} className="px-4 py-2 text-gray-400 hover:text-white">İptal</button><button onClick={handleUpdateStaff} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Güncelle</button></div></div></div>)}
