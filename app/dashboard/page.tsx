@@ -8,7 +8,7 @@ import {
   LogOut, Plus, Trash2, Edit, CheckCircle, XCircle, 
   Clock, TrendingUp, DollarSign, Store, CalendarX, Power,
   Image as ImageIcon, NotebookPen, QrCode, Download,
-  Menu, X, Phone, RefreshCw, MapPin, AlertCircle, // 🚀 AlertCircle EKLENDİ
+  Menu, X, Phone, RefreshCw, MapPin, AlertCircle, Star, // 🚀 Star eklendi
   Instagram, Twitter, Facebook, MessageSquare 
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -32,7 +32,8 @@ export default function Dashboard() {
       shopName: "", phone: "", tagline: "", 
       address: "", addressTitle: "", fullAddress: "", 
       city: "", district: "",
-      instagram: "", facebook: "", twitter: "" 
+      instagram: "", facebook: "", twitter: "",
+      googleMapsUrl: "" // 🚀 YENİ EKLENDİ
   });
 
   const [turkeyData, setTurkeyData] = useState<any[]>([]);
@@ -141,7 +142,8 @@ export default function Dashboard() {
               district: userData.district || "",
               instagram: userData.instagram || "", 
               facebook: userData.facebook || "",   
-              twitter: userData.twitter || ""      
+              twitter: userData.twitter || "",
+              googleMapsUrl: userData.googleMapsUrl || "" // 🚀 YENİ EKLENDİ
           });
       }
 
@@ -327,7 +329,7 @@ export default function Dashboard() {
 
   const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
 
-  // --- 🚀 ABONELİK HESAPLAMA (YENİ!) ---
+  // --- 🚀 ABONELİK HESAPLAMA ---
   const getSubscriptionStatus = () => {
     if (!user || !user.subscriptionEnd) return null;
     
@@ -344,7 +346,7 @@ export default function Dashboard() {
     if (diffDays < 0) return { expired: true, days: Math.abs(diffDays) };
     if (diffDays <= 10) return { expired: false, days: diffDays };
     
-    return null; // 10 günden fazlaysa hiçbir şey gösterme
+    return null; 
   };
 
   const subStatus = getSubscriptionStatus();
@@ -409,7 +411,6 @@ export default function Dashboard() {
 
       <main className="flex-1 p-4 md:p-10 w-full md:w-auto overflow-hidden">
         
-        {/* 🚀 ABONELİK UYARI BANDI (Sadece süresi azalanlara veya bitenlere görünür) */}
         {subStatus && (
           <div className={`mb-8 p-4 md:p-5 rounded-2xl border flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl animate-fade-in
             ${subStatus.expired ? 'bg-red-950/40 border-red-500/50' : 'bg-amber-950/40 border-amber-500/50'}`}>
@@ -625,6 +626,26 @@ export default function Dashboard() {
                                   <label className="text-xs text-gray-500 mb-2 block font-bold flex items-center gap-1"><Facebook size={14}/> Facebook</label>
                                   <input type="text" className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-600 outline-none transition" placeholder="https://facebook.com/..." value={shopSettings.facebook} onChange={(e) => setShopSettings({...shopSettings, facebook: e.target.value})} />
                               </div>
+                          </div>
+                      </div>
+
+                      {/* 🚀 YENİ EKLENEN: GOOGLE HARİTALAR ENTEGRASYONU */}
+                      <div className="md:col-span-2 border-t border-gray-800 pt-6 mt-2">
+                          <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                              <Star size={16} className="text-amber-500"/> Google Haritalar (Yorum Entegrasyonu)
+                          </h4>
+                          <div>
+                              <label className="text-xs text-gray-500 mb-2 block font-bold">İşletmenizin Google Haritalar Linki</label>
+                              <input 
+                                  type="text" 
+                                  className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-amber-500 outline-none transition" 
+                                  placeholder="Örn: https://maps.app.goo.gl/..." 
+                                  value={shopSettings.googleMapsUrl} 
+                                  onChange={(e) => setShopSettings({...shopSettings, googleMapsUrl: e.target.value})} 
+                              />
+                              <p className="text-[10px] text-gray-400 mt-2 italic">
+                                  * Randevu sayfanızda 5 yıldızlı Google yorumlarınızı göstermek için dükkanınızın paylaşma linkini buraya yapıştırın.
+                              </p>
                           </div>
                       </div>
 
