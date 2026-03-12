@@ -14,30 +14,26 @@ const geistMono = Geist_Mono({
 
 // 🚀 İŞTE YENİ SEO VE VİTRİN AYARLARIMIZ
 export const metadata: Metadata = {
-  title: "Akıllı Randevu | Profesyonel Yönetim Sistemi",
-  description: "Erkek kuaförleri ve salonlar için özel olarak tasarlanmış, kesintisiz ve akıllı online randevu ve müşteri yönetim sistemi.",
-  keywords: ["kuaför randevu", "berber randevu sistemi", "online randevu", "saas", "müşteri yönetimi"],
+  title: "Berberim | Türkiye'nin Premium Kuaför ve Berber Randevu Sistemi",
+  description: "Sıra bekleme derdine son! Şehrindeki en iyi kuaförleri ve berberleri keşfet, hizmetleri incele ve saniyeler içinde online randevu al.",
+  keywords: "berber randevu, kuaför randevu, online randevu, saç kesimi, sakal tıraşı, kuaför bul, güzellik salonu randevu",
+  authors: [{ name: "Muhammet Konca" }],
   openGraph: {
-    title: "Akıllı Randevu | Profesyonel Yönetim Sistemi",
-    description: "Müşterileriniz 7/24 online randevu alsın, siz işinize odaklanın.",
-    url: "https://randevu-saas-frontend-ghqr.vercel.app", // Senin canlı Vercel linkin
-    siteName: "Akıllı Randevu",
-    images: [
-      {
-        url: "/icon-512x512.png", // WhatsApp ve sosyal medya paylaşımlarında çıkacak logo
-        width: 512,
-        height: 512,
-        alt: "Akıllı Randevu Sistemi Logo",
-      },
-    ],
-    locale: "tr_TR",
+    title: "Berberim | Online Kuaför Randevu Sistemi",
+    description: "Tarzına en uygun kuaförü bul ve anında randevu al.",
     type: "website",
+    locale: "tr_TR",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Akıllı Randevu | Profesyonel Yönetim Sistemi",
-    description: "Müşterileriniz 7/24 online randevu alsın, siz işinize odaklanın.",
-    images: ["/icon-512x512.png"],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
