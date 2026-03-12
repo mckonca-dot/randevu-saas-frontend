@@ -318,10 +318,10 @@ function ShopCard({ shop, isPromoted }: { shop: any, isPromoted: boolean }) {
           </div>
         )}
 
-        {/* PUAN ETİKETİ */}
+        {/* 🚀🚀 GERÇEK PUAN ETİKETİ (Backend'den Gelen Veri!) 🚀🚀 */}
         <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-zinc-700 flex items-center gap-1 z-10">
           <Star className="text-amber-500" size={14} fill="currentColor" />
-          <span className="text-xs font-bold">5.0</span>
+          <span className="text-xs font-bold">{shop.rating || "5.0"}</span>
         </div>
       </div>
 
