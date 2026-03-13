@@ -105,7 +105,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
-              <Scissors size={24} />
+              <Sparkles size={24} />
             </div>
             <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">BERBERİM</span>
           </div>
