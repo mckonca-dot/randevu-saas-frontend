@@ -456,7 +456,7 @@ export default function BookAppointment() {
             </div>
 
             {/* Yorum Kartları (Swipe) */}
-            <div className="flex gap-6 overflow-x-auto pb-8 snap-x hide-scrollbar">
+            <div className="flex-none w-80 snap-center">
               {reviews.reviews.map((review: any, index: number) => (
                 <div key={index} className="flex-shrink-0 w-[300px] md:w-[400px] bg-[#0a0a0a] border border-zinc-800 p-6 md:p-8 rounded-3xl snap-start relative group hover:border-amber-500/50 transition-colors duration-300">
                   <div className="absolute top-6 right-6 text-zinc-800 group-hover:text-amber-500/20 transition-colors">
