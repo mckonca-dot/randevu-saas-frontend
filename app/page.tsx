@@ -219,6 +219,57 @@ export default function Home() {
         )}
       </main>
 
+      {/* FİYATLANDIRMA VE FOOTER ALANI (DEĞİŞMEDİ) */}
+      <section id="pricing" className="py-20 bg-[#171717] border-t border-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h4 className="text-amber-500 font-heading tracking-widest mb-2 font-bold">İŞLETMENİ DİJİTALE TAŞIYIN</h4>
+          <h2 className="text-3xl md:text-5xl font-bold font-heading text-white mb-4">PROFESYONEL PAKETLER</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto mb-12">
+            Ödemenizi Shopier güvencesiyle tamamladıktan sonra hesabınız <strong>1-15 dakika içinde</strong> otomatik olarak aktifleştirilecektir.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
+              <h3 className="text-xl font-bold font-heading text-white mb-4">Başlangıç</h3>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">500₺</span><span className="text-gray-500">/ay</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400">
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> 5 Personel Ekleme</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> QR Kod Sistemi</li>
+              </ul>
+              <a href="https://www.shopier.com/randevum/45013825" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
+                Hemen Başla
+              </a>
+            </div>
+            <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500 text-black px-4 py-1 rounded-full text-xs font-bold font-heading">ÖNERİLEN</div>
+              <h3 className="text-xl font-bold font-heading text-white mb-4">Profesyonel</h3>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">800₺</span><span className="text-gray-500">/ay</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400">
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> 10 Personel Ekleme</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> WhatsApp Bildirimleri</li>
+              </ul>
+              <a href="https://www.shopier.com/randevum/45013838" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-8">
+                Hemen Başla
+              </a>
+            </div>
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
+              <h3 className="text-xl font-bold font-heading text-white mb-4">Ultra VIP</h3>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">1500₺</span><span className="text-gray-500">/ay</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400">
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Sınırsız Personel</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Vitrinde Öne Çıkma</li>
+              </ul>
+              <a href="https://www.shopier.com/randevum/45013858" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-8">
+                Hemen Başla
+              </a>
+            </div>
+          </div>
+          <div className="max-w-3xl mx-auto mt-12 bg-[#121212] border border-zinc-800 p-6 rounded-2xl flex items-center justify-between flex-col md:flex-row gap-4 text-left text-sm text-gray-400">
+            🔒 Ödemeleriniz <strong className="text-white">Shopier</strong> altyapısı ile 256-bit SSL güvencesi altındadır.
+          </div>
+        </div>
+      </section>
+
       {/* --- PREMIUM FOOTER --- */}
       <footer className="relative bg-[#050505] overflow-hidden">
         {/* Gradient üst çizgi */}
