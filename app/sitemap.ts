@@ -1,5 +1,10 @@
 import { MetadataRoute } from 'next';
 
+// 🚀 VERCEL İÇİN KESİN ÇÖZÜM: 
+// Next.js'e bu sayfanın statik değil, dinamik (sürekli güncellenen) bir sayfa olduğunu söylüyoruz.
+// Böylece build alırken dondurmaya çalışmayacak ve hata vermeyecek!
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://seninsiteninadresi.com'; // Kendi alan adını yaz
 
