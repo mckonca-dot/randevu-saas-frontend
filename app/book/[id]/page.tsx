@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   Star, MapPin, Calendar, Clock, Scissors, 
   User, Phone, AlertCircle, Check, ChevronRight, Menu, X, ArrowLeft,
-  Instagram, Twitter, Facebook, Mail, Home, MessageCircle // 🚀 MessageCircle eklendi
+  Instagram, Twitter, Facebook, Mail, Home, MessageCircle 
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
@@ -17,7 +17,7 @@ export default function BookAppointment() {
   const [shop, setShop] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
   const [staffs, setStaffs] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any>(null); // 🚀 Düzeltildi: Dizi değil obje olarak gelecek (Google verisi)
+  const [reviews, setReviews] = useState<any>(null); 
   const [gallery, setGallery] = useState<any[]>([]);
   const [closures, setClosures] = useState<any[]>([]);
   const [leaves, setLeaves] = useState<any[]>([]);
@@ -35,6 +35,36 @@ export default function BookAppointment() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [shopError, setShopError] = useState(""); 
 
+  // 🚀 FAREYLE KAYDIRMA (DRAG TO SCROLL) İÇİN GEREKLİ STATE VE REF
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    if (scrollRef.current) {
+      setStartX(e.pageX - scrollRef.current.offsetLeft);
+      setScrollLeft(scrollRef.current.scrollLeft);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // * 2 hızı belirler
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   // --- VERİ ÇEKME ---
   useEffect(() => {
     const userId = params?.id;
@@ -51,7 +81,7 @@ export default function BookAppointment() {
             Promise.all([
                fetch(`${baseUrl}/services/${userId}`).then(r => r.ok ? r.json() : []).then(setServices),
                fetch(`${baseUrl}/staffs/${userId}`).then(r => r.ok ? r.json() : []).then(setStaffs),
-               fetch(`${baseUrl}/reviews/${userId}`).then(r => r.ok ? r.json() : null).then(setReviews), // 🚀 Yorumlar Obje
+               fetch(`${baseUrl}/reviews/${userId}`).then(r => r.ok ? r.json() : null).then(setReviews),
                fetch(`${baseUrl}/gallery/${userId}`).then(r => r.ok ? r.json() : []).then(setGallery),
                fetch(`${baseUrl}/closures/${userId}`).then(r => r.ok ? r.json() : []).then(setClosures),
                fetch(`${baseUrl}/leaves/${userId}`).then(r => r.ok ? r.json() : []).then(setLeaves),
@@ -428,7 +458,7 @@ export default function BookAppointment() {
         </section>
       )}
 
-      {/* 🚀 GOOGLE YORUMLARI (YENİ EKLENDİ) */}
+      {/* 🚀 GOOGLE YORUMLARI (YENİ EKLENDİ VE FAREYLE KAYDIRMA EKLENDİ) */}
       {reviews && reviews.reviews && reviews.reviews.length > 0 && (
         <section id="yorumlar" className="py-20 md:py-24 bg-[#171717] border-y border-zinc-800 overflow-hidden relative">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 text-zinc-800 opacity-20 pointer-events-none">
@@ -451,19 +481,31 @@ export default function BookAppointment() {
                   </div>
                   <span className="text-xs text-gray-400">{reviews.totalReviews} Google Değerlendirmesi</span>
                 </div>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-8 h-8 ml-2 opacity-80" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-8 h-8 ml-2 opacity-80 pointer-events-none" />
               </div>
             </div>
 
-            {/* Yorum Kartları (Swipe) */}
-            <div className="flex-none w-80 snap-center">
+            {/* 🚀 Yorum Kartları (Drag to Scroll Özelliği ile) */}
+            <div 
+              ref={scrollRef}
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeave}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              className={`flex gap-6 overflow-x-auto pb-8 hide-scrollbar select-none ${
+                isDragging ? 'cursor-grabbing snap-none' : 'cursor-grab snap-x'
+              }`}
+            >
               {reviews.reviews.map((review: any, index: number) => (
-                <div key={index} className="flex-shrink-0 w-[300px] md:w-[400px] bg-[#0a0a0a] border border-zinc-800 p-6 md:p-8 rounded-3xl snap-start relative group hover:border-amber-500/50 transition-colors duration-300">
-                  <div className="absolute top-6 right-6 text-zinc-800 group-hover:text-amber-500/20 transition-colors">
+                <div 
+                  key={index} 
+                  className="flex-shrink-0 w-[300px] md:w-[400px] bg-[#0a0a0a] border border-zinc-800 p-6 md:p-8 rounded-3xl snap-center relative group hover:border-amber-500/50 transition-colors duration-300"
+                >
+                  <div className="absolute top-6 right-6 text-zinc-800 group-hover:text-amber-500/20 transition-colors pointer-events-none">
                      <MessageCircle size={32} />
                   </div>
                   
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-4 mb-6 pointer-events-none">
                     <img src={review.profile_photo_url} alt={review.author_name} className="w-12 h-12 rounded-full border-2 border-zinc-800" />
                     <div>
                       <h4 className="text-white font-bold text-sm md:text-base">{review.author_name}</h4>
@@ -471,11 +513,11 @@ export default function BookAppointment() {
                     </div>
                   </div>
                   
-                  <div className="flex text-amber-500 mb-4">
+                  <div className="flex text-amber-500 mb-4 pointer-events-none">
                     {[...Array(review.rating)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                   </div>
                   
-                  <p className="text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4 italic">
+                  <p className="text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4 italic pointer-events-none">
                     "{review.text}"
                   </p>
                 </div>
@@ -734,7 +776,7 @@ export default function BookAppointment() {
                 </div>
 
                 <a 
-                  href={`https://maps.google.com/?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
+                  href={`https://maps.google.com/?q=$${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 w-full bg-amber-500 text-black py-3 md:py-4 rounded-xl font-heading font-bold text-lg md:text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
@@ -751,7 +793,7 @@ export default function BookAppointment() {
                  style={{ borderRadius: '1rem', border: 0, minHeight: '300px' }}
                  loading="lazy" 
                  allowFullScreen 
-                 src={`https://maps.google.com/maps?q=${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                 src={`https://maps.google.com/maps?q=$${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                ></iframe>
             </div>
           </div>
