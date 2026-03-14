@@ -110,6 +110,17 @@ export default function BookAppointment() {
     fetchBusySlots();
   }, [date, params?.id]);
 
+  // 🚀 SEKME İSMİNİ (DOCUMENT TITLE) DİNAMİK YAPMA
+  useEffect(() => {
+    if (shop && shop.shopName) {
+      document.title = `${shop.shopName} | Berberim`;
+    } else if (shopError) {
+      document.title = "Dükkan Bulunamadı";
+    } else {
+      document.title = "Yükleniyor... | Berberim";
+    }
+  }, [shop, shopError]);
+
   // --- YARDIMCI FONKSİYONLAR ---
   const getTodayStr = () => {
     const now = new Date();
@@ -776,7 +787,8 @@ export default function BookAppointment() {
                 </div>
 
                 <a 
-                  href={`https://maps.google.com/?q=$${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}`}
+                  // 🚀 YOL TARİFİ LİNKİ DÜZELTİLDİ
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 w-full bg-amber-500 text-black py-3 md:py-4 rounded-xl font-heading font-bold text-lg md:text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
@@ -793,7 +805,8 @@ export default function BookAppointment() {
                  style={{ borderRadius: '1rem', border: 0, minHeight: '300px' }}
                  loading="lazy" 
                  allowFullScreen 
-                 src={`https://maps.google.com/maps?q=$${encodeURIComponent(shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                 // 🚀 HARİTA GÖSTERİM (IFRAME) LİNKİ DÜZELTİLDİ
+                 src={`https://maps.google.com/maps?q=${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                ></iframe>
             </div>
           </div>
