@@ -168,6 +168,126 @@ export default function Home() {
         </div>
       </section>
 
+      {/* --- KUAFÖRLER İÇİN SECTION --- */}
+<section className="py-20 bg-gradient-to-b from-[#0a0a0a] to-[#111] border-t border-zinc-900">
+  <div className="max-w-7xl mx-auto px-4 text-center">
+    
+    <h2 className="text-3xl md:text-5xl font-bold font-heading mb-6">
+      KUAFÖR MÜSÜN?
+      <br />
+      <span className="text-amber-500">İŞİNİ BÜYÜT</span>
+    </h2>
+
+    <p className="text-gray-400 max-w-2xl mx-auto mb-10">
+      Planın ile müşterilerini yönet, randevularını otomatikleştir ve gelirini artır.
+    </p>
+
+    <div className="flex flex-col md:flex-row gap-4 justify-center">
+      <Link href="/register" className="bg-amber-500 text-black px-8 py-4 rounded-xl font-bold font-heading hover:bg-yellow-400 transition">
+        ÜCRETSİZ BAŞLA
+      </Link>
+      <Link href="#pricing" className="border border-zinc-700 px-8 py-4 rounded-xl text-white hover:border-amber-500 transition">
+        Paketleri İncele
+      </Link>
+    </div>
+  </div>
+</section>
+
+
+{/* --- ÖZELLİKLER --- */}
+<section className="py-20 bg-[#0a0a0a]">
+  <div className="max-w-7xl mx-auto px-4 text-center">
+
+    <h2 className="text-3xl md:text-5xl font-heading font-bold mb-12">
+      NELER SUNUYORUZ?
+    </h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <div className="p-8 bg-[#171717] rounded-2xl border border-zinc-800">
+        <h3 className="text-xl font-bold mb-3 text-amber-500">📅 Akıllı Takvim</h3>
+        <p className="text-gray-400">Tüm randevularını tek ekrandan yönet.</p>
+      </div>
+
+      <div className="p-8 bg-[#171717] rounded-2xl border border-zinc-800">
+        <h3 className="text-xl font-bold mb-3 text-amber-500">👥 Müşteri Yönetimi</h3>
+        <p className="text-gray-400">Müşterilerini kaydet, geçmiş işlemleri takip et.</p>
+      </div>
+
+      <div className="p-8 bg-[#171717] rounded-2xl border border-zinc-800">
+        <h3 className="text-xl font-bold mb-3 text-amber-500">🔔 Otomatik Hatırlatma</h3>
+        <p className="text-gray-400">Randevuları kaçıran müşteri kalmasın.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+{/* --- NASIL ÇALIŞIR --- */}
+<section className="py-20 bg-[#111] border-t border-zinc-900">
+  <div className="max-w-6xl mx-auto px-4 text-center">
+
+    <h2 className="text-3xl md:text-5xl font-heading font-bold mb-12">
+      NASIL ÇALIŞIR?
+    </h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <div>
+        <div className="text-4xl font-bold text-amber-500 mb-3">1</div>
+        <h3 className="font-bold mb-2">Kayıt Ol</h3>
+        <p className="text-gray-400">Dakikalar içinde hesabını oluştur.</p>
+      </div>
+
+      <div>
+        <div className="text-4xl font-bold text-amber-500 mb-3">2</div>
+        <h3 className="font-bold mb-2">Profilini Oluştur</h3>
+        <p className="text-gray-400">Hizmetlerini ve fiyatlarını ekle.</p>
+      </div>
+
+      <div>
+        <div className="text-4xl font-bold text-amber-500 mb-3">3</div>
+        <h3 className="font-bold mb-2">Randevu Al</h3>
+        <p className="text-gray-400">Müşterilerin seni keşfetsin.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+{/* --- İSTATİSTİK / GÜVEN --- */}
+<section className="py-20 bg-[#0a0a0a]">
+  <div className="max-w-6xl mx-auto px-4 text-center">
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+      <div>
+        <h3 className="text-3xl font-bold text-amber-500">100+</h3>
+        <p className="text-gray-400">Kuaför</p>
+      </div>
+
+      <div>
+        <h3 className="text-3xl font-bold text-amber-500">10K+</h3>
+        <p className="text-gray-400">Randevu</p>
+      </div>
+
+      <div>
+        <h3 className="text-3xl font-bold text-amber-500">7/24</h3>
+        <p className="text-gray-400">Sistem</p>
+      </div>
+
+      <div>
+        <h3 className="text-3xl font-bold text-amber-500">%99</h3>
+        <p className="text-gray-400">Memnuniyet</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
       {/* --- ANA İÇERİK --- */}
       <main id="shops-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
 
