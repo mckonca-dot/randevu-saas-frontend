@@ -5,7 +5,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   try {
     const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${params.id}`, { cache: 'no-store' });
     
-    // 🛡️ BURAYI DA GÜNCELLEDİM (Berberim -> Planın)
+    // 🛡️ BURAYI DA GÜNCELLEDİM (Planın -> Planın)
     if (!res.ok) return { title: 'Kuaför Bulunamadı | Planın' };
     
     const shop = await res.json();

@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 
 // 🚀 İŞTE YENİ SEO VE VİTRİN AYARLARIMIZ
 export const metadata: Metadata = {
-  title: "Berberim | Türkiye'nin Premium Kuaför ve Berber Randevu Sistemi",
+  title: "Planın | Türkiye'nin Premium Kuaför ve Berber Randevu Sistemi",
   description: "Sıra bekleme derdine son! Şehrindeki en iyi kuaförleri ve berberleri keşfet, hizmetleri incele ve saniyeler içinde online randevu al.",
   keywords: "berber randevu, kuaför randevu, online randevu, saç kesimi, sakal tıraşı, kuaför bul, güzellik salonu randevu",
   authors: [{ name: "Muhammet Konca" }],
   openGraph: {
-    title: "Berberim | Online Kuaför Randevu Sistemi",
+    title: "Planın | Online Kuaför Randevu Sistemi",
     description: "Tarzına en uygun kuaförü bul ve anında randevu al.",
     type: "website",
     locale: "tr_TR",
