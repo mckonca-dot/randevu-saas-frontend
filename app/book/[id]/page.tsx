@@ -118,11 +118,11 @@ export default function BookAppointment() {
   // 🚀 SEKME İSMİNİ (DOCUMENT TITLE) DİNAMİK YAPMA
   useEffect(() => {
     if (shop && shop.shopName) {
-      document.title = `${shop.shopName} | Berberim`;
+      document.title = `${shop.shopName} | Planın`;
     } else if (shopError) {
       document.title = "Dükkan Bulunamadı";
     } else {
-      document.title = "Yükleniyor... | Berberim";
+      document.title = "Yükleniyor... | Planın";
     }
   }, [shop, shopError]);
 

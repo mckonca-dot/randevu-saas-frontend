@@ -107,7 +107,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
               <Scissors size={24} />
             </div>
-            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">BERBERİM</span>
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">PLANIN</span>
           </div>
           <div className="flex gap-4 items-center">
             <a href="#pricing" className="hidden md:block text-gray-300 hover:text-amber-500 font-bold transition text-sm">FİYATLANDIRMA</a>
@@ -302,7 +302,7 @@ export default function Home() {
                 <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
                   <Scissors size={22} />
                 </div>
-                <span className="font-heading text-xl font-bold tracking-wider text-white">KONCA SAAS</span>
+                <span className="font-heading text-xl font-bold tracking-wider text-white">PLANIN</span>
               </div>
               <p className="text-gray-500 text-sm leading-relaxed mb-6 font-body">
                 Türkiye'nin en gelişmiş yeni nesil online kuaför randevu ve salon yönetim sistemi.
@@ -362,10 +362,10 @@ export default function Home() {
           {/* Alt Bar */}
           <div className="border-t border-zinc-800/50 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-600 font-body">
-              © {new Date().getFullYear()} Berberim. Tüm hakları saklıdır.
+              © {new Date().getFullYear()} Planın. Tüm hakları saklıdır.
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-600 font-body">
-              Powered by <span className="text-amber-500 font-bold font-heading tracking-widest">KONCA SAAS</span>
+              Powered by <span className="text-amber-500 font-bold font-heading tracking-widest">PLANIN</span>
             </div>
           </div>
 
