@@ -4,13 +4,15 @@ import { Metadata } from 'next';
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   try {
     const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${params.id}`, { cache: 'no-store' });
-    if (!res.ok) return { title: 'Kuaför Bulunamadı | Berberim' };
+    
+    // 🛡️ BURAYI DA GÜNCELLEDİM (Berberim -> Planın)
+    if (!res.ok) return { title: 'Kuaför Bulunamadı | Planın' };
     
     const shop = await res.json();
 
     return {
-      title: `${shop.shopName} - Randevu Al | Berberim`,
-      description: `${shop.city}, ${shop.district} bölgesindeki en iyi kuaförlerden ${shop.shopName} için sıra beklemeden online randevu alın. ${shop.tagline || ''}`,
+      title: `${shop.shopName} - Randevu Al | Planın`,
+      description: `${shop.city}, ${shop.district} bölgesindeki en iyi kuaförlerden ${shop.shopName} için online randevu alın. ${shop.tagline || ''}`,
       openGraph: {
         title: `${shop.shopName} - Online Randevu`,
         description: `${shop.city}, ${shop.district} bölgesinde profesyonel hizmet. Hemen randevunu oluştur!`,
@@ -18,7 +20,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       },
     };
   } catch (error) {
-    return { title: 'Randevu Al | Berberim' };
+    // 🛡️ HATA DURUMUNDA GÖRÜNECEK BAŞLIK
+    return { title: 'Randevu Al | Planın' };
   }
 }
 
@@ -30,8 +33,6 @@ export default async function BookLayout({
   params: { id: string };
 }) {
   
-  // 2. GOOGLE "ZENGİN SONUÇLAR" (RICH SNIPPETS) KODU
-  // Bu kod sayesinde Google aramalarında dükkanın adı altında yıldızlar ve "Kuaför Salonu" ibaresi çıkar!
   let schemaData = null;
   try {
     const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${params.id}`, { cache: 'no-store' });
@@ -51,21 +52,20 @@ export default async function BookLayout({
           "addressCountry": "TR"
         },
         "priceRange": "₺₺",
-        "url": `https://seninsiteninadresi.com/book/${shop.id}`
+        // 🎯 İŞTE BURASI: Kendi linkini buraya yapıştırdım
+        "url": `https://planin.com.tr/book/${shop.id}` 
       };
     }
   } catch (e) {}
 
   return (
     <>
-      {/* Şemayı sayfaya gizlice enjekte ediyoruz (Sadece Google okur) */}
       {schemaData && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
         />
       )}
-      {/* Mevcut sayfanın bozulmadan render edilmesi */}
       {children}
     </>
   );
