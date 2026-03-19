@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
+// 🚀 SİHİRLİ DOKUNUŞ: Merkezi API adresimizi çağırdık!
+import { API_URL } from "@/config"; 
+
 export default function BookAppointment() {
   const params = useParams();
   const router = useRouter();
@@ -73,7 +76,8 @@ export default function BookAppointment() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const baseUrl = "https://konca-saas-backend.onrender.com/public";
+        // 🚀 URL'Yİ MERKEZİ DEĞİŞKENE BAĞLADIK
+        const baseUrl = `${API_URL}/public`;
         const shopRes = await fetch(`${baseUrl}/shop/${userId}`);
         
         if(shopRes.ok) {
@@ -103,7 +107,8 @@ export default function BookAppointment() {
     setTime(""); 
     const fetchBusySlots = async () => {
         try {
-            const res = await fetch(`https://konca-saas-backend.onrender.com/public/appointments/${params.id}?date=${date}`);
+            // 🚀 URL'Yİ MERKEZİ DEĞİŞKENE BAĞLADIK
+            const res = await fetch(`${API_URL}/public/appointments/${params.id}?date=${date}`);
             if (res.ok) setBusySlots(await res.json());
         } catch (error) { console.error(error); }
     };
@@ -222,7 +227,8 @@ export default function BookAppointment() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/public/appointments", {
+      // 🚀 URL'Yİ MERKEZİ DEĞİŞKENE BAĞLADIK
+      const res = await fetch(`${API_URL}/public/appointments`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shopId: Number(params.id),
@@ -469,7 +475,7 @@ export default function BookAppointment() {
         </section>
       )}
 
-      {/* 🚀 GOOGLE YORUMLARI (YENİ EKLENDİ VE FAREYLE KAYDIRMA EKLENDİ) */}
+      {/* 🚀 GOOGLE YORUMLARI */}
       {reviews && reviews.reviews && reviews.reviews.length > 0 && (
         <section id="yorumlar" className="py-20 md:py-24 bg-[#171717] border-y border-zinc-800 overflow-hidden relative">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 text-zinc-800 opacity-20 pointer-events-none">
@@ -787,7 +793,6 @@ export default function BookAppointment() {
                 </div>
 
                 <a 
-                  // 🚀 YOL TARİFİ LİNKİ DÜZELTİLDİ
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -805,7 +810,6 @@ export default function BookAppointment() {
                  style={{ borderRadius: '1rem', border: 0, minHeight: '300px' }}
                  loading="lazy" 
                  allowFullScreen 
-                 // 🚀 HARİTA GÖSTERİM (IFRAME) LİNKİ DÜZELTİLDİ
                  src={`https://maps.google.com/maps?q=${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                ></iframe>
             </div>
