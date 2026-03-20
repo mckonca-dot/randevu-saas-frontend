@@ -48,7 +48,7 @@ export default function SupportPage() {
             <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
               <p className="mb-6 text-gray-400">İşletmenizi sisteme eklemek, abonelik paketleri veya yaşadığınız teknik bir sorunla ilgili 7/24 bizimle iletişime geçebilirsiniz.</p>
               <div className="space-y-4">
-                <div className="flex items-center gap-3 text-white"><Mail className="text-amber-500" size={20}/> <b>E-Posta:</b> muhammetkoncaa@gmail.com</div>
+                <div className="flex items-center gap-3 text-white"><Mail className="text-amber-500" size={20}/> <b>E-Posta:</b> info@planin.com.tr</div>
                 <div className="flex items-center gap-3 text-white"><MapPin className="text-amber-500" size={20}/> <b>Merkez:</b> Düzce / Türkiye</div>
               </div>
               <button onClick={() => window.location.href='mailto:destek@koncasaas.com'} className="mt-8 w-full bg-amber-500 text-black py-3 rounded-xl font-bold hover:bg-yellow-400 transition">

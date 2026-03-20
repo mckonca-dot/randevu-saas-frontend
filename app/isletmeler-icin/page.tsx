@@ -20,7 +20,7 @@ export default function BusinessLandingPage() {
             <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
               <Scissors size={24} />
             </div>
-            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">PLANIN <span className="text-amber-500 text-sm">PRO</span></span>
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">PLANIN</span>
           </Link>
           <div className="flex gap-4 items-center">
             <Link href="/" className="text-gray-300 hover:text-amber-500 font-bold px-2 py-2 transition text-sm hidden md:block">ANA SAYFA</Link>
