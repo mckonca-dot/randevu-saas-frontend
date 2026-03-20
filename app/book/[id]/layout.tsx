@@ -1,41 +1,47 @@
 import { Metadata } from 'next';
+import { ReactNode } from 'react';
+
+interface LayoutProps {
+  children: ReactNode;
+  params: Promise<{ id: string }>; // 🎯 Next.js 15: params artık bir Promise!
+}
 
 // 1. GOOGLE BOTLARI İÇİN DİNAMİK BAŞLIK VE AÇIKLAMA ÜRETİCİ
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params; // 🚀 BURASI KRİTİK: id'yi bekleyip alıyoruz
+  
   try {
-    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${params.id}`, { cache: 'no-store' });
+    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${id}`, { cache: 'no-store' });
     
-    // 🛡️ BURAYI DA GÜNCELLEDİM (Planın -> Planın)
     if (!res.ok) return { title: 'Kuaför Bulunamadı | Planın' };
     
     const shop = await res.json();
 
+    const title = `${shop.shopName} - Randevu Al | Planın`;
+    const description = `${shop.city}, ${shop.district} bölgesindeki en iyi kuaförlerden ${shop.shopName} için online randevu alın. ${shop.tagline || ''}`;
+
     return {
-      title: `${shop.shopName} - Randevu Al | Planın`,
-      description: `${shop.city}, ${shop.district} bölgesindeki en iyi kuaförlerden ${shop.shopName} için online randevu alın. ${shop.tagline || ''}`,
+      title,
+      description,
       openGraph: {
         title: `${shop.shopName} - Online Randevu`,
-        description: `${shop.city}, ${shop.district} bölgesinde profesyonel hizmet. Hemen randevunu oluştur!`,
+        description,
+        url: `https://planin.com.tr/book/${id}`,
         images: [shop.coverImage || shop.logo || 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80'],
+        type: 'website',
       },
     };
   } catch (error) {
-    // 🛡️ HATA DURUMUNDA GÖRÜNECEK BAŞLIK
     return { title: 'Randevu Al | Planın' };
   }
 }
 
-export default async function BookLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { id: string };
-}) {
+export default async function BookLayout({ children, params }: LayoutProps) {
+  const { id } = await params; // 🚀 BURADA DA id'yi bekleyip alıyoruz
   
   let schemaData = null;
   try {
-    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${params.id}`, { cache: 'no-store' });
+    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${id}`, { cache: 'no-store' });
     if (res.ok) {
       const shop = await res.json();
       schemaData = {
@@ -52,8 +58,7 @@ export default async function BookLayout({
           "addressCountry": "TR"
         },
         "priceRange": "₺₺",
-        // 🎯 İŞTE BURASI: Kendi linkini buraya yapıştırdım
-        "url": `https://planin.com.tr/book/${shop.id}` 
+        "url": `https://planin.com.tr/book/${id}` 
       };
     }
   } catch (e) {}
