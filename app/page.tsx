@@ -281,13 +281,17 @@ export default function Home() {
               </p>
             </div>
 
+            {/* 🚀 AKTİF: Müşteriler İçin */}
             <div>
               <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">MÜŞTERİLER İÇİN</h4>
               <ul className="space-y-3 text-sm font-body">
                 <li><button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Salon Keşfet</button></li>
+                <li><Link href="/destek#nasil-calisir" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Nasıl Çalışır?</Link></li>
+                <li><Link href="/destek#sss" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">S.S.S.</Link></li>
                 <li><Link href="/destek" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yardım Merkezi</Link></li>
               </ul>
             </div>
+
 
             <div>
               <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">KUAFÖRLER İÇİN</h4>
@@ -298,11 +302,14 @@ export default function Home() {
               </ul>
             </div>
 
+            {/* 🚀 AKTİF: Yasal */}
             <div>
               <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">YASAL</h4>
               <ul className="space-y-3 text-sm font-body">
                 <li><Link href="/legal#gizlilik" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Gizlilik Politikası</Link></li>
                 <li><Link href="/legal#sartlar" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Kullanım Şartları</Link></li>
+                <li><Link href="/legal#kvkk" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">KVKK Aydınlatma</Link></li>
+                <li><Link href="/legal#cerez" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Çerez Politikası</Link></li>
               </ul>
             </div>
           </div>
