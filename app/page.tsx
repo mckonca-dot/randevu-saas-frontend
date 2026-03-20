@@ -111,7 +111,6 @@ export default function Home() {
           </div>
           <div className="flex gap-4 items-center">
             {/* 🚀 LİNKLER İŞLETMELER SAYFASINA YÖNLENDİRİLDİ */}
-            <Link href="/isletmeler-icin" className="hidden md:block text-gray-300 hover:text-amber-500 font-bold transition text-sm">İŞLETMELER İÇİN</Link>
             <Link href="/login" className="text-gray-300 hover:text-amber-500 font-bold px-2 py-2 transition text-sm">GİRİŞ YAP</Link>
             <Link href="/isletmeler-icin" className="bg-amber-500 text-black px-5 py-2 rounded-lg font-bold font-heading tracking-wider hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] text-sm">
               İŞLETMENİ EKLE
