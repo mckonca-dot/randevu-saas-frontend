@@ -357,7 +357,7 @@ function ShopCard({ shop, isPromoted }: { shop: any, isPromoted: boolean }) {
             <span key={idx} className="bg-zinc-800 text-gray-400 text-[10px] px-2 py-0.5 rounded-md">{srv.name}</span>
           ))}
         </div>
-        <Link href={`/book/${shop.id}`} className={`block w-full text-center py-3 rounded-xl font-heading font-bold tracking-widest text-sm transition-all ${isPromoted ? 'bg-amber-500 text-black hover:bg-yellow-400' : 'bg-[#0a0a0a] text-white border border-zinc-700 hover:border-amber-500'}`}>
+        <Link href={`/salon/${shop.slug || shop.id}`} className={`block w-full text-center py-3 rounded-xl font-heading font-bold tracking-widest text-sm transition-all ${isPromoted ? 'bg-amber-500 text-black hover:bg-yellow-400' : 'bg-[#0a0a0a] text-white border border-zinc-700 hover:border-amber-500'}`}>
           RANDEVU AL
         </Link>
       </div>
