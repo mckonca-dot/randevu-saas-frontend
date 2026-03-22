@@ -197,7 +197,7 @@ export default function Home() {
                  <Link href="/isletmeler-icin" className="bg-black text-white px-8 py-4 rounded-xl font-heading font-bold text-lg hover:bg-zinc-800 transition shadow-2xl flex items-center justify-center gap-2">
                     <Zap size={20}/> SİSTEMİ İNCELE
                  </Link>
-                 <Link href="/login" className="bg-transparent border-2 border-black text-black px-8 py-4 rounded-xl font-heading font-bold text-lg hover:bg-black hover:text-white transition flex items-center justify-center gap-2">
+                 <Link href="/register" className="bg-transparent border-2 border-black text-black px-8 py-4 rounded-xl font-heading font-bold text-lg hover:bg-black hover:text-white transition flex items-center justify-center gap-2">
                     <Users size={20}/> ÜYE GİRİŞİ
                  </Link>
               </div>
