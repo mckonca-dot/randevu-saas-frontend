@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { 
   Star, MapPin, Calendar, Clock, Scissors, 
   User, Phone, AlertCircle, Check, ChevronRight, Menu, X, ArrowLeft,
-  Instagram, Twitter, Facebook, Mail, Home, MessageCircle 
+  Instagram, Twitter, Facebook, Mail, MessageCircle 
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
@@ -70,25 +70,32 @@ export default function BookAppointment() {
 
   // --- VERİ ÇEKME ---
   useEffect(() => {
-    const userId = params?.id;
-    if (!userId || userId === "undefined") return;
+    // 🎯 KRİTİK DEĞİŞİKLİK: params.id yerine params.slug kullanıyoruz!
+    const shopSlug = params?.slug;
+    if (!shopSlug || shopSlug === "undefined") return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 🚀 URL'Yİ MERKEZİ DEĞİŞKENE BAĞLADIK
         const baseUrl = `${API_URL}/public`;
-        const shopRes = await fetch(`${baseUrl}/shop/${userId}`);
+        
+        // Backend'e id değil, slug gönderiyoruz
+        const shopRes = await fetch(`${baseUrl}/shop/${shopSlug}`);
         
         if(shopRes.ok) {
-            setShop(await shopRes.json());
+            const shopData = await shopRes.json();
+            setShop(shopData);
+            
+            // Diğer veriler için shopData'dan dönen gerçek ID'yi (shopData.id) kullanıyoruz
+            const realShopId = shopData.id; 
+            
             Promise.all([
-               fetch(`${baseUrl}/services/${userId}`).then(r => r.ok ? r.json() : []).then(setServices),
-               fetch(`${baseUrl}/staffs/${userId}`).then(r => r.ok ? r.json() : []).then(setStaffs),
-               fetch(`${baseUrl}/reviews/${userId}`).then(r => r.ok ? r.json() : null).then(setReviews),
-               fetch(`${baseUrl}/gallery/${userId}`).then(r => r.ok ? r.json() : []).then(setGallery),
-               fetch(`${baseUrl}/closures/${userId}`).then(r => r.ok ? r.json() : []).then(setClosures),
-               fetch(`${baseUrl}/leaves/${userId}`).then(r => r.ok ? r.json() : []).then(setLeaves),
+               fetch(`${baseUrl}/services/${realShopId}`).then(r => r.ok ? r.json() : []).then(setServices),
+               fetch(`${baseUrl}/staffs/${realShopId}`).then(r => r.ok ? r.json() : []).then(setStaffs),
+               fetch(`${baseUrl}/reviews/${realShopId}`).then(r => r.ok ? r.json() : null).then(setReviews),
+               fetch(`${baseUrl}/gallery/${realShopId}`).then(r => r.ok ? r.json() : []).then(setGallery),
+               fetch(`${baseUrl}/closures/${realShopId}`).then(r => r.ok ? r.json() : []).then(setClosures),
+               fetch(`${baseUrl}/leaves/${realShopId}`).then(r => r.ok ? r.json() : []).then(setLeaves),
             ]).catch(err => console.log("Veri hatası:", err));
         } else {
             setShopError("Bu dükkan şu anda hizmet vermemektedir veya sistemden kaldırılmıştır.");
@@ -100,20 +107,20 @@ export default function BookAppointment() {
       }
     };
     fetchData();
-  }, [params?.id]);
+  }, [params?.slug]);
 
   useEffect(() => {
-    if (!date || !params?.id) return;
+    if (!date || !shop?.id) return;
     setTime(""); 
     const fetchBusySlots = async () => {
         try {
-            // 🚀 URL'Yİ MERKEZİ DEĞİŞKENE BAĞLADIK
-            const res = await fetch(`${API_URL}/public/appointments/${params.id}?date=${date}`);
+            // Randevuları sorgularken backend ID bekliyor olabilir, biz shop nesnesinden aldığımız gerçek id'yi kullanıyoruz.
+            const res = await fetch(`${API_URL}/public/appointments/${shop.id}?date=${date}`);
             if (res.ok) setBusySlots(await res.json());
         } catch (error) { console.error(error); }
     };
     fetchBusySlots();
-  }, [date, params?.id]);
+  }, [date, shop?.id]);
 
   // 🚀 SEKME İSMİNİ (DOCUMENT TITLE) DİNAMİK YAPMA
   useEffect(() => {
@@ -227,11 +234,11 @@ export default function BookAppointment() {
 
     setSubmitting(true);
     try {
-      // 🚀 URL'Yİ MERKEZİ DEĞİŞKENE BAĞLADIK
+      // 🚀 Gerçek shop.id'yi kullanıyoruz, çünkü randevu DB'ye yazılacak.
       const res = await fetch(`${API_URL}/public/appointments`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          shopId: Number(params.id),
+          shopId: Number(shop.id), 
           serviceId: selectedService.id,
           staffId: selectedStaff?.id,
           dateTime: selectedDateTime.toISOString(),
@@ -309,7 +316,7 @@ export default function BookAppointment() {
             
             <div className="flex-shrink-0 flex items-center gap-4">
               <button 
-                onClick={() => router.back()} 
+                onClick={() => router.push('/')} 
                 className="group flex items-center gap-2 text-gray-400 hover:text-amber-500 transition-all font-semibold"
               >
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-amber-500/50 group-hover:bg-amber-500/10 transition-all">
@@ -793,7 +800,7 @@ export default function BookAppointment() {
                 </div>
 
                 <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 w-full bg-amber-500 text-black py-3 md:py-4 rounded-xl font-heading font-bold text-lg md:text-xl hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] flex justify-center items-center gap-2"
@@ -810,7 +817,7 @@ export default function BookAppointment() {
                  style={{ borderRadius: '1rem', border: 0, minHeight: '300px' }}
                  loading="lazy" 
                  allowFullScreen 
-                 src={`https://maps.google.com/maps?q=${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                 src={`https://maps.google.com/maps?q=$${encodeURIComponent(shop?.fullAddress || shop?.address || shop?.shopName || 'Kuaför')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                ></iframe>
             </div>
           </div>

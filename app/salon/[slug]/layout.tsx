@@ -1,17 +1,19 @@
 import { Metadata } from 'next';
 import { ReactNode } from 'react';
 
+// 🎯 Artık id değil, slug bekliyoruz
 interface LayoutProps {
   children: ReactNode;
-  params: Promise<{ id: string }>; // 🎯 Next.js 15: params artık bir Promise!
+  params: Promise<{ slug: string }>; 
 }
 
 // 1. GOOGLE BOTLARI İÇİN DİNAMİK BAŞLIK VE AÇIKLAMA ÜRETİCİ
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params; // 🚀 BURASI KRİTİK: id'yi bekleyip alıyoruz
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params; // 🚀 BURASI KRİTİK: slug'ı bekleyip alıyoruz
   
   try {
-    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${id}`, { cache: 'no-store' });
+    // Backend'e slug gönderiyoruz
+    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${slug}`, { cache: 'no-store' });
     
     if (!res.ok) return { title: 'Kuaför Bulunamadı | Planın' };
     
@@ -26,7 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       openGraph: {
         title: `${shop.shopName} - Online Randevu`,
         description,
-        url: `https://planin.com.tr/book/${id}`,
+        // 🎯 URL'i /salon/slug olarak güncelledik
+        url: `https://planin.com.tr/salon/${slug}`,
         images: [shop.coverImage || shop.logo || 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80'],
         type: 'website',
       },
@@ -37,11 +40,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function BookLayout({ children, params }: LayoutProps) {
-  const { id } = await params; // 🚀 BURADA DA id'yi bekleyip alıyoruz
+  const { slug } = await params; // 🚀 BURADA DA slug'ı bekleyip alıyoruz
   
   let schemaData = null;
   try {
-    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${id}`, { cache: 'no-store' });
+    // Backend'e slug gönderiyoruz
+    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${slug}`, { cache: 'no-store' });
     if (res.ok) {
       const shop = await res.json();
       schemaData = {
@@ -58,7 +62,8 @@ export default async function BookLayout({ children, params }: LayoutProps) {
           "addressCountry": "TR"
         },
         "priceRange": "₺₺",
-        "url": `https://planin.com.tr/book/${id}` 
+        // 🎯 URL'i /salon/slug olarak güncelledik
+        "url": `https://planin.com.tr/salon/${slug}` 
       };
     }
   } catch (e) {}
