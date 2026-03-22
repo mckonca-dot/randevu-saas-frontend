@@ -215,12 +215,16 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 py-12">
             <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
-                  <Scissors size={22} />
-                </div>
-                <span className="font-heading text-xl font-bold tracking-wider text-white">PLANIN</span>
-              </div>
+              <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
+            {/* Kendi Logon */}
+            <img 
+              src="/logo.png" 
+              alt="Planın Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            {/* Planın Yazısı */}
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
+          </div>
               <p className="text-gray-500 text-sm leading-relaxed mb-6 font-body">
                 Türkiye'nin en gelişmiş yeni nesil online kuaför randevu ve salon yönetim sistemi.
               </p>
