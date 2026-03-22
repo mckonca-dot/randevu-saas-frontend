@@ -208,18 +208,6 @@ export default function Home() {
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[100px] rounded-full pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Üst Bölüm: CTA Banner */}
-          <div className="py-12 border-b border-zinc-800/50">
-            <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h3 className="text-2xl md:text-3xl font-bold font-heading text-white mb-2">İŞLETMENİ DİJİTALE TAŞI</h3>
-                <p className="text-gray-400 font-body text-sm md:text-base">Hemen kayıt ol ve dükkanını yönetmeye başla.</p>
-              </div>
-              <Link href="/isletmeler-icin" className="flex-shrink-0 bg-amber-500 text-black px-8 py-4 rounded-xl font-heading font-bold tracking-widest text-sm hover:bg-yellow-400 transition-all shadow-[0_0_25px_rgba(245,158,11,0.3)]">
-                ŞİMDİ İNCELE
-              </Link>
-            </div>
-          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 py-12">
             <div className="col-span-2 md:col-span-1">
