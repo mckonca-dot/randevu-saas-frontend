@@ -203,20 +203,71 @@ export default function Home() {
       </section>
 
       {/* --- PREMIUM FOOTER --- */}
-      <footer className="bg-[#050505] pt-16 pb-8 border-t border-zinc-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
-            <div className="flex items-center gap-2.5">
-               <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black"><Scissors size={22} /></div>
-               <span className="font-heading text-2xl font-bold tracking-wider text-white">PLANIN</span>
-            </div>
-            <div className="flex gap-6 text-sm font-bold text-gray-400">
-               <Link href="/destek" className="hover:text-amber-500 transition">Nasıl Çalışır?</Link>
-               <Link href="/isletmeler-icin" className="hover:text-amber-500 transition">İşletmeler İçin</Link>
-               <Link href="/legal#gizlilik" className="hover:text-amber-500 transition">Gizlilik Politikası</Link>
+      <footer className="relative bg-[#050505] overflow-hidden">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Üst Bölüm: CTA Banner */}
+          <div className="py-12 border-b border-zinc-800/50">
+            <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h3 className="text-2xl md:text-3xl font-bold font-heading text-white mb-2">İŞLETMENİ DİJİTALE TAŞI</h3>
+                <p className="text-gray-400 font-body text-sm md:text-base">Hemen kayıt ol ve dükkanını yönetmeye başla.</p>
+              </div>
+              <Link href="/isletmeler-icin" className="flex-shrink-0 bg-amber-500 text-black px-8 py-4 rounded-xl font-heading font-bold tracking-widest text-sm hover:bg-yellow-400 transition-all shadow-[0_0_25px_rgba(245,158,11,0.3)]">
+                ŞİMDİ İNCELE
+              </Link>
             </div>
           </div>
-          <div className="border-t border-zinc-800/50 pt-8 text-center">
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 py-12">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
+                  <Scissors size={22} />
+                </div>
+                <span className="font-heading text-xl font-bold tracking-wider text-white">PLANIN</span>
+              </div>
+              <p className="text-gray-500 text-sm leading-relaxed mb-6 font-body">
+                Türkiye'nin en gelişmiş yeni nesil online kuaför randevu ve salon yönetim sistemi.
+              </p>
+            </div>
+
+            {/* 🚀 AKTİF: Müşteriler İçin */}
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">MÜŞTERİLER İÇİN</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Salon Keşfet</button></li>
+                <li><Link href="/destek#nasil-calisir" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Nasıl Çalışır?</Link></li>
+                <li><Link href="/destek#sss" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">S.S.S.</Link></li>
+                <li><Link href="/destek" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yardım Merkezi</Link></li>
+              </ul>
+            </div>
+
+
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">KUAFÖRLER İÇİN</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><Link href="/isletmeler-icin" className="text-amber-500 hover:text-yellow-400 transition-colors duration-200 font-semibold">İşletmeni Ekle</Link></li>
+                <li><Link href="/login" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yönetici Girişi</Link></li>
+                <li><Link href="/isletmeler-icin#pricing" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Fiyatlandırma</Link></li>
+              </ul>
+            </div>
+
+            {/* 🚀 AKTİF: Yasal */}
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">YASAL</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><Link href="/legal#gizlilik" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Gizlilik Politikası</Link></li>
+                <li><Link href="/legal#sartlar" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Kullanım Şartları</Link></li>
+                <li><Link href="/legal#kvkk" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">KVKK Aydınlatma</Link></li>
+                <li><Link href="/legal#cerez" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Çerez Politikası</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-zinc-800/50 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-600 font-body">© {new Date().getFullYear()} Planın. Tüm hakları saklıdır.</p>
           </div>
         </div>

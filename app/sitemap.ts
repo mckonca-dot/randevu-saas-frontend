@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // 1. Backend'den tüm dükkan verilerini taze taze çek
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/public/shops/all-slugs`, {
+    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shops/all-slugs`, {
         next: { revalidate: 3600 } // Her saat başı haritayı tazele
     });
 
