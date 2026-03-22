@@ -70,11 +70,15 @@ export default function Home() {
       {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 top-0 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#171717]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-            <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
-              <Scissors size={24} />
-            </div>
-            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">PLANIN</span>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
+            {/* Kendi Logon */}
+            <img 
+              src="/logo.png" 
+              alt="Planın Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            {/* Planın Yazısı */}
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
           </div>
           <div className="flex gap-4 items-center">
             <Link href="/login" className="text-gray-300 hover:text-amber-500 font-bold px-2 py-2 transition text-sm">GİRİŞ YAP</Link>
@@ -237,7 +241,7 @@ export default function Home() {
             <div>
               <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">KUAFÖRLER İÇİN</h4>
               <ul className="space-y-3 text-sm font-body">
-                <li><Link href="/isletmeler-icin" className="text-amber-500 hover:text-yellow-400 transition-colors duration-200 font-semibold">İşletmeni Ekle</Link></li>
+                <li><Link href="/isletmeler-icin" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">İşletmeni Ekle</Link></li>
                 <li><Link href="/login" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yönetici Girişi</Link></li>
                 <li><Link href="/isletmeler-icin#pricing" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Fiyatlandırma</Link></li>
               </ul>

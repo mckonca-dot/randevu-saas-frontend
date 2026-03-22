@@ -73,9 +73,15 @@ function SalonlarIcerik() {
           <button onClick={() => router.push("/")} className="flex items-center gap-2 text-gray-400 hover:text-amber-500 transition font-bold text-sm">
             <ArrowLeft size={18}/> Ana Sayfaya Dön
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-500 rounded flex items-center justify-center text-black"><Scissors size={18}/></div>
-            <span className="font-heading font-bold text-xl tracking-widest">PLANIN</span>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
+            {/* Kendi Logon */}
+            <img 
+              src="/logo.png" 
+              alt="Planın Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            {/* Planın Yazısı */}
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
           </div>
         </div>
       </div>
