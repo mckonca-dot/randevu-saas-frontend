@@ -140,10 +140,16 @@ export default function Home() {
           </div>
           
           <div className="mt-8 flex justify-center gap-4 text-sm text-gray-500 font-bold">
-             <span>Öne Çıkan Aramalar:</span>
+             <span>Öne Çıkan Şehirler:</span>
              <button onClick={() => { setSelectedCity("İstanbul"); handleSearch(); }} className="hover:text-amber-500 transition">İstanbul</button>
              <button onClick={() => { setSelectedCity("Ankara"); handleSearch(); }} className="hover:text-amber-500 transition">Ankara</button>
              <button onClick={() => { setSelectedCity("İzmir"); handleSearch(); }} className="hover:text-amber-500 transition">İzmir</button>
+          </div>
+
+          <div className="mt-8 flex justify-center gap-4 text-sm text-gray-500 font-bold">
+             <span>Öne Çıkan Hizmetler:</span>
+             <button onClick={() => { setSelectedService("İstanbul"); handleSearch(); }} className="hover:text-amber-500 transition">Kuaför</button>
+             <button onClick={() => { setSelectedService("Ankara"); handleSearch(); }} className="hover:text-amber-500 transition">Berber</button>
           </div>
         </div>
       </section>
