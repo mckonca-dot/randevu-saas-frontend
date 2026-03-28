@@ -54,6 +54,8 @@ export default function RootLayout({
     // 👇 Arama motorları için dil zaten Türkçe (Harika!)
     <html lang="tr">
       <head>
+        <link rel="icon" href="/logo.png?v=99" type="image/png" sizes="any" />
+        <link rel="shortcut icon" href="/logo.png?v=99" type="image/png" />
          {/* İleride PWA eklediğinde manifest buraya otomatik bağlanır ama meta theme-color vermek hız puanını ufak da olsa artırır */}
          <meta name="theme-color" content="#ffffff" />
       </head>
