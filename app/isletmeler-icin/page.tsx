@@ -18,9 +18,15 @@ export default function BusinessLandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
-              <Scissors size={24} />
             </div>
-            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider">PLANIN</span>
+            {/* Kendi Logon */}
+            <img 
+              src="/logo.png" 
+              alt="Planın Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            {/* Planın Yazısı */}
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
           </Link>
           <div className="flex gap-4 items-center">
             <Link href="/" className="text-gray-300 hover:text-amber-500 font-bold px-2 py-2 transition text-sm hidden md:block">ANA SAYFA</Link>
