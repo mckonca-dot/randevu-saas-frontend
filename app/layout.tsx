@@ -22,10 +22,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://planin.com.tr'),
   title: {
-    default: 'Planın | Akıllı Randevu Sistemi',
+    default: 'Planın | Berber ve Kuaför Randevu Sistemi | Online Randevu Al',
     template: '%s | Planın' // Alt sayfalar için otomatik ek (Örn: Ahmet Kuaför | Planın)
   },
-  description: 'Türkiye\'nin en hızlı ve kolay randevu yönetim platformu.',
+  description: 'En yakın berber ve kuaförleri keşfedin, 7/24 online randevu alın. Berber randevu sistemi ve kuaför yönetim paneli.',
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
