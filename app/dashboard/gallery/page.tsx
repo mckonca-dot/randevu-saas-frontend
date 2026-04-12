@@ -28,7 +28,7 @@ export default function GalleryPage() {
 
     try {
       setLogoLoading(true);
-      const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
+      const res = await fetch("https://planin.onrender.com/users/me", {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -55,7 +55,7 @@ export default function GalleryPage() {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
+        const res = await fetch("https://planin.onrender.com/users/me", {
           method: "PATCH",
           headers: { 
             "Content-Type": "application/json", 
@@ -95,7 +95,7 @@ export default function GalleryPage() {
     const token = localStorage.getItem("token");
     if (!token) return router.push("/login");
 
-    const res = await fetch("https://konca-saas-backend.onrender.com/gallery", {
+    const res = await fetch("https://planin.onrender.com/gallery", {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) setImages(await res.json());
@@ -118,7 +118,7 @@ export default function GalleryPage() {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/gallery", {
+      const res = await fetch("https://planin.onrender.com/gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ image: newImage, modelName: modelName }) 
@@ -153,7 +153,7 @@ export default function GalleryPage() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
-        const res = await fetch(`https://konca-saas-backend.onrender.com/gallery/${id}`, { 
+        const res = await fetch(`https://planin.onrender.com/gallery/${id}`, { 
             method: "DELETE", 
             headers: { Authorization: `Bearer ${token}` } 
         });

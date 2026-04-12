@@ -120,12 +120,12 @@ export default function Dashboard() {
       const headers = { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };
       
       const [userRes, servicesRes, appRes, staffRes, closureRes, leaveRes] = await Promise.all([
-        fetch(`https://konca-saas-backend.onrender.com/users/me?t=${t}`, { headers }),
-        fetch(`https://konca-saas-backend.onrender.com/services?t=${t}`, { headers }),
-        fetch(`https://konca-saas-backend.onrender.com/appointments?t=${t}`, { headers }),
-        fetch(`https://konca-saas-backend.onrender.com/staffs?t=${t}`, { headers }),
-        fetch(`https://konca-saas-backend.onrender.com/closures?t=${t}`, { headers }).catch(() => ({ ok: false, json: async () => [] })), 
-        fetch(`https://konca-saas-backend.onrender.com/leaves?t=${t}`, { headers }).catch(() => ({ ok: false, json: async () => [] }))
+        fetch(`https://planin.onrender.com/users/me?t=${t}`, { headers }),
+        fetch(`https://planin.onrender.com/services?t=${t}`, { headers }),
+        fetch(`https://planin.onrender.com/appointments?t=${t}`, { headers }),
+        fetch(`https://planin.onrender.com/staffs?t=${t}`, { headers }),
+        fetch(`https://planin.onrender.com/closures?t=${t}`, { headers }).catch(() => ({ ok: false, json: async () => [] })), 
+        fetch(`https://planin.onrender.com/leaves?t=${t}`, { headers }).catch(() => ({ ok: false, json: async () => [] }))
       ]);
 
       if (userRes.status === 401) { localStorage.removeItem("token"); router.push("/login"); return; }
@@ -162,19 +162,19 @@ export default function Dashboard() {
   const fetchWhatsappStatus = async () => {
     if (!user?.id) return;
     try {
-      const res = await fetch(`https://konca-saas-backend.onrender.com/whatsapp/status/${user.id}`);
+      const res = await fetch(`https://planin.onrender.com/whatsapp/status/${user.id}`);
       if (res.ok) { const data = await res.json(); setWhatsappStatus(data.status); setWhatsappQr(data.qr); }
     } catch (e) {}
   };
 
   const startWhatsapp = async () => {
     if (!user?.id) return; setIsWhatsappLoading(true);
-    try { await fetch(`https://konca-saas-backend.onrender.com/whatsapp/start/${user.id}`, { method: 'POST' }); fetchWhatsappStatus(); } catch (e) {} finally { setIsWhatsappLoading(false); }
+    try { await fetch(`https://planin.onrender.com/whatsapp/start/${user.id}`, { method: 'POST' }); fetchWhatsappStatus(); } catch (e) {} finally { setIsWhatsappLoading(false); }
   };
 
   const logoutWhatsapp = async () => {
     if (!user?.id) return;
-    try { await fetch(`https://konca-saas-backend.onrender.com/whatsapp/logout/${user.id}`, { method: 'POST' }); setWhatsappStatus("DISCONNECTED"); setWhatsappQr(null); } catch (e) {}
+    try { await fetch(`https://planin.onrender.com/whatsapp/logout/${user.id}`, { method: 'POST' }); setWhatsappStatus("DISCONNECTED"); setWhatsappQr(null); } catch (e) {}
   };
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function Dashboard() {
     const selectedDateTime = new Date(`${manualAppt.date}T${manualAppt.time}`).toISOString();
 
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/appointments", {
+      const res = await fetch("https://planin.onrender.com/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -255,7 +255,7 @@ export default function Dashboard() {
   const handleUpdateProfile = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
     try {
-        const res = await fetch("https://konca-saas-backend.onrender.com/users/me", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(shopSettings) });
+        const res = await fetch("https://planin.onrender.com/users/me", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(shopSettings) });
         if (res.ok) { Swal.fire({ title: "Harika!", text: "Profil bilgileri güncellendi! ✅", icon: "success", confirmButtonColor: "#2563eb", background: "#111827", color: "#fff" }); fetchData(token); } 
         else { Swal.fire({ title: "Dikkat!", text: "Güncelleme başarısız.", icon: "error", confirmButtonColor: "#ef4444", background: "#111827", color: "#fff" }); }
     } catch (e) {}
@@ -263,26 +263,26 @@ export default function Dashboard() {
 
   const handleSaveNote = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    try { await fetch(`https://konca-saas-backend.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); setNoteModalOpen(false); Swal.fire({ title: "Kaydedildi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); fetchData(token); } catch (error) {}
+    try { await fetch(`https://planin.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); setNoteModalOpen(false); Swal.fire({ title: "Kaydedildi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); fetchData(token); } catch (error) {}
   };
 
   const handleAddClosure = async () => {
     if(!newClosure.date) return; const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/closures", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newClosure)}); setNewClosure({ date: "", reason: "" }); fetchData(token);
+    await fetch("https://planin.onrender.com/closures", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newClosure)}); setNewClosure({ date: "", reason: "" }); fetchData(token);
   };
-  const handleDeleteClosure = async (id: number) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/closures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); };
+  const handleDeleteClosure = async (id: number) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/closures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); };
 
   const handleAddLeave = async () => {
     if(!newLeave.staffId || !newLeave.date) return; const token = localStorage.getItem("token"); if (!token) return;
-    await fetch("https://konca-saas-backend.onrender.com/leaves", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newLeave)}); setNewLeave({ staffId: "", date: "" }); fetchData(token);
+    await fetch("https://planin.onrender.com/leaves", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newLeave)}); setNewLeave({ staffId: "", date: "" }); fetchData(token);
   };
-  const handleDeleteLeave = async (id: number) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/leaves/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); };
+  const handleDeleteLeave = async (id: number) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/leaves/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); };
 
-  const handleToggleServiceStatus = async (service: any) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); fetchData(token); };
+  const handleToggleServiceStatus = async (service: any) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); fetchData(token); };
   
-  const handleAddService = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); setServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
-  const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); };
-  const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
+  const handleAddService = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://planin.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); setServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); };
+  const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
   const handleAddStaff = async () => { 
     const planLimits: any = { 'TRIAL': 5, 'BASIC': 5, 'PRO': 10, 'ULTRA': 999 };
@@ -290,13 +290,13 @@ export default function Dashboard() {
     if(staffs.length >= currentLimit) return Swal.fire({ icon: 'warning', title: 'Limit Doldu!', confirmButtonText: '🚀 Paketleri İncele', background: '#171717', color: '#fff' }).then((r) => { if (r.isConfirmed) router.push("/#pricing"); });
     const token = localStorage.getItem("token"); if (!token) return; 
     try {
-        const res = await fetch("https://konca-saas-backend.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff) });
+        const res = await fetch("https://planin.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff) });
         if (!res.ok) return Swal.fire({ icon: 'error', title: 'Hata', background: '#171717', color: '#fff' });
         setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); fetchData(token); 
     } catch (err) {}
   };
-  const handleUpdateStaff = async () => { if (!editingStaff) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); setEditStaffModalOpen(false); fetchData(token); };
-  const handleDeleteStaff = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
+  const handleUpdateStaff = async () => { if (!editingStaff) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); setEditStaffModalOpen(false); fetchData(token); };
+  const handleDeleteStaff = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
   const handleUpdateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("token"); if (!token) return;
@@ -305,11 +305,11 @@ export default function Dashboard() {
         const { value: reason } = await Swal.fire({ title: 'İptal Sebebi', input: 'text', inputPlaceholder: 'Örn: Acil iş çıktı.', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'İptal Et', background: "#111827", color: "#fff" });
         if (!reason) return; cancelReason = reason;
     }
-    try { await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); fetchData(token); Swal.fire({ title: "Başarılı!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); } catch (error) {}
+    try { await fetch(`https://planin.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); fetchData(token); Swal.fire({ title: "Başarılı!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); } catch (error) {}
   };
-  const handleDeleteAppointment = async (id: number) => { Swal.fire({ title: 'Randevuyu Sil?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://konca-saas-backend.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
+  const handleDeleteAppointment = async (id: number) => { Swal.fire({ title: 'Randevuyu Sil?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://konca-saas-backend.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://planin.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
 
   const getSubscriptionStatus = () => {
     if (!user || !user.subscriptionEnd) return null;

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   try {
     // Backend'e slug gönderiyoruz
-    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${slug}`, { cache: 'no-store' });
+    const res = await fetch(`https://planin.onrender.com/public/shop/${slug}`, { cache: 'no-store' });
     
     if (!res.ok) return { title: 'Kuaför Bulunamadı | Planın' };
     
@@ -45,7 +45,7 @@ export default async function BookLayout({ children, params }: LayoutProps) {
   let schemaData = null;
   try {
     // Backend'e slug gönderiyoruz
-    const res = await fetch(`https://konca-saas-backend.onrender.com/public/shop/${slug}`, { cache: 'no-store' });
+    const res = await fetch(`https://planin.onrender.com/public/shop/${slug}`, { cache: 'no-store' });
     if (res.ok) {
       const shop = await res.json();
       schemaData = {

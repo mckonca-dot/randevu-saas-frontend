@@ -46,7 +46,7 @@ function CheckoutContent() {
       });
     } else {
       // Backend'den kullanıcı bilgilerini çekip forma otomatik dolduralım
-      fetch("https://konca-saas-backend.onrender.com/users/me", {
+      fetch("https://planin.onrender.com/users/me", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -96,7 +96,7 @@ function CheckoutContent() {
 
     try {
       // 🚀 Backend'e form bilgilerini gönder ve HTML'i al
-      const res = await fetch("https://konca-saas-backend.onrender.com/payment/shopier", {
+      const res = await fetch("https://planin.onrender.com/payment/shopier", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan: selectedPlan, buyerData: formData })

@@ -47,7 +47,7 @@ export default function Register() {
     setLoading(true);
     
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/auth/signup", {
+      const res = await fetch("https://planin.onrender.com/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // 🎯 Kategori verisini de backend'e gönderiyoruz
@@ -88,7 +88,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/auth/verify", {
+      const res = await fetch("https://planin.onrender.com/auth/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: otp }),

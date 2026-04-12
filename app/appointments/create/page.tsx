@@ -27,7 +27,7 @@ export default function CreateAppointmentPage() {
 
       try {
         // Müşterileri Çek
-        const custRes = await fetch("https://konca-saas-backend.onrender.com/customers", {
+        const custRes = await fetch("https://planin.onrender.com/customers", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -43,7 +43,7 @@ export default function CreateAppointmentPage() {
         }
 
         // Hizmetleri Çek
-        const servRes = await fetch("https://konca-saas-backend.onrender.com/services", {
+        const servRes = await fetch("https://planin.onrender.com/services", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -70,7 +70,7 @@ export default function CreateAppointmentPage() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/appointments", {
+      const res = await fetch("https://planin.onrender.com/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

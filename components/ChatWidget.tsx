@@ -27,7 +27,7 @@ export default function ChatWidget({ shopId }: { shopId: string }) {
 
     try {
       // 🚀 DÜZELTME 1: Port 3001 yapıldı ve endpoint /appointments olarak güncellendi
-      const res = await fetch(`https://konca-saas-backend.onrender.com/appointments`, {
+      const res = await fetch(`https://planin.onrender.com/appointments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // 🚀 DÜZELTME 2: Backend'deki createAppointment fonksiyonunun beklediği veriler gönderiliyor

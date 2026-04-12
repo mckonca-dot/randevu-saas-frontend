@@ -23,7 +23,7 @@ function SalonlarIcerik() {
     const fetchShops = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`https://konca-saas-backend.onrender.com/public/shops`, { cache: "no-store" });
+        const res = await fetch(`https://planin.onrender.com/public/shops`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setShops(data);

@@ -15,7 +15,7 @@ export default function Login() {
 
     try {
       // DİKKAT: Burayı /auth/signin olarak güncelledik
-      const res = await fetch("https://konca-saas-backend.onrender.com/auth/signin", {
+      const res = await fetch("https://planin.onrender.com/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

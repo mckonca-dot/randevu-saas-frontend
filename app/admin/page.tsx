@@ -22,7 +22,7 @@ export default function AdminPanel() {
     if (!token) { router.push("/login"); return; }
 
     try {
-      const userRes = await fetch("https://konca-saas-backend.onrender.com/users/me", {
+      const userRes = await fetch("https://planin.onrender.com/users/me", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const userData = await userRes.json();
@@ -41,7 +41,7 @@ export default function AdminPanel() {
 
       setIsAdmin(true);
 
-      const shopsRes = await fetch("https://konca-saas-backend.onrender.com/admin/dashboard", {
+      const shopsRes = await fetch("https://planin.onrender.com/admin/dashboard", {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -70,7 +70,7 @@ export default function AdminPanel() {
   // 🚀 DURUM GÜNCELLEME (Active/Promoted)
   const toggleStatus = async (id: number, currentStatus: boolean, field: string) => {
     const token = localStorage.getItem("token");
-    await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+    await fetch(`https://planin.onrender.com/admin/shop/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ [field]: !currentStatus })
@@ -105,7 +105,7 @@ export default function AdminPanel() {
     if (newPlan && newPlan !== currentPlan) {
       const token = localStorage.getItem("token");
       try {
-        const res = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+        const res = await fetch(`https://planin.onrender.com/admin/shop/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ plan: newPlan })
@@ -160,7 +160,7 @@ export default function AdminPanel() {
     const field = currentPlan === 'TRIAL' ? 'trialEndsAt' : 'subscriptionEnd';
     
     try {
-      const res = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+      const res = await fetch(`https://planin.onrender.com/admin/shop/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ [field]: targetDate.toISOString() })
@@ -190,7 +190,7 @@ export default function AdminPanel() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://konca-saas-backend.onrender.com/admin/shop/${id}`, {
+        const response = await fetch(`https://planin.onrender.com/admin/shop/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });

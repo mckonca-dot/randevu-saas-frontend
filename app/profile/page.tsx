@@ -21,7 +21,7 @@ export default function ProfilePage() {
 
       // Backend'den mevcut bilgileri çek
       try {
-        const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
+        const res = await fetch("https://planin.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -50,7 +50,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const res = await fetch("https://konca-saas-backend.onrender.com/users/me", {
+      const res = await fetch("https://planin.onrender.com/users/me", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

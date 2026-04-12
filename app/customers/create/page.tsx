@@ -23,7 +23,7 @@ export default function CreateCustomerPage() {
 
     try {
       // Backend'e Müşteri Ekleme İsteği (Port 3000)
-      const res = await fetch("https://konca-saas-backend.onrender.com/customers", {
+      const res = await fetch("https://planin.onrender.com/customers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

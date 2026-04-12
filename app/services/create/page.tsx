@@ -25,7 +25,7 @@ export default function CreateServicePage() {
 
     try {
       // Backend'e Hizmet Ekleme İsteği
-      const res = await fetch("https://konca-saas-backend.onrender.com/services", {
+      const res = await fetch("https://planin.onrender.com/services", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

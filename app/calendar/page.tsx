@@ -25,7 +25,7 @@ export default function CalendarPage() {
       }
 
       try {
-        const res = await fetch("https://konca-saas-backend.onrender.com/appointments", {
+        const res = await fetch("https://planin.onrender.com/appointments", {
           headers: { Authorization: `Bearer ${token}` },
         });
         

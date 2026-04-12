@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Sparkles, Map, ChevronRight, Scissors, Clock, ShieldCheck, Smartphone, Star, Zap, Users } from "lucide-react";
 import Link from "next/link";
-import { API_URL } from "@/config"; // Eğer config dosyan yoksa burayı 'https://konca-saas-backend.onrender.com' yapabilirsin
+import { API_URL } from "@/config"; // Eğer config dosyan yoksa burayı 'https://planin.onrender.com' yapabilirsin
 
 export default function Home() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const res = await fetch(`https://konca-saas-backend.onrender.com/public/shops`);
+        const res = await fetch(`https://planin.onrender.com/public/shops`);
         if (res.ok) setShops(await res.json());
       } catch (error) {}
     };

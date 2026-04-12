@@ -36,7 +36,7 @@ export default function EditAppointmentPage({ params }: { params: Promise<{ id: 
 
       try {
         // 1. Randevu Detayını Çek (Eski verileri görmek için)
-        const appRes = await fetch("https://konca-saas-backend.onrender.com/appointments", {
+        const appRes = await fetch("https://planin.onrender.com/appointments", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const appData = await appRes.json();
@@ -53,10 +53,10 @@ export default function EditAppointmentPage({ params }: { params: Promise<{ id: 
         }
 
         // 2. Müşteri ve Hizmet Listelerini de Çek
-        const custRes = await fetch("https://konca-saas-backend.onrender.com/customers", { headers: { Authorization: `Bearer ${token}` } });
+        const custRes = await fetch("https://planin.onrender.com/customers", { headers: { Authorization: `Bearer ${token}` } });
         setCustomers(await custRes.json());
 
-        const servRes = await fetch("https://konca-saas-backend.onrender.com/services", { headers: { Authorization: `Bearer ${token}` } });
+        const servRes = await fetch("https://planin.onrender.com/services", { headers: { Authorization: `Bearer ${token}` } });
         setServices(await servRes.json());
         
         setLoading(false);
@@ -85,7 +85,7 @@ export default function EditAppointmentPage({ params }: { params: Promise<{ id: 
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`https://konca-saas-backend.onrender.com/appointments/${resolvedParams.id}`, {
+      const res = await fetch(`https://planin.onrender.com/appointments/${resolvedParams.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

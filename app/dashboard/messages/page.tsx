@@ -19,7 +19,7 @@ export default function MessagesPage() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    fetch("https://konca-saas-backend.onrender.com/users/me", {
+    fetch("https://planin.onrender.com/users/me", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -65,7 +65,7 @@ export default function MessagesPage() {
         didOpen: () => Swal.showLoading() 
       });
 
-      const res = await fetch("https://konca-saas-backend.onrender.com/users/me/templates", {
+      const res = await fetch("https://planin.onrender.com/users/me/templates", {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json", 
