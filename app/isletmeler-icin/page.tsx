@@ -1,9 +1,11 @@
 "use client";
 
 import { CheckCircle2, Scissors, CalendarCheck, Users, Bell, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function BusinessLandingPage() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans antialiased selection:bg-amber-500 selection:text-black">
       <style dangerouslySetInnerHTML={{
@@ -161,11 +163,67 @@ export default function BusinessLandingPage() {
         </div>
       </section>
 
-      {/* --- BASİT FOOTER --- */}
-      <footer className="bg-[#050505] py-10 border-t border-zinc-900 text-center">
-        <p className="text-gray-600 text-sm font-body">
-          © {new Date().getFullYear()} Planın Pro. Türkiye'nin Kuaför Yönetim Sistemi.
-        </p>
+      {/* --- PREMIUM FOOTER --- */}
+      <footer className="relative bg-[#050505] overflow-hidden">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 py-12">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
+            {/* Kendi Logon */}
+            <img 
+              src="/logo.png" 
+              alt="Planın Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            {/* Planın Yazısı */}
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
+          </div>
+              <p className="text-gray-500 text-sm leading-relaxed mb-6 font-body">
+                Türkiye'nin en gelişmiş yeni nesil online kuaför randevu ve salon yönetim sistemi.
+              </p>
+            </div>
+
+            {/* 🚀 AKTİF: Müşteriler İçin */}
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">MÜŞTERİLER İÇİN</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Salon Keşfet</button></li>
+                <li><Link href="/destek#nasil-calisir" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Nasıl Çalışır?</Link></li>
+                <li><Link href="/destek#sss" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">S.S.S.</Link></li>
+                <li><Link href="/destek" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yardım Merkezi</Link></li>
+              </ul>
+            </div>
+
+
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">KUAFÖRLER İÇİN</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><Link href="/isletmeler-icin" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">İşletmeni Ekle</Link></li>
+                <li><Link href="/login" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yönetici Girişi</Link></li>
+                <li><Link href="/isletmeler-icin#pricing" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Fiyatlandırma</Link></li>
+              </ul>
+            </div>
+
+            {/* 🚀 AKTİF: Yasal */}
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">YASAL</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><Link href="/legal#gizlilik" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Gizlilik Politikası</Link></li>
+                <li><Link href="/legal#sartlar" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Kullanım Şartları</Link></li>
+                <li><Link href="/legal#kvkk" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">KVKK Aydınlatma</Link></li>
+                <li><Link href="/legal#cerez" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Çerez Politikası</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-zinc-800/50 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-gray-600 font-body">© {new Date().getFullYear()} Planın. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
