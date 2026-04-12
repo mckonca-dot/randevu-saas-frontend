@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Scissors, CalendarCheck, Users, Bell, ArrowRight, LayoutGrid } from "lucide-react";
+import { CheckCircle2, Scissors, CalendarCheck, Users, Bell, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -19,11 +19,13 @@ export default function BusinessLandingPage() {
       <nav className="fixed w-full z-50 top-0 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#171717]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
+            {/* Kendi Logon */}
             <img 
               src="/logo.png" 
               alt="Planın Logo" 
               className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
             />
+            {/* Planın Yazısı */}
             <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
           </Link>
           <div className="flex gap-4 items-center">
@@ -37,15 +39,9 @@ export default function BusinessLandingPage() {
       <section className="pt-32 pb-20 px-4 relative overflow-hidden text-center">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none"></div>
         <h1 className="text-4xl md:text-6xl font-bold font-heading mb-6 tracking-tight relative z-10">
-          İŞLETMENİ <br />
-          <span className="text-amber-500">DİJİTALE TAŞI</span>
+          KUAFÖR MÜSÜN? <br />
+          <span className="text-amber-500">İŞİNİ DİJİTALE TAŞI</span>
         </h1>
-        
-        {/* 🎯 KATEGORİ VURGUSU (YENİ) */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8 opacity-60 text-xs font-heading font-bold tracking-widest text-gray-400 relative z-10">
-            <span>BERBER</span> • <span>KUAFÖR</span> • <span>GÜZELLİK MERKEZİ</span> • <span>TIRNAK</span> • <span>SPA</span>
-        </div>
-
         <p className="text-gray-400 text-lg md:text-xl mb-10 font-body max-w-2xl mx-auto relative z-10">
           Planın ile müşterilerini yönet, randevularını otomatikleştir ve gelirini artır. Defteri kalemi bırakma vakti geldi.
         </p>
@@ -75,9 +71,9 @@ export default function BusinessLandingPage() {
               <p className="text-gray-400 font-body text-sm">Müşterilerini kaydet, daha önce hangi işlemleri yaptırdıklarını ve notlarını tut.</p>
             </div>
             <div className="p-8 bg-[#171717] rounded-3xl border border-zinc-800">
-              <LayoutGrid className="text-amber-500 mx-auto mb-4" size={48} /> {/* 🎯 Icon kategorileme için güncellendi */}
-              <h3 className="text-xl font-bold mb-3 font-heading">Sektörel Çözümler</h3>
-              <p className="text-gray-400 font-body text-sm">Berber, kuaför veya güzellik merkezi fark etmeksizin sektörünüze özel ayarlar.</p>
+              <Bell className="text-amber-500 mx-auto mb-4" size={48} />
+              <h3 className="text-xl font-bold mb-3 font-heading">Otomatik Hatırlatma</h3>
+              <p className="text-gray-400 font-body text-sm">"Randevuyu unuttum" bahanesine son. Müşterilerine randevu öncesi otomatik bildirim gider.</p>
             </div>
           </div>
         </div>
@@ -90,10 +86,9 @@ export default function BusinessLandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="relative">
               <div className="text-6xl font-black text-zinc-800 absolute -top-4 left-1/2 -translate-x-1/2 z-0">01</div>
-              <h3 className="font-bold mb-2 text-xl relative z-10 mt-6 text-amber-500 font-heading">Kayıt Ol & Kategorini Seç</h3>
-              <p className="text-gray-400 font-body text-sm relative z-10">Sadece 2 dakikada hesabını oluştur, işletme kategorini belirle ve panelini aktif et.</p>
+              <h3 className="font-bold mb-2 text-xl relative z-10 mt-6 text-amber-500 font-heading">Kayıt Ol</h3>
+              <p className="text-gray-400 font-body text-sm relative z-10">Sadece 2 dakikada hesabını oluştur ve işletme panelini aktif et.</p>
             </div>
-            {/* ... Diğer adımlar aynı ... */}
             <div className="relative">
               <div className="text-6xl font-black text-zinc-800 absolute -top-4 left-1/2 -translate-x-1/2 z-0">02</div>
               <h3 className="font-bold mb-2 text-xl relative z-10 mt-6 text-amber-500 font-heading">Profilini Düzenle</h3>
@@ -108,11 +103,126 @@ export default function BusinessLandingPage() {
         </div>
       </section>
 
-      {/* ... Fiyatlandırma ve Footer kısımları orijinal haliyle devam ediyor ... */}
+      {/* --- FİYATLANDIRMA --- */}
+      <section id="pricing" className="py-20 bg-[#171717] border-y border-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h4 className="text-amber-500 font-heading tracking-widest mb-2 font-bold">ŞEFFAF FİYATLANDIRMA</h4>
+          <h2 className="text-3xl md:text-5xl font-bold font-heading text-white mb-4">PROFESYONEL PAKETLER</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto mb-12 font-body text-sm">
+            Ödemenizi Shopier güvencesiyle tamamladıktan sonra hesabınız <strong>1-15 dakika içinde</strong> otomatik olarak aktifleştirilecektir.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
+            {/* Paket 1 */}
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
+              <h3 className="text-xl font-bold font-heading text-white mb-4">Başlangıç</h3>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">500₺</span><span className="text-gray-500">/ay</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400 font-body">
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> 5 Personel Ekleme</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> QR Kod Sistemi</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Online Randevu Paneli</li>
+              </ul>
+              <a href="https://www.shopier.com/randevum/45013825" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-2">
+                Hemen Başla
+              </a>
+            </div>
+            
+            {/* Paket 2 (Önerilen) */}
+            <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500 text-black px-4 py-1 rounded-full text-xs font-bold font-heading">ÖNERİLEN</div>
+              <h3 className="text-xl font-bold font-heading text-white mb-4">Profesyonel</h3>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">800₺</span><span className="text-gray-500">/ay</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400 font-body">
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> 10 Personel Ekleme</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> WhatsApp Bildirimleri</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Gelişmiş İstatistikler</li>
+              </ul>
+              <a href="https://www.shopier.com/randevum/45013838" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-2">
+                Hemen Başla
+              </a>
+            </div>
+
+            {/* Paket 3 */}
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 hover:border-amber-500/50 transition duration-300">
+              <h3 className="text-xl font-bold font-heading text-white mb-4">Ultra VIP</h3>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">1500₺</span><span className="text-gray-500">/ay</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400 font-body">
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Sınırsız Personel</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Ana Sayfada Öne Çıkma</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="text-amber-500" size={16} /> Öncelikli 7/24 Destek</li>
+              </ul>
+              <a href="https://www.shopier.com/randevum/45013858" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-4 bg-zinc-800 text-white text-center rounded-xl font-bold hover:bg-zinc-700 transition mb-2">
+                Hemen Başla
+              </a>
+            </div>
+          </div>
+          
+          <div className="max-w-3xl mx-auto mt-12 bg-[#121212] border border-zinc-800 p-6 rounded-2xl flex items-center justify-between flex-col md:flex-row gap-4 text-left text-sm text-gray-400 font-body">
+            🔒 Ödemeleriniz <strong className="text-white">Shopier</strong> altyapısı ile 256-bit SSL güvencesi altındadır.
+          </div>
+        </div>
+      </section>
+
+      {/* --- PREMIUM FOOTER --- */}
       <footer className="relative bg-[#050505] overflow-hidden">
-        {/* ... Orijinal Footer kodun ... */}
-        <div className="max-w-7xl mx-auto px-4 py-12 text-center border-t border-zinc-800">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 py-12">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
+            {/* Kendi Logon */}
+            <img 
+              src="/logo.png" 
+              alt="Planın Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            {/* Planın Yazısı */}
+            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">PLANIN</span>
+          </div>
+              <p className="text-gray-500 text-sm leading-relaxed mb-6 font-body">
+                Türkiye'nin en gelişmiş yeni nesil online kuaför randevu ve salon yönetim sistemi.
+              </p>
+            </div>
+
+            {/* 🚀 AKTİF: Müşteriler İçin */}
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">MÜŞTERİLER İÇİN</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Salon Keşfet</button></li>
+                <li><Link href="/destek#nasil-calisir" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Nasıl Çalışır?</Link></li>
+                <li><Link href="/destek#sss" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">S.S.S.</Link></li>
+                <li><Link href="/destek" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yardım Merkezi</Link></li>
+              </ul>
+            </div>
+
+
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">KUAFÖRLER İÇİN</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><Link href="/isletmeler-icin" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">İşletmeni Ekle</Link></li>
+                <li><Link href="/login" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Yönetici Girişi</Link></li>
+                <li><Link href="/isletmeler-icin#pricing" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Fiyatlandırma</Link></li>
+              </ul>
+            </div>
+
+            {/* 🚀 AKTİF: Yasal */}
+            <div>
+              <h4 className="text-white font-bold font-heading tracking-widest mb-5 text-sm">YASAL</h4>
+              <ul className="space-y-3 text-sm font-body">
+                <li><Link href="/legal#gizlilik" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Gizlilik Politikası</Link></li>
+                <li><Link href="/legal#sartlar" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Kullanım Şartları</Link></li>
+                <li><Link href="/legal#kvkk" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">KVKK Aydınlatma</Link></li>
+                <li><Link href="/legal#cerez" className="text-gray-500 hover:text-amber-500 transition-colors duration-200">Çerez Politikası</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-zinc-800/50 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-600 font-body">© {new Date().getFullYear()} Planın. Tüm hakları saklıdır.</p>
+          </div>
         </div>
       </footer>
     </div>
