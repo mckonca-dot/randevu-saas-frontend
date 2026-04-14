@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script"; // 🎯 SEO ve Hız: Üçüncü parti scriptler için eklendi
+import { Toaster } from "react-hot-toast"; // 🎯 BİLDİRİM SİSTEMİ EKLENDİ
 import "./globals.css";
 
 // 🚀 FONT OPTİMİZASYONU: display: 'swap' eklendi.
@@ -62,6 +63,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
       >
+        {/* 🎯 BİLDİRİM BİLEŞENİ: Artık uygulamanın her yerinde toast() kullanabilirsin */}
+        <Toaster 
+          position="top-center" 
+          reverseOrder={false} 
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+          }}
+        />
+
         {children}
 
         {/* 🚀 SCRIPT OPTİMİZASYONU (Örnek Google Analytics Kullanımı)

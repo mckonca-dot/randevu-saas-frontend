@@ -2,112 +2,138 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-// 🚀 SWEETALERT2 EKLENDİ
+import { Mail, Lock, ChevronRight } from "lucide-react";
 import Swal from 'sweetalert2';
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      // DİKKAT: Burayı /auth/signin olarak güncelledik
       const res = await fetch("https://planin.onrender.com/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         throw new Error(data.message || "Giriş başarısız");
       }
 
-      // Token'ı kaydet
+      // 🎯 BAŞARILI GİRİŞ: Token'ı kaydet
       localStorage.setItem("token", data.access_token);
-      const intendedPlan = localStorage.getItem("intendedPlan");
-          if (intendedPlan) {
-            localStorage.removeItem("intendedPlan"); // Hafızayı temizle
-            router.push(`/checkout?plan=${intendedPlan}`); // Kasaya geri yolla
-          } else {
-            router.push("/dashboard"); // Normal girişse panele yolla
-          }
       
-      // 🚀 SWEETALERT İLE ŞIK BAŞARI MESAJI
       Swal.fire({
         icon: 'success',
         title: 'Hoş Geldiniz!',
-        text: 'Giriş başarılı, panele yönlendiriliyorsunuz... 🚀',
-        showConfirmButton: false, // Butonu gizleyip otomatik kapanmasını sağlıyoruz
-        timer: 1500, // 1.5 saniye sonra kapanır
-        background: '#1f2937', // Panelin arka plan rengi
-        color: '#fff'
+        text: 'Giriş başarılı, yönlendiriliyorsunuz...',
+        showConfirmButton: false, 
+        timer: 1500, 
+        background: '#1A1A1D', 
+        color: '#F8F1E7'
       }).then(() => {
-        // Uyarı kapandıktan sonra Dashboard'a yönlendir
-        router.push("/dashboard");
+        // 🚀 SWEETALERT KAPANDIKTAN SONRA TEK BİR KEZ YÖNLENDİR (Intended Plan Mantığı Korundu)
+        const intendedPlan = localStorage.getItem("intendedPlan");
+        if (intendedPlan) {
+          localStorage.removeItem("intendedPlan"); 
+          router.push(`/checkout?plan=${intendedPlan}`); 
+        } else {
+          router.push("/dashboard"); 
+        }
       });
 
     } catch (error: any) {
-      // 🚀 SWEETALERT İLE ŞIK HATA MESAJI
       Swal.fire({
         icon: 'error',
         title: 'Giriş Başarısız!',
         text: error.message === 'Credentials incorrect' ? 'E-posta veya şifre hatalı.' : error.message,
         confirmButtonColor: '#ef4444',
         confirmButtonText: 'Tekrar Dene',
-        background: '#1f2937',
-        color: '#fff'
+        background: '#1A1A1D',
+        color: '#F8F1E7'
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900">
-      <div className="w-full max-w-md bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700">
-        <h1 className="text-3xl font-bold text-center text-white mb-6">Giriş Yap</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#1A1A1D] p-4 selection:bg-[#E8C9B5] selection:text-[#1A1A1D]">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+        .font-heading { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+        .font-body { font-family: 'Inter', sans-serif; }
+      `}} />
+
+      <div className="w-full max-w-md bg-[#1F1F23] p-8 rounded-3xl border border-[#33333A] shadow-2xl animate-fade-in-up font-body">
+        
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-[#F8F1E7] font-heading tracking-wide mb-2">GİRİŞ YAP</h1>
+          <p className="text-gray-400 text-sm">Yönetim paneline erişmek için bilgilerinizi girin.</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-5">
+          {/* E-Posta Alanı */}
           <div>
-            <label className="block text-gray-400 text-sm mb-1">E-posta</label>
-            <input
-              type="email"
-              placeholder="ornek@mail.com"
-              className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 outline-none transition"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-400 text-sm mb-1">Şifre</label>
-            <input
-              type="password"
-              placeholder="******"
-              className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 outline-none transition"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          
-          {/* 🚀 ŞİFREMİ UNUTTUM LİNKİ BURAYA EKLENDİ */}
-          <div className="flex justify-end mt-2">
-            <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-amber-500 transition font-bold">
-              Şifremi Unuttum
-            </Link>
+            <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">E-posta Adresi</label>
+            <div className="relative flex items-center bg-[#1A1A1D] rounded-xl border border-[#33333A] focus-within:border-[#E8C9B5] transition overflow-hidden">
+              <Mail className="absolute left-3.5 text-[#E8C9B5]" size={18} />
+              <input 
+                type="email" 
+                placeholder="ornek@mail.com" 
+                className="w-full p-3.5 pl-11 bg-transparent text-[#F8F1E7] outline-none" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+            </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition shadow-lg mt-4"
+          {/* Şifre Alanı */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider">Şifre</label>
+              <Link href="/forgot-password" className="text-xs text-[#E8C9B5] hover:text-[#D6B49D] transition">Şifremi Unuttum</Link>
+            </div>
+            <div className="relative flex items-center bg-[#1A1A1D] rounded-xl border border-[#33333A] focus-within:border-[#E8C9B5] transition overflow-hidden">
+              <Lock className="absolute left-3.5 text-[#E8C9B5]" size={18} />
+              <input 
+                type="password" 
+                placeholder="******" 
+                className="w-full p-3.5 pl-11 bg-transparent text-[#F8F1E7] outline-none" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
+            </div>
+          </div>
+
+          {/* Giriş Butonu */}
+          <button 
+            disabled={loading} 
+            type="submit" 
+            className="w-full bg-[#E8C9B5] text-[#1A1A1D] font-heading font-bold tracking-wider py-4 rounded-xl hover:bg-[#D6B49D] transition shadow-[0_0_15px_rgba(232,201,181,0.3)] mt-6 disabled:opacity-50 flex justify-center items-center gap-2"
           >
-            Giriş Yap
+            {loading ? "GİRİŞ YAPILIYOR..." : "GİRİŞ YAP"} <ChevronRight size={18}/>
           </button>
         </form>
-        <p className="text-gray-400 text-center mt-4 text-sm">
-          Hesabın yok mu? <a href="/register" className="text-blue-400 hover:underline">Kayıt Ol</a>
-        </p>
+
+        {/* Kayıt Ol Yönlendirmesi */}
+        <div className="text-center mt-8 pt-6 border-t border-[#33333A]">
+          <p className="text-gray-400 text-sm">
+            Henüz bir hesabınız yok mu?{' '}
+            <Link href="/register" className="text-[#E8C9B5] font-bold hover:underline transition">Kayıt Ol</Link>
+          </p>
+        </div>
+
       </div>
     </div>
   );

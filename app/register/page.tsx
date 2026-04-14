@@ -54,30 +54,42 @@ export default function Register() {
         body: JSON.stringify({ email, password, shopName, plan, category }),
       });
 
+      // 🎯 DÜZELTME: Önce yanıtın body'sini güvenli bir şekilde alalım
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         Swal.fire({
           icon: 'info',
           title: 'Kod Gönderildi!',
-          text: 'E-posta adresinize 6 haneli bir doğrulama kodu gönderdik.',
+          text: data.message || 'E-posta adresinize 6 haneli bir doğrulama kodu gönderdik.',
           confirmButtonColor: '#E8C9B5',
           background: '#1A1A1D',
           color: '#F8F1E7'
         });
         setStep(3);
       } else {
-        const errorData = await res.json().catch(() => ({}));
+        // 🎯 DÜZELTME: Backend'den gelen hatayı (Örn: "Bu e-posta zaten kullanımda") ekrana basıyoruz
         Swal.fire({
           icon: 'error',
           title: 'Kayıt Başarısız!',
-          text: errorData.message || 'Bir hata oluştu.',
+          text: data.message || 'Kayıt olurken bir hata oluştu. Bilgilerinizi kontrol ediniz.',
           confirmButtonColor: '#ef4444',
           background: '#1A1A1D',
           color: '#F8F1E7'
         });
       }
     } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası!', text: 'Sunucuya ulaşılamadı.', confirmButtonColor: '#ef4444', background: '#1A1A1D', color: '#F8F1E7' });
+      // 🎯 Sunucuya ulaşılamazsa veya fetch tamamen patlarsa çalışır
+      Swal.fire({ 
+        icon: 'error', 
+        title: 'Bağlantı Hatası!', 
+        text: 'Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.', 
+        confirmButtonColor: '#ef4444', 
+        background: '#1A1A1D', 
+        color: '#F8F1E7' 
+      });
     } finally {
+      // 🎯 DÜZELTME: İşlem ne olursa olsun loading asılı kalmaz, buton geri gelir
       setLoading(false);
     }
   };
@@ -94,7 +106,7 @@ export default function Register() {
         body: JSON.stringify({ email, code: otp }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         localStorage.setItem("token", data.access_token);
@@ -118,9 +130,12 @@ export default function Register() {
         });
       } else {
         Swal.fire({
-          icon: 'error', title: 'Hatalı Kod!',
+          icon: 'error', 
+          title: 'Hatalı Kod!',
           text: data.message || 'Kod hatalı veya süresi dolmuş.',
-          confirmButtonColor: '#ef4444', background: '#1A1A1D', color: '#F8F1E7'
+          confirmButtonColor: '#ef4444', 
+          background: '#1A1A1D', 
+          color: '#F8F1E7'
         });
       }
     } catch (error) {
