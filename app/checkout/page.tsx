@@ -79,9 +79,9 @@ function CheckoutContent() {
 
   // 🚀 Shopier Ürün Linkleriniz (Shopier panelinden oluşturduğunuz paketlerin linklerini buraya yapıştırın)
   const shopierLinks: any = {
-    BASIC: "https://shopier.com/https://www.shopier.com/randevum/45013825", // Örn: https://shopier.com/1234567
-    PRO: "https://shopier.com/https://www.shopier.com/randevum/45013838",
-    ULTRA: "https://shopier.com/https://www.shopier.com/randevum/45013858"
+    BASIC: "https://shopier.com/randevum/45013825", // Örn: https://shopier.com/1234567
+    PRO: "https://shopier.com/randevum/45013838",
+    ULTRA: "https://shopier.com/randevum/45013858"
   };
 
   const handlePayment = async (e: React.FormEvent) => {
