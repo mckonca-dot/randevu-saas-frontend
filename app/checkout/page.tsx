@@ -49,19 +49,19 @@ function CheckoutContent() {
       fetch("https://planin.onrender.com/users/me", {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        setUser(data);
-        setFormData(prev => ({
-          ...prev,
-          firstName: data.shopName?.split(" ")[0] || "",
-          lastName: data.shopName?.split(" ").slice(1).join(" ") || "Kuaför",
-          phone: data.phone || "",
-          email: data.email || "",
-          city: data.city || "",
-          address: data.fullAddress || ""
-        }));
-      });
+        .then(res => res.json())
+        .then(data => {
+          setUser(data);
+          setFormData(prev => ({
+            ...prev,
+            firstName: data.shopName?.split(" ")[0] || "",
+            lastName: data.shopName?.split(" ").slice(1).join(" ") || "Kuaför",
+            phone: data.phone || "",
+            email: data.email || "",
+            city: data.city || "",
+            address: data.fullAddress || ""
+          }));
+        });
     }
   }, [router, planQuery]);
 
@@ -77,14 +77,18 @@ function CheckoutContent() {
     address: ""
   });
 
+  // 🚀 Shopier Ürün Linkleriniz (Shopier panelinden oluşturduğunuz paketlerin linklerini buraya yapıştırın)
+  const shopierLinks: any = {
+    BASIC: "https://shopier.com/https://www.shopier.com/randevum/45013825", // Örn: https://shopier.com/1234567
+    PRO: "https://shopier.com/https://www.shopier.com/randevum/45013838",
+    ULTRA: "https://shopier.com/https://www.shopier.com/randevum/45013858"
+  };
+
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
     Swal.fire({
-      title: "Hazırlanıyor...",
+      title: "Yönlendiriliyorsunuz...",
       text: "Shopier güvenli ödeme noktasına aktarılıyorsunuz...",
       icon: "info",
       showConfirmButton: false,
@@ -94,26 +98,19 @@ function CheckoutContent() {
       didOpen: () => Swal.showLoading()
     });
 
-    try {
-      // 🚀 Backend'e form bilgilerini gönder ve HTML'i al
-      const res = await fetch("https://planin.onrender.com/payment/shopier", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ plan: selectedPlan, buyerData: formData })
+    // Doğrudan Shopier ürün linkine git (API entegrasyonu olmadan)
+    const productLink = shopierLinks[selectedPlan];
+
+    if (productLink && productLink.includes("http")) {
+      window.location.href = productLink;
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Bağlantı Hatası',
+        text: 'Shopier ürün linki henüz eklenmemiş. Lütfen yazılımcınıza başvurun.',
+        background: '#171717',
+        color: '#fff'
       });
-
-      if (!res.ok) throw new Error("Ödeme başlatılamadı.");
-
-      const html = await res.text();
-      
-      // 🚀 SİHİRLİ DOKUNUŞ: Ekranı tamamen Shopier formuna dönüştür
-      document.open();
-      document.write(html);
-      document.close();
-
-    } catch (error) {
-      console.error(error);
-      Swal.fire({ icon: 'error', title: 'Hata', text: 'Ödeme sistemiyle bağlantı kurulamadı.', background: '#171717', color: '#fff' });
     }
   };
 
@@ -132,7 +129,7 @@ function CheckoutContent() {
 
       <main className="max-w-7xl mx-auto px-4 py-12 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          
+
           <div className="lg:col-span-2 space-y-8 animate-fade-in">
             <div>
               <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">Abonelik Başlat</h1>
@@ -143,43 +140,43 @@ function CheckoutContent() {
               {/* ALICI BİLGİLERİ (Shopier Zorunlu Tutar) */}
               <div className="bg-[#0a0a0a] p-6 md:p-8 rounded-3xl border border-zinc-900 shadow-2xl">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-zinc-900 pb-4">
-                  <User className="text-amber-500" size={20}/> Alıcı Bilgileri
+                  <User className="text-amber-500" size={20} /> Alıcı Bilgileri
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Adınız</label>
-                    <input type="text" required placeholder="Adınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
+                    <input type="text" required placeholder="Adınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Soyadınız</label>
-                    <input type="text" required placeholder="Soyadınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
+                    <input type="text" required placeholder="Soyadınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Telefon Numarası</label>
                     <div className="relative">
-                      <input type="text" required placeholder="05XX XXX XX XX" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+                      <input type="text" required placeholder="05XX XXX XX XX" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">E-Posta Adresi</label>
                     <div className="relative">
-                      <input type="email" required placeholder="mail@ornek.com" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                      <input type="email" required placeholder="mail@ornek.com" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                     </div>
                   </div>
-                  
+
                   <div className="md:col-span-2 border-t border-zinc-900 pt-6 mt-2">
-                    <h3 className="text-sm font-bold text-gray-300 mb-4 flex items-center gap-2"><MapPin size={16} className="text-amber-500"/> Fatura Adresi</h3>
+                    <h3 className="text-sm font-bold text-gray-300 mb-4 flex items-center gap-2"><MapPin size={16} className="text-amber-500" /> Fatura Adresi</h3>
                   </div>
 
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Şehir</label>
-                    <input type="text" required placeholder="Örn: İstanbul" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} />
+                    <input type="text" required placeholder="Örn: İstanbul" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} />
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Açık Adres</label>
-                    <textarea required placeholder="Mahalle, sokak, no..." className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition h-24 resize-none" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
+                    <textarea required placeholder="Mahalle, sokak, no..." className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition h-24 resize-none" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
                   </div>
                 </div>
 
@@ -188,7 +185,7 @@ function CheckoutContent() {
                     <ShoppingBag size={20} /> SHOPIER İLE GÜVENLİ ÖDE ({plan.price} ₺)
                   </button>
                   <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
-                    <ShieldCheck size={14} className="text-green-500"/> Kredi kartı adımına Shopier ekranında geçilecektir.
+                    <ShieldCheck size={14} className="text-green-500" /> Kredi kartı adımına Shopier ekranında geçilecektir.
                   </p>
                 </div>
               </div>
