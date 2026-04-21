@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ChevronRight, Crown, Mail, ArrowLeft, LayoutGrid } from "lucide-react";
 import Swal from 'sweetalert2';
@@ -20,6 +20,21 @@ export default function Register() {
   const [otp, setOtp] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  // URL'den Gelen Parametreleri Yakala (Shopier Statik Link Dönüşü vb.)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlEmail = params.get('email');
+      const urlPlan = params.get('plan');
+      if (urlEmail) setEmail(urlEmail);
+      if (urlPlan) {
+        const p = urlPlan.toUpperCase();
+        setPlan(p.includes('PRO') ? 'PRO' : p.includes('ULTRA') ? 'ULTRA' : 'BASIC');
+        setStep(2);
+      }
+    }
+  }, []);
 
   // 1. AŞAMA: PLANI SEÇ VE İLERLE
   const handleSelectPlan = (selectedPlan: string) => {

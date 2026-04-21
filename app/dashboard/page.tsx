@@ -401,11 +401,11 @@ export default function Dashboard() {
               </div>
             </div>
             <button 
-              onClick={() => router.push('/#pricing')} 
+              onClick={() => router.push(`/checkout?plan=${user?.plan || 'PRO'}`)} 
               className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold transition whitespace-nowrap shadow-lg flex justify-center items-center gap-2
                 ${subStatus.expired ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/50' : 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/50'}`}
             >
-              <TrendingUp size={18}/> Paketi Yenile / Yükselt
+              <TrendingUp size={18}/> Paketi {subStatus.expired ? 'Yenile' : 'Uzat'} / Yükselt
             </button>
           </div>
         )}
