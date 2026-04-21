@@ -394,19 +394,54 @@ export default function Dashboard() {
                   {subStatus.expired ? 'Abonelik Süreniz Doldu!' : 'Aboneliğiniz Yakında Bitiyor!'}
                 </h3>
                 <p className="text-gray-300 text-xs md:text-sm mt-1 leading-relaxed">
-                  {subStatus.expired 
-                    ? 'Sistemi kullanmaya devam edebilmek ve randevu alabilmek için lütfen paketinizi yenileyin.'
-                    : `Mevcut paketinizin bitmesine sadece ${subStatus.days} gün kaldı. Hizmet kesintisi yaşamamak için yenileyin.`}
+                  Ödemenizi yaptıysanız, lütfen Shopier'den aldığınız 9 haneli <strong>Sipariş Numaranızı</strong> aşağıya girerek paketinizi uzatın.
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => router.push(`/checkout?plan=${user?.plan || 'PRO'}`)} 
-              className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold transition whitespace-nowrap shadow-lg flex justify-center items-center gap-2
-                ${subStatus.expired ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/50' : 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/50'}`}
-            >
-              <TrendingUp size={18}/> Paketi {subStatus.expired ? 'Yenile' : 'Uzat'} / Yükselt
-            </button>
+            <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+              <input 
+                type="text" 
+                id="shopier_order_input"
+                placeholder="Shopier Sipariş No" 
+                className="px-4 py-3 rounded-xl bg-gray-900 border border-gray-700 text-white outline-none focus:border-amber-500 w-full md:w-48 text-sm"
+              />
+              <button 
+                onClick={async () => {
+                  const orderNo = (document.getElementById('shopier_order_input') as HTMLInputElement).value;
+                  if (!orderNo || orderNo.length < 5) {
+                    return Swal.fire('Hata', 'Lütfen geçerli bir sipariş numarası giriniz.', 'error');
+                  }
+                  
+                  // Eğer kullanıcı checkout ekranında yeni bir paket seçtiyse o paketi al, yoksa eski paketini kullan
+                  const claimedPlan = localStorage.getItem('lastPaidPlan') || user?.plan || 'PRO';
+                  
+                  const token = localStorage.getItem("token");
+                  try {
+                    const res = await fetch("https://planin.onrender.com/payment/verify-order", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ orderId: orderNo, planQuery: claimedPlan })
+                    });
+                    
+                    if (res.ok) {
+                      localStorage.removeItem('lastPaidPlan'); // Başarılı olunca hafızayı temizle
+                      Swal.fire('Başarılı', 'Siparişiniz onaylandı, paketiniz ' + claimedPlan + ' olarak ayarlandı!', 'success').then(() => window.location.reload());
+                    } else {
+                      Swal.fire('Hata', 'Sipariş doğrulanamadı veya reddedildi.', 'error');
+                    }
+                  } catch (e) {
+                     Swal.fire('Hata', 'Bağlantı hatası', 'error');
+                  }
+                }} 
+                className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold transition whitespace-nowrap shadow-lg flex justify-center items-center gap-2
+                  ${subStatus.expired ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/50' : 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/50'}`}
+              >
+                <CheckCircle size={18}/> Doğrula
+              </button>
+            </div>
+            <div className="text-center w-full md:w-auto mt-2 md:mt-0">
+               <button onClick={() => router.push(`/checkout?plan=${user?.plan || 'PRO'}`)} className="text-xs text-gray-400 hover:text-white underline">Henüz ödeme yapmadım (Güvenli Öde)</button>
+            </div>
           </div>
         )}
 

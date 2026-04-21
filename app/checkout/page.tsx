@@ -86,7 +86,7 @@ function CheckoutContent() {
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     Swal.fire({
       title: "Yönlendiriliyorsunuz...",
       text: "Shopier güvenli ödeme noktasına aktarılıyorsunuz...",
@@ -102,6 +102,8 @@ function CheckoutContent() {
     const productLink = shopierLinks[selectedPlan];
 
     if (productLink && productLink.includes("http")) {
+      // 🚀 Kullanıcının tıkladığı planı Dashboard'da okumak üzere hafızaya al
+      localStorage.setItem('lastPaidPlan', selectedPlan);
       window.location.href = productLink;
     } else {
       Swal.fire({
