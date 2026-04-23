@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ export default function AdminPanel() {
           text: "🚨 Bu alan sadece imparatorluk yöneticisine özeldir.",
           icon: "warning",
           confirmButtonColor: "#f59e0b", 
-          background: '#09090b', color: '#fff'
+          background: '#171717', color: '#fff'
         });
         router.push("/dashboard");
         return;
@@ -54,7 +54,7 @@ export default function AdminPanel() {
         title: 'Oturum Hatası',
         text: 'Güvenlik nedeniyle oturumunuz sonlandı. Lütfen tekrar giriş yapın.',
         icon: 'error',
-        background: '#09090b', color: '#fff',
+        background: '#171717', color: '#fff',
         confirmButtonColor: '#f59e0b'
       }).then(() => {
         localStorage.removeItem("token");
@@ -94,7 +94,7 @@ export default function AdminPanel() {
       confirmButtonText: 'Değiştir',
       cancelButtonText: 'İptal',
       confirmButtonColor: '#f59e0b',
-      background: '#09090b', 
+      background: '#171717', 
       color: '#fff',
       // 🚀 BEYAZ MENÜYÜ SİYAH YAPAN SİHİRLİ KOD:
       customClass: {
@@ -114,11 +114,11 @@ export default function AdminPanel() {
         if (res.status === 403) throw new Error("403");
         
         if (res.ok) {
-          Swal.fire({ icon: 'success', title: 'Paket Güncellendi!', background: '#09090b', color: '#fff', timer: 1500, showConfirmButton: false });
+          Swal.fire({ icon: 'success', title: 'Paket Güncellendi!', background: '#171717', color: '#fff', timer: 1500, showConfirmButton: false });
           fetchAdminData();
         }
       } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Yetki Hatası (403)', text: 'İşlem engellendi. Lütfen çıkış yapıp tekrar girmeyi deneyin.', background: '#09090b', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Yetki Hatası (403)', text: 'İşlem engellendi. Lütfen çıkış yapıp tekrar girmeyi deneyin.', background: '#171717', color: '#fff' });
       }
     }
   };
@@ -134,7 +134,7 @@ export default function AdminPanel() {
       confirmButtonText: 'Güncelle',
       cancelButtonText: 'İptal',
       confirmButtonColor: '#f59e0b',
-      background: '#09090b',
+      background: '#171717',
       color: '#fff',
       // 🚀 BEYAZ TAKVİMİ SİYAH YAPAN KOD:
       customClass: {
@@ -169,11 +169,11 @@ export default function AdminPanel() {
       if (res.status === 403) throw new Error("403");
 
       if (res.ok) {
-        Swal.fire({ icon: 'success', title: 'Süre Uzatıldı!', text: `Yeni bitiş: ${targetDate.toLocaleDateString('tr-TR')}`, background: '#09090b', color: '#fff', timer: 2000, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Süre Uzatıldı!', text: `Yeni bitiş: ${targetDate.toLocaleDateString('tr-TR')}`, background: '#171717', color: '#fff', timer: 2000, showConfirmButton: false });
         fetchAdminData();
       }
     } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Hata!', text: 'Tarih güncellenirken yetki hatası oluştu.', background: '#09090b', color: '#fff' });
+      Swal.fire({ icon: 'error', title: 'Hata!', text: 'Tarih güncellenirken yetki hatası oluştu.', background: '#171717', color: '#fff' });
     }
   };
 
@@ -186,7 +186,7 @@ export default function AdminPanel() {
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       confirmButtonText: 'Evet, Sil!',
-      background: '#09090b', color: '#fff'
+      background: '#171717', color: '#fff'
     }).then(async (result) => {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
@@ -195,7 +195,7 @@ export default function AdminPanel() {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {
-          Swal.fire({ title: 'Silindi!', icon: 'success', background: '#09090b', color: '#fff' });
+          Swal.fire({ title: 'Silindi!', icon: 'success', background: '#171717', color: '#fff' });
           fetchAdminData();
         }
       }

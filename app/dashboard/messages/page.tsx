@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { MessageSquare, Save, Smartphone, CheckCheck, Info, Bell, AlertTriangle } from "lucide-react";
@@ -60,7 +60,7 @@ export default function MessagesPage() {
     try {
       Swal.fire({ 
         title: 'Kaydediliyor...', 
-        background: '#09090b', 
+        background: '#171717', 
         color: '#fff', 
         didOpen: () => Swal.showLoading() 
       });
@@ -80,7 +80,7 @@ export default function MessagesPage() {
         title: "Başarılı!",
         text: "Mesaj şablonlarınız sisteme başarıyla kaydedildi.",
         icon: "success",
-        background: "#09090b",
+        background: "#171717",
         color: "#fff",
         confirmButtonColor: "#f59e0b",
         timer: 2000,
@@ -92,7 +92,7 @@ export default function MessagesPage() {
         icon: 'error', 
         title: 'Hata', 
         text: 'Kaydedilirken bir sorun oluştu.', 
-        background: '#09090b', 
+        background: '#171717', 
         color: '#fff' 
       });
     }
@@ -129,7 +129,7 @@ export default function MessagesPage() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* TAB MENÜSÜ */}
-          <div className="flex overflow-x-auto bg-gray-950 p-2 rounded-2xl border border-zinc-800 gap-2 hide-scrollbar">
+          <div className="flex overflow-x-auto bg-[#171717] p-2 rounded-2xl border border-zinc-800 gap-2 hide-scrollbar">
             <button onClick={() => setActiveTab("onay")} className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${activeTab === "onay" ? "bg-amber-500 text-black" : "text-gray-400 hover:bg-zinc-800"}`}>
               <CheckCheck size={18} /> Randevu Onaylandı
             </button>
@@ -141,7 +141,7 @@ export default function MessagesPage() {
             </button>
           </div>
 
-          <div className="bg-gray-950 rounded-3xl p-6 border border-zinc-800 shadow-xl">
+          <div className="bg-[#171717] rounded-3xl p-6 border border-zinc-800 shadow-xl">
             <label className="block text-sm font-bold text-gray-300 mb-4 uppercase tracking-wider">Mesaj İçeriği</label>
             <textarea 
               value={templates[activeTab as keyof typeof templates]} 
