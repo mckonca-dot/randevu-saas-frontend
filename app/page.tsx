@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -110,7 +110,7 @@ export default function Home() {
           </p>
 
           {/* ARAMA KUTUSU */}
-          <div className="bg-[#171717] p-3 rounded-2xl border border-zinc-800 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 shadow-[0_0_30px_rgba(0,0,0,0.8)] max-w-6xl mx-auto text-left">
+          <div className="bg-gray-950 p-3 rounded-2xl border border-zinc-800 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 shadow-[0_0_30px_rgba(0,0,0,0.8)] max-w-6xl mx-auto text-left">
             <div className="relative flex items-center bg-[#0a0a0a] rounded-xl border border-zinc-800 px-4 py-3 h-14 focus-within:border-amber-500 transition">
               <MapPin className="text-amber-500 flex-shrink-0" size={20} aria-hidden="true" />
               {/* SEO İyileştirmesi: aria-label Eklendi */}

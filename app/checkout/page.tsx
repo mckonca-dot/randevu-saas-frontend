@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, Suspense } from "react";
 import { ShoppingBag, ShieldCheck, CheckCircle2, User, MapPin, ArrowLeft, Phone, Mail } from "lucide-react";
@@ -36,7 +36,7 @@ function CheckoutContent() {
         icon: "info",
         confirmButtonText: "Kayıt Ol",
         confirmButtonColor: "#f59e0b",
-        background: "#171717",
+        background: "#09090b",
         color: "#fff",
         allowOutsideClick: false
       }).then((result) => {
@@ -93,7 +93,7 @@ function CheckoutContent() {
       icon: "info",
       showConfirmButton: false,
       allowOutsideClick: false,
-      background: "#171717",
+      background: "#09090b",
       color: "#fff",
       didOpen: () => Swal.showLoading()
     });
@@ -110,7 +110,7 @@ function CheckoutContent() {
         icon: 'error',
         title: 'Bağlantı Hatası',
         text: 'Shopier ürün linki henüz eklenmemiş. Lütfen yazılımcınıza başvurun.',
-        background: '#171717',
+        background: '#09090b',
         color: '#fff'
       });
     }
@@ -147,23 +147,23 @@ function CheckoutContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Adınız</label>
-                    <input type="text" required placeholder="Adınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+                    <input type="text" required placeholder="Adınız" className="w-full bg-gray-950 border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Soyadınız</label>
-                    <input type="text" required placeholder="Soyadınız" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+                    <input type="text" required placeholder="Soyadınız" className="w-full bg-gray-950 border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Telefon Numarası</label>
                     <div className="relative">
-                      <input type="text" required placeholder="05XX XXX XX XX" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                      <input type="text" required placeholder="05XX XXX XX XX" className="w-full bg-gray-950 border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">E-Posta Adresi</label>
                     <div className="relative">
-                      <input type="email" required placeholder="mail@ornek.com" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                      <input type="email" required placeholder="mail@ornek.com" className="w-full bg-gray-950 border border-zinc-800 rounded-xl p-4 pl-12 text-white focus:border-amber-500 outline-none transition" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                     </div>
                   </div>
@@ -174,11 +174,11 @@ function CheckoutContent() {
 
                   <div>
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Şehir</label>
-                    <input type="text" required placeholder="Örn: İstanbul" className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} />
+                    <input type="text" required placeholder="Örn: İstanbul" className="w-full bg-gray-950 border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} />
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-xs text-gray-500 font-bold mb-2 block uppercase tracking-wider">Açık Adres</label>
-                    <textarea required placeholder="Mahalle, sokak, no..." className="w-full bg-[#171717] border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition h-24 resize-none" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+                    <textarea required placeholder="Mahalle, sokak, no..." className="w-full bg-gray-950 border border-zinc-800 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition h-24 resize-none" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
                   </div>
                 </div>
 
@@ -196,7 +196,7 @@ function CheckoutContent() {
 
           {/* SİPARİŞ ÖZETİ */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-[#171717] border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+            <div className="sticky top-24 bg-gray-950 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
               <h3 className="text-lg font-black uppercase tracking-wider mb-6 border-b border-zinc-800 pb-4">Sipariş Özeti</h3>
               <div className="flex justify-between items-center mb-6">
                 <div>

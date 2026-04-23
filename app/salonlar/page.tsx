@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -101,7 +101,7 @@ function SalonlarIcerik() {
               {!cityParam && !districtParam && !serviceParam && !queryParam && <span>Tüm Türkiye</span>}
             </div>
           </div>
-          <div className="text-gray-500 font-bold bg-[#171717] px-4 py-2 rounded-lg border border-zinc-800 shadow-inner">
+          <div className="text-gray-500 font-bold bg-gray-950 px-4 py-2 rounded-lg border border-zinc-800 shadow-inner">
             <span className="text-amber-500 text-xl">{sortedShops.length}</span> Salon Bulundu
           </div>
         </div>
@@ -197,7 +197,7 @@ function SalonlarIcerik() {
 // 🎴 DÜKKAN KARTI BİLEŞENİ
 function ShopCard({ shop, isPromoted }: { shop: any, isPromoted: boolean }) {
   return (
-    <div className={`group bg-[#171717] rounded-2xl overflow-hidden border transition-all duration-500 hover:-translate-y-2 ${isPromoted ? 'border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-zinc-800 hover:border-zinc-600'}`}>
+    <div className={`group bg-gray-950 rounded-2xl overflow-hidden border transition-all duration-500 hover:-translate-y-2 ${isPromoted ? 'border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-zinc-800 hover:border-zinc-600'}`}>
       <div className="relative h-48 md:h-56 overflow-hidden bg-[#050505] flex items-center justify-center">
         <img 
           src={shop.logo || shop.coverImage || "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80"} 
@@ -220,7 +220,7 @@ function ShopCard({ shop, isPromoted }: { shop: any, isPromoted: boolean }) {
         </div>
       </div>
 
-      <div className="p-5 relative z-10 bg-[#171717]">
+      <div className="p-5 relative z-10 bg-gray-950">
         <div className="flex items-center gap-2 text-gray-500 text-xs mb-2 font-body font-bold uppercase tracking-wider">
           <MapPin size={14} className="text-amber-500" />
           <span className="truncate">{shop.district || "Merkez"}, {shop.city || "Türkiye"}</span>

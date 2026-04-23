@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -199,11 +199,11 @@ export default function BookAppointment() {
   const isShopClosed = closures.some((c: any) => c.date === date);
 
   const showWarning = (text: string) => {
-    Swal.fire({ icon: 'warning', title: 'Eksik Bilgi', text: text, confirmButtonColor: '#f59e0b', background: '#171717', color: '#fff' });
+    Swal.fire({ icon: 'warning', title: 'Eksik Bilgi', text: text, confirmButtonColor: '#f59e0b', background: '#09090b', color: '#fff' });
   };
 
   const handleError = (text: string) => {
-    Swal.fire({ icon: 'error', title: 'Hata', text: text, confirmButtonColor: '#ef4444', background: '#171717', color: '#fff' });
+    Swal.fire({ icon: 'error', title: 'Hata', text: text, confirmButtonColor: '#ef4444', background: '#09090b', color: '#fff' });
   };
 
   const handleSubmit = async () => {
@@ -252,7 +252,7 @@ export default function BookAppointment() {
         Swal.fire({
           icon: 'success', title: 'Randevunuz Alındı!',
           text: 'Randevunuz başarıyla oluşturuldu. WhatsApp üzerinden bilgilendirme mesajı gönderilecektir.',
-          confirmButtonText: 'Tamam', confirmButtonColor: '#f59e0b', background: '#171717', color: '#fff', allowOutsideClick: false
+          confirmButtonText: 'Tamam', confirmButtonColor: '#f59e0b', background: '#09090b', color: '#fff', allowOutsideClick: false
         }).then((result) => {
           if (result.isConfirmed) { window.location.reload(); }
         });
@@ -282,7 +282,7 @@ export default function BookAppointment() {
   
   if (shopError || !shop) return (
     <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-4">
-       <div className="bg-[#171717] p-8 md:p-12 rounded-3xl border border-zinc-800 flex flex-col items-center text-center max-w-lg shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+       <div className="bg-gray-950 p-8 md:p-12 rounded-3xl border border-zinc-800 flex flex-col items-center text-center max-w-lg shadow-[0_0_30px_rgba(0,0,0,0.8)]">
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6"><AlertCircle className="text-red-500" size={40} /></div>
           <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4 tracking-wider">HİZMET DIŞI</h2>
           <p className="text-gray-400 font-body mb-8 leading-relaxed">{shopError || "Dükkan bilgileri alınamadı. Bu işletme sistemde kayıtlı olmayabilir."}</p>
@@ -360,11 +360,11 @@ export default function BookAppointment() {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-[#0a0a0a] border-t border-[#171717] absolute top-full left-0 w-full shadow-2xl animate-fade-in-up z-[999]">
             <div className="px-4 pt-2 pb-6 space-y-2 flex flex-col">
-              <a href="#hakkimizda" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">HAKKIMIZDA</a>
-              <a href="#hizmetler" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">HİZMETLER</a>
-              {gallery.length > 0 && <a href="#galeri" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">GALERİ</a>}
-              {reviews?.reviews?.length > 0 && <a href="#yorumlar" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">YORUMLAR</a>}
-              <a href="#iletisim" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-[#171717] transition">İLETİŞİM / KONUM</a>
+              <a href="#hakkimizda" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-gray-950 transition">HAKKIMIZDA</a>
+              <a href="#hizmetler" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-gray-950 transition">HİZMETLER</a>
+              {gallery.length > 0 && <a href="#galeri" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-gray-950 transition">GALERİ</a>}
+              {reviews?.reviews?.length > 0 && <a href="#yorumlar" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-gray-950 transition">YORUMLAR</a>}
+              <a href="#iletisim" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-lg font-heading tracking-wide text-gray-300 hover:text-amber-500 hover:bg-gray-950 transition">İLETİŞİM / KONUM</a>
             </div>
           </div>
         )}
@@ -399,7 +399,7 @@ export default function BookAppointment() {
       <section id="hakkimizda" className="py-20 md:py-24 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-            <div className="relative group overflow-hidden rounded-sm bg-[#171717] flex items-center justify-center border border-zinc-900 shadow-2xl">
+            <div className="relative group overflow-hidden rounded-sm bg-gray-950 flex items-center justify-center border border-zinc-900 shadow-2xl">
               <img 
                 src={shop?.logo || shop?.coverImage || "https://images.unsplash.com/photo-1621605815971-fbc98d665033?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} 
                 alt="Salon Görseli" 
@@ -437,7 +437,7 @@ export default function BookAppointment() {
       </section>
 
       {/* HİZMETLER */}
-      <section id="hizmetler" className="py-20 md:py-24 bg-[#171717] relative">
+      <section id="hizmetler" className="py-20 md:py-24 bg-gray-950 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
             <h4 className="text-amber-500 font-heading tracking-widest mb-2 text-sm md:text-base">HİZMETLERİMİZ</h4>
@@ -470,7 +470,7 @@ export default function BookAppointment() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               {gallery.slice(0, 8).map((img: any, i: number) => (
-                <div key={i} className="relative group overflow-hidden bg-[#171717] aspect-[3/4] rounded-lg">
+                <div key={i} className="relative group overflow-hidden bg-gray-950 aspect-[3/4] rounded-lg">
                   <img src={img.imageUrl} alt="Galeri" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 transform group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
                     <span className="text-amber-500 font-heading text-sm md:text-lg">{img.modelName || "Stil"}</span>
@@ -484,7 +484,7 @@ export default function BookAppointment() {
 
       {/* 🚀 GOOGLE YORUMLARI */}
       {reviews && reviews.reviews && reviews.reviews.length > 0 && (
-        <section id="yorumlar" className="py-20 md:py-24 bg-[#171717] border-y border-zinc-800 overflow-hidden relative">
+        <section id="yorumlar" className="py-20 md:py-24 bg-gray-950 border-y border-zinc-800 overflow-hidden relative">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 text-zinc-800 opacity-20 pointer-events-none">
             <MessageCircle size={300} />
           </div>
@@ -563,7 +563,7 @@ export default function BookAppointment() {
           <div className="grid lg:grid-cols-3 gap-8 md:gap-12 font-body">
             
             <div className="lg:col-span-2 space-y-6 md:space-y-10">
-              <div className="bg-[#171717] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up">
+              <div className="bg-gray-950 p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">1</div>
                   <h3 className="text-xl md:text-2xl font-bold text-white font-heading">Hizmet Seçimi</h3>
@@ -591,7 +591,7 @@ export default function BookAppointment() {
                 </div>
               </div>
 
-              <div className="bg-[#171717] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-100">
+              <div className="bg-gray-950 p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-100">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">2</div>
                   <h3 className="text-xl md:text-2xl font-bold text-white font-heading">Uzman Tercihi</h3>
@@ -622,7 +622,7 @@ export default function BookAppointment() {
                 </div>
               </div>
 
-              <div className="bg-[#171717] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-200">
+              <div className="bg-gray-950 p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-200">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">3</div>
                   <h3 className="text-xl md:text-2xl font-bold text-white font-heading">Zaman Belirle</h3>
@@ -684,7 +684,7 @@ export default function BookAppointment() {
                                     ? 'bg-amber-500 text-black border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] scale-105' 
                                     : isDisabled 
                                       ? 'bg-zinc-900 text-zinc-600 border-transparent cursor-not-allowed' 
-                                      : 'bg-[#171717] text-white border-zinc-700 hover:border-amber-500 hover:text-amber-500'}`}
+                                      : 'bg-gray-950 text-white border-zinc-700 hover:border-amber-500 hover:text-amber-500'}`}
                               >
                                 {slotTime}
                               </button>
@@ -697,7 +697,7 @@ export default function BookAppointment() {
                 </div>
               </div>
 
-              <div className="bg-[#171717] p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-300">
+              <div className="bg-gray-950 p-5 md:p-8 rounded-2xl border border-zinc-800 animate-fade-in-up delay-300">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base md:text-lg font-heading">4</div>
                   <h3 className="text-xl md:text-2xl font-bold text-white font-heading">İletişim Bilgileri</h3>
@@ -723,7 +723,7 @@ export default function BookAppointment() {
 
             <div className="lg:col-span-1">
               <div className="sticky top-24 md:top-28">
-                <div className="bg-[#171717] rounded-2xl border border-amber-500 overflow-hidden shadow-[0_0_20px_rgba(245,158,11,0.15)] animate-fade-in-up delay-300">
+                <div className="bg-gray-950 rounded-2xl border border-amber-500 overflow-hidden shadow-[0_0_20px_rgba(245,158,11,0.15)] animate-fade-in-up delay-300">
                   <div className="bg-amber-500 p-4 md:p-6 text-center">
                     <h3 className="text-black font-heading font-bold text-xl md:text-2xl tracking-wider">ÖZET</h3>
                   </div>
@@ -762,7 +762,7 @@ export default function BookAppointment() {
       </section>
 
       {/* İLETİŞİM VE HARİTA */}
-      <section id="iletisim" className="py-20 md:py-24 bg-[#171717]">
+      <section id="iletisim" className="py-20 md:py-24 bg-gray-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
             <h4 className="text-amber-500 font-heading tracking-widest mb-2 text-sm md:text-base">BİZE ULAŞIN</h4>

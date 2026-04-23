@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -33,15 +33,15 @@ export default function ForgotPasswordPage() {
           icon: 'success',
           title: 'Kod Gönderildi!',
           text: 'E-posta adresinize 6 haneli sıfırlama kodu gönderildi.',
-          background: '#171717', color: '#fff', confirmButtonColor: '#f59e0b'
+          background: '#09090b', color: '#fff', confirmButtonColor: '#f59e0b'
         });
         setStep(2); // 2. adıma geç
       } else {
         const data = await res.json();
-        Swal.fire({ icon: 'error', title: 'Hata!', text: data.message || "Kullanıcı bulunamadı.", background: '#171717', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Hata!', text: data.message || "Kullanıcı bulunamadı.", background: '#09090b', color: '#fff' });
       }
     } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası!', background: '#171717', color: '#fff' });
+      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası!', background: '#09090b', color: '#fff' });
     } finally {
       setLoading(false);
     }
@@ -65,16 +65,16 @@ export default function ForgotPasswordPage() {
           icon: 'success',
           title: 'Şifreniz Yenilendi!',
           text: 'Artık yeni şifrenizle giriş yapabilirsiniz.',
-          background: '#171717', color: '#fff', confirmButtonColor: '#10b981'
+          background: '#09090b', color: '#fff', confirmButtonColor: '#10b981'
         }).then(() => {
           router.push("/login");
         });
       } else {
         const data = await res.json();
-        Swal.fire({ icon: 'error', title: 'Hata!', text: data.message || "Geçersiz veya süresi dolmuş kod.", background: '#171717', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Hata!', text: data.message || "Geçersiz veya süresi dolmuş kod.", background: '#09090b', color: '#fff' });
       }
     } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası!', background: '#171717', color: '#fff' });
+      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası!', background: '#09090b', color: '#fff' });
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-[#050505] flex flex-col justify-center items-center p-4 selection:bg-amber-500 selection:text-black">
       
-      <div className="w-full max-w-md bg-[#171717] rounded-3xl border border-zinc-800 p-8 shadow-2xl relative overflow-hidden">
+      <div className="w-full max-w-md bg-gray-950 rounded-3xl border border-zinc-800 p-8 shadow-2xl relative overflow-hidden">
         {/* Arka plan dekoru */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { CheckCircle2, Scissors, CalendarCheck, Users, Bell, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -60,17 +60,17 @@ export default function BusinessLandingPage() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-5xl font-heading font-bold mb-12">NELER SUNUYORUZ?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 bg-[#171717] rounded-3xl border border-zinc-800">
+            <div className="p-8 bg-gray-950 rounded-3xl border border-zinc-800">
               <CalendarCheck className="text-amber-500 mx-auto mb-4" size={48} />
               <h3 className="text-xl font-bold mb-3 font-heading">Akıllı Takvim</h3>
               <p className="text-gray-400 font-body text-sm">Tüm randevularını, personellerinin çalışma saatlerini tek bir ekrandan pürüzsüzce yönet.</p>
             </div>
-            <div className="p-8 bg-[#171717] rounded-3xl border border-zinc-800">
+            <div className="p-8 bg-gray-950 rounded-3xl border border-zinc-800">
               <Users className="text-amber-500 mx-auto mb-4" size={48} />
               <h3 className="text-xl font-bold mb-3 font-heading">Müşteri Veritabanı</h3>
               <p className="text-gray-400 font-body text-sm">Müşterilerini kaydet, daha önce hangi işlemleri yaptırdıklarını ve notlarını tut.</p>
             </div>
-            <div className="p-8 bg-[#171717] rounded-3xl border border-zinc-800">
+            <div className="p-8 bg-gray-950 rounded-3xl border border-zinc-800">
               <Bell className="text-amber-500 mx-auto mb-4" size={48} />
               <h3 className="text-xl font-bold mb-3 font-heading">Otomatik Hatırlatma</h3>
               <p className="text-gray-400 font-body text-sm">"Randevuyu unuttum" bahanesine son. Müşterilerine randevu öncesi otomatik bildirim gider.</p>
@@ -104,7 +104,7 @@ export default function BusinessLandingPage() {
       </section>
 
       {/* --- FİYATLANDIRMA --- */}
-      <section id="pricing" className="py-20 bg-[#171717] border-y border-zinc-900">
+      <section id="pricing" className="py-20 bg-gray-950 border-y border-zinc-900">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h4 className="text-amber-500 font-heading tracking-widest mb-2 font-bold">ŞEFFAF FİYATLANDIRMA</h4>
           <h2 className="text-3xl md:text-5xl font-bold font-heading text-white mb-4">PROFESYONEL PAKETLER</h2>

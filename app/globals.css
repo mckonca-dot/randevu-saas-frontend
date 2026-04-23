@@ -10,6 +10,45 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Override Gray to a cleaner, luxury Zinc */
+  --color-gray-50: #fafaf9;
+  --color-gray-100: #f4f4f5;
+  --color-gray-200: #e4e4e7;
+  --color-gray-300: #d4d4d8;
+  --color-gray-400: #a1a1aa;
+  --color-gray-500: #71717a;
+  --color-gray-600: #52525b;
+  --color-gray-700: #3f3f46;
+  --color-gray-800: #27272a; 
+  --color-gray-900: #18181b; /* Sophisticated dark background */
+  --color-gray-950: #09090b;
+
+  /* Override Blue to be a universal luxury Violet/Indigo */
+  --color-blue-50: #eef2ff;
+  --color-blue-100: #e0e7ff;
+  --color-blue-200: #c7d2fe;
+  --color-blue-300: #a5b4fc;
+  --color-blue-400: #818cf8;
+  --color-blue-500: #6366f1; /* Main Accent */
+  --color-blue-600: #4f46e5; /* Main Accent Hover */
+  --color-blue-700: #4338ca;
+  --color-blue-800: #3730a3;
+  --color-blue-900: #312e81;
+  --color-blue-950: #1e1b4b;
+
+  /* Override Amber to be soft Rose/Peach (elegant & unisex) */
+  --color-amber-50: #fff1f2;
+  --color-amber-100: #ffe4e6;
+  --color-amber-200: #fecdd3;
+  --color-amber-300: #fda4af;
+  --color-amber-400: #fb7185; 
+  --color-amber-500: #f43f5e; /* Secondary Accent */
+  --color-amber-600: #e11d48; /* Secondary Accent Hover */
+  --color-amber-700: #be123c;
+  --color-amber-800: #9f1239;
+  --color-amber-900: #881337;
+  --color-amber-950: #4c0519;
 }
 
 @media (prefers-color-scheme: dark) {

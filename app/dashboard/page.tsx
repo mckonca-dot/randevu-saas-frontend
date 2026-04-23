@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -189,7 +189,7 @@ export default function Dashboard() {
   // 🚀 MANUEL RANDEVU EKLEME FONKSİYONU
   const handleAddManualAppt = async () => {
     if (!manualAppt.name || !manualAppt.serviceId || !manualAppt.date || !manualAppt.time) {
-      return Swal.fire({ icon: 'warning', title: 'Eksik Bilgi', text: 'Lütfen müşteri adı, hizmet, tarih ve saati seçiniz.', background: '#171717', color: '#fff' });
+      return Swal.fire({ icon: 'warning', title: 'Eksik Bilgi', text: 'Lütfen müşteri adı, hizmet, tarih ve saati seçiniz.', background: '#09090b', color: '#fff' });
     }
 
     const token = localStorage.getItem("token"); if (!token) return;
@@ -211,16 +211,16 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        Swal.fire({ icon: 'success', title: 'Eklendi!', text: 'Randevu takvime başarıyla işlendi.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#171717', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'Eklendi!', text: 'Randevu takvime başarıyla işlendi.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#09090b', color: '#fff' });
         setManualApptModalOpen(false);
         setManualAppt({ name: "", phone: "", serviceId: "", staffId: "", date: "", time: "", note: "" });
         fetchData(token);
       } else {
         const errorData = await res.json();
-        Swal.fire({ icon: 'error', title: 'Hata', text: errorData.message || 'Çakışma veya sistem hatası oluştu.', background: '#171717', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Hata', text: errorData.message || 'Çakışma veya sistem hatası oluştu.', background: '#09090b', color: '#fff' });
       }
     } catch (e) {
-      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası', text: 'Sunucuya ulaşılamadı.', background: '#171717', color: '#fff' });
+      Swal.fire({ icon: 'error', title: 'Bağlantı Hatası', text: 'Sunucuya ulaşılamadı.', background: '#09090b', color: '#fff' });
     }
   };
 
@@ -256,14 +256,14 @@ export default function Dashboard() {
     const token = localStorage.getItem("token"); if (!token) return;
     try {
         const res = await fetch("https://planin.onrender.com/users/me", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(shopSettings) });
-        if (res.ok) { Swal.fire({ title: "Harika!", text: "Profil bilgileri güncellendi! ✅", icon: "success", confirmButtonColor: "#2563eb", background: "#111827", color: "#fff" }); fetchData(token); } 
-        else { Swal.fire({ title: "Dikkat!", text: "Güncelleme başarısız.", icon: "error", confirmButtonColor: "#ef4444", background: "#111827", color: "#fff" }); }
+        if (res.ok) { Swal.fire({ title: "Harika!", text: "Profil bilgileri güncellendi! ✅", icon: "success", confirmButtonColor: "#2563eb", background: "#18181b", color: "#fff" }); fetchData(token); } 
+        else { Swal.fire({ title: "Dikkat!", text: "Güncelleme başarısız.", icon: "error", confirmButtonColor: "#ef4444", background: "#18181b", color: "#fff" }); }
     } catch (e) {}
   };
 
   const handleSaveNote = async () => {
     const token = localStorage.getItem("token"); if (!token) return;
-    try { await fetch(`https://planin.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); setNoteModalOpen(false); Swal.fire({ title: "Kaydedildi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); fetchData(token); } catch (error) {}
+    try { await fetch(`https://planin.onrender.com/customers/${selectedCustomerNote.id}/note`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ note: selectedCustomerNote.note }), }); setNoteModalOpen(false); Swal.fire({ title: "Kaydedildi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#18181b", color: "#fff" }); fetchData(token); } catch (error) {}
   };
 
   const handleAddClosure = async () => {
@@ -280,36 +280,36 @@ export default function Dashboard() {
 
   const handleToggleServiceStatus = async (service: any) => { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${service.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: !service.isActive })}); fetchData(token); };
   
-  const handleAddService = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://planin.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); setServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleAddService = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://planin.onrender.com/services", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newService)}); setServiceModalOpen(false); fetchData(token); Swal.fire({ title: "Eklendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#18181b", color: "#fff" }); };
   const handleUpdateService = async () => { if (!editingService) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${editingService.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingService.name, duration: Number(editingService.duration), price: editingService.price })}); setEditServiceModalOpen(false); fetchData(token); };
-  const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
+  const handleDeleteService = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#18181b", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
   const handleAddStaff = async () => { 
     const planLimits: any = { 'TRIAL': 5, 'BASIC': 5, 'PRO': 10, 'ULTRA': 999 };
     const currentLimit = planLimits[user?.plan || 'TRIAL'];
-    if(staffs.length >= currentLimit) return Swal.fire({ icon: 'warning', title: 'Limit Doldu!', confirmButtonText: '🚀 Paketleri İncele', background: '#171717', color: '#fff' }).then((r) => { if (r.isConfirmed) router.push("/#pricing"); });
+    if(staffs.length >= currentLimit) return Swal.fire({ icon: 'warning', title: 'Limit Doldu!', confirmButtonText: '🚀 Paketleri İncele', background: '#09090b', color: '#fff' }).then((r) => { if (r.isConfirmed) router.push("/#pricing"); });
     const token = localStorage.getItem("token"); if (!token) return; 
     try {
         const res = await fetch("https://planin.onrender.com/staffs", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(newStaff) });
-        if (!res.ok) return Swal.fire({ icon: 'error', title: 'Hata', background: '#171717', color: '#fff' });
+        if (!res.ok) return Swal.fire({ icon: 'error', title: 'Hata', background: '#09090b', color: '#fff' });
         setStaffModalOpen(false); setNewStaff({ name: "", phone: "", email: "" }); fetchData(token); 
     } catch (err) {}
   };
   const handleUpdateStaff = async () => { if (!editingStaff) return; const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/staffs/${editingStaff.id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ name: editingStaff.name, phone: editingStaff.phone, email: editingStaff.email })}); setEditStaffModalOpen(false); fetchData(token); };
-  const handleDeleteStaff = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
+  const handleDeleteStaff = async (id: number) => { Swal.fire({ title: 'Emin misin?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#18181b", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/staffs/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
   const handleUpdateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("token"); if (!token) return;
     let cancelReason = "";
     if (status === 'CANCELLED') {
-        const { value: reason } = await Swal.fire({ title: 'İptal Sebebi', input: 'text', inputPlaceholder: 'Örn: Acil iş çıktı.', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'İptal Et', background: "#111827", color: "#fff" });
+        const { value: reason } = await Swal.fire({ title: 'İptal Sebebi', input: 'text', inputPlaceholder: 'Örn: Acil iş çıktı.', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'İptal Et', background: "#18181b", color: "#fff" });
         if (!reason) return; cancelReason = reason;
     }
-    try { await fetch(`https://planin.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); fetchData(token); Swal.fire({ title: "Başarılı!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); } catch (error) {}
+    try { await fetch(`https://planin.onrender.com/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status, cancelReason }) }); fetchData(token); Swal.fire({ title: "Başarılı!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#18181b", color: "#fff" }); } catch (error) {}
   };
-  const handleDeleteAppointment = async (id: number) => { Swal.fire({ title: 'Randevuyu Sil?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#111827", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
+  const handleDeleteAppointment = async (id: number) => { Swal.fire({ title: 'Randevuyu Sil?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#374151', confirmButtonText: 'Evet, Sil!', background: "#18181b", color: "#fff" }).then(async (result) => { if (result.isConfirmed) { const token = localStorage.getItem("token"); if (!token) return; await fetch(`https://planin.onrender.com/appointments/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }); fetchData(token); } }); };
 
-  const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://planin.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#111827", color: "#fff" }); };
+  const handleUpdateHours = async () => { const token = localStorage.getItem("token"); if (!token) return; await fetch("https://planin.onrender.com/users/hours", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ workStart: workHours.start, workEnd: workHours.end })}); setHoursModalOpen(false); fetchData(token); Swal.fire({ title: "Güncellendi!", icon: "success", toast: true, position: "top-end", showConfirmButton: false, timer: 3000, background: "#18181b", color: "#fff" }); };
 
   const getSubscriptionStatus = () => {
     if (!user || !user.subscriptionEnd) return null;
@@ -636,9 +636,9 @@ export default function Dashboard() {
               }
 
               return (
-                <div className="bg-[#111827] flex flex-col h-[700px] border-t border-gray-800/50">
+                <div className="bg-gray-900 flex flex-col h-[700px] border-t border-gray-800/50">
                   {/* iPhone Tarzı Yatay Gün Başlığı */}
-                  <div className="bg-[#1c1c1e] border-b border-gray-800 pb-3 pt-2">
+                  <div className="bg-gray-900 border-b border-gray-800 pb-3 pt-2">
                     <div className="flex items-center justify-between px-4 py-2">
                       <button onClick={() => changeCalendarDate(-1)} className="text-[#0a84ff] hover:bg-gray-800 p-2 rounded-full transition flex items-center justify-center">
                         <ChevronLeft size={28}/>
@@ -681,7 +681,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Saat ve Etkinlikler Alanı */}
-                  <div className="flex-1 overflow-y-auto relative bg-[#1c1c1e] custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto relative bg-gray-900 custom-scrollbar">
                     
                     <div className="relative" style={{ height: `${Math.max((hours.length + 0.5) * hourHeight, 600)}px` }}>
                       {/* Çizgiler ve Saat İsimleri */}
@@ -746,7 +746,7 @@ export default function Dashboard() {
                                               ${app.customer?.notes ? `<div style="margin-bottom:8px;"><b style="color:#f59e0b">Not:</b> ${app.customer.notes}</div>` : ''}
                                               ${isPending ? '<div style="margin-top:10px; color:#ff9f0a; font-weight:bold;">Bu randevu onay bekliyor!</div>' : ''}
                                             </div>`,
-                                    background: '#1c1c1e',
+                                    background: '#18181b',
                                     showCancelButton: true,
                                     showDenyButton: true,
                                     confirmButtonText: isPending ? 'Onayla' : 'Tamam',
@@ -850,7 +850,7 @@ export default function Dashboard() {
                                   <textarea className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 outline-none transition resize-none h-24" placeholder="Müşterilerinizin dükkanı kolayca bulabilmesi için detaylı tarif yazın. Örn: PTT arkası, caminin hemen yanındaki sokak..." value={shopSettings.fullAddress} onChange={(e) => setShopSettings({...shopSettings, fullAddress: e.target.value})} />
                               </div>
 
-                              <div className="md:col-span-2 bg-[#171717] p-5 rounded-2xl border border-gray-700 shadow-inner">
+                              <div className="md:col-span-2 bg-gray-950 p-5 rounded-2xl border border-gray-700 shadow-inner">
                                   <h4 className="text-xs text-gray-400 mb-4 uppercase tracking-widest font-bold">Vitrin Adres Kartı (Canlı Önizleme)</h4>
                                   <div className="space-y-3">
                                       {shopSettings.addressTitle ? (
