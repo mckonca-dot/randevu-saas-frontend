@@ -581,101 +581,215 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* GÖRÜNÜM 2: GÜNLÜK İNTERAKTİF TAKVİM MODU */}
-            {apptViewMode === 'calendar' && (
-              <div className="bg-[#111827] flex flex-col h-[600px]">
-                {/* Takvim Tarih Seçici */}
-                <div className="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
-                  <button onClick={() => changeCalendarDate(-1)} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition"><ChevronLeft size={20}/></button>
-                  <div className="flex items-center gap-3">
-                    <Calendar size={20} className="text-blue-400"/>
-                    <input 
-                      type="date" 
-                      value={calendarDate} 
-                      onChange={(e) => setCalendarDate(e.target.value)}
-                      className="bg-transparent text-white font-bold text-lg outline-none cursor-pointer text-center"
-                      style={{ colorScheme: 'dark' }}
-                    />
-                  </div>
-                  <button onClick={() => changeCalendarDate(1)} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition"><ChevronRight size={20}/></button>
-                </div>
+            {/* GÖRÜNÜM 2: GÜNLÜK İNTERAKTİF TAKVİM MODU (iPhone Style Eğilim) */}
+            {apptViewMode === 'calendar' && (() => {
+              const startHour = workHours.start ? parseInt(workHours.start.split(':')[0]) : 9;
+              const endHour = workHours.end ? parseInt(workHours.end.split(':')[0]) : 20;
+              const hourHeight = 84; 
+              
+              const hours = [];
+              for (let i = startHour; i <= endHour; i++) hours.push(i);
 
-                {/* Saat Dilimleri Izgarası */}
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-2">
-                  {getCalendarSlots().map((slotTime) => {
-                    const [slotH, slotM] = slotTime.split(':').map(Number);
-                    const slotMins = slotH * 60 + slotM;
-                    
-                    // Bu saat dilimine düşen ONAYLI veya BEKLEYEN randevuları bul
-                    const apptsInSlot = appointments.filter(a => {
-                      if(a.status === 'CANCELLED') return false;
-                      const aDate = new Date(a.dateTime);
-                      const aDateLocalStr = `${aDate.getFullYear()}-${String(aDate.getMonth()+1).padStart(2,'0')}-${String(aDate.getDate()).padStart(2,'0')}`;
-                      if (aDateLocalStr !== calendarDate) return false;
+              const todaysAppts = appointments.filter(a => {
+                if(a.status === 'CANCELLED') return false;
+                const aDate = new Date(a.dateTime);
+                const aDateLocalStr = `${aDate.getFullYear()}-${String(aDate.getMonth()+1).padStart(2,'0')}-${String(aDate.getDate()).padStart(2,'0')}`;
+                return aDateLocalStr === calendarDate;
+              });
 
-                      const aStartMins = aDate.getHours() * 60 + aDate.getMinutes();
-                      const aEndMins = aStartMins + (a.service?.duration || 30);
-                      // Randevu bu saatte başlıyorsa veya bu saatin içinden geçiyorsa:
-                      return slotMins >= aStartMins && slotMins < aEndMins;
-                    });
+              const sortedAppts = [...todaysAppts].sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+              const columns: any[] = [];
+              sortedAppts.forEach(app => {
+                 const aDate = new Date(app.dateTime);
+                 const startMins = aDate.getHours() * 60 + aDate.getMinutes();
+                 const endMins = startMins + (app.service?.duration || 30);
+                 
+                 let placed = false;
+                 for(let i=0; i<columns.length; i++) {
+                    const lastEventInCol = columns[i][columns[i].length - 1];
+                    const lastEDate = new Date(lastEventInCol.dateTime);
+                    const lastEndMins = lastEDate.getHours() * 60 + lastEDate.getMinutes() + (lastEventInCol.service?.duration || 30);
+                    if (startMins >= lastEndMins) {
+                       columns[i].push(app);
+                       app.column = i;
+                       placed = true;
+                       break;
+                    }
+                 }
+                 if (!placed) {
+                    app.column = columns.length;
+                    columns.push([app]);
+                 }
+              });
 
-                    // Sadece başlangıç noktasında göster, uzayan kısımlarda gizle (temiz görünüm için)
-                    const isStartingAppt = apptsInSlot.find(a => {
-                       const aDate = new Date(a.dateTime);
-                       return (aDate.getHours() * 60 + aDate.getMinutes()) === slotMins;
-                    });
+              const totalColumns = Math.max(1, columns.length);
 
-                    const hasOngoingAppt = apptsInSlot.length > 0 && !isStartingAppt;
+              const now = new Date();
+              const isTodayCalendar = calendarDate === getTodayStr();
+              let currentMinuteLine = -1;
+              if (isTodayCalendar) {
+                const nowHour = now.getHours();
+                const nowMin = now.getMinutes();
+                if (nowHour >= startHour && nowHour <= endHour) {
+                   currentMinuteLine = (nowHour - startHour) * 60 + nowMin;
+                }
+              }
 
-                    return (
-                      <div key={slotTime} className="flex gap-4 group">
-                        {/* Sol Taraf: Saat */}
-                        <div className="w-16 text-right py-2 text-gray-500 font-bold text-sm select-none">
-                          {slotTime}
-                        </div>
-                        
-                        {/* Sağ Taraf: Randevu Bloğu veya Boşluk */}
-                        <div className="flex-1 relative">
-                          {isStartingAppt ? (
-                            // DOLU BLOK
-                            <div className={`p-3 rounded-xl border-l-4 shadow-sm w-full mb-1 relative overflow-hidden
-                              ${isStartingAppt.status === 'PENDING' ? 'bg-yellow-900/20 border-yellow-500' : 'bg-blue-900/20 border-blue-500'}`}
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-bold text-white text-sm md:text-base">{isStartingAppt.customer?.name}</p>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                                    <Scissors size={12}/> {isStartingAppt.service?.name} ({isStartingAppt.service?.duration}dk)
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  {isStartingAppt.status === 'PENDING' && (
-                                    <button onClick={() => handleUpdateStatus(isStartingAppt.id, 'CONFIRMED')} className="p-1.5 bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white rounded-lg transition" title="Onayla"><CheckCircle size={16}/></button>
-                                  )}
-                                  <button onClick={() => handleUpdateStatus(isStartingAppt.id, 'CANCELLED')} className="p-1.5 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition" title="İptal Et/Sil"><XCircle size={16}/></button>
-                                </div>
-                              </div>
-                              {isStartingAppt.staff && <span className="absolute bottom-2 right-3 text-[10px] font-bold bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full">Uzman: {isStartingAppt.staff.name}</span>}
-                            </div>
-                          ) : hasOngoingAppt ? (
-                            // UZAYAN BLOK (Yukarıdaki randevunun devamı, boşluk bırak)
-                            <div className="h-full w-full border-l border-dashed border-gray-700 ml-4 opacity-30 pointer-events-none"></div>
-                          ) : (
-                            // BOŞ BLOK (Tıklayıp randevu eklenebilir)
-                            <div 
-                              onClick={() => { setManualAppt({...manualAppt, date: calendarDate, time: slotTime}); setManualApptModalOpen(true); }}
-                              className="h-full min-h-[40px] w-full border border-dashed border-gray-700 rounded-xl bg-gray-800/10 hover:bg-gray-800/50 hover:border-gray-500 transition-all flex items-center justify-center cursor-pointer group-hover:opacity-100 opacity-0"
-                            >
-                              <span className="text-xs text-gray-500 font-bold flex items-center gap-1"><Plus size={14}/> Randevu Ekle</span>
-                            </div>
-                          )}
+              return (
+                <div className="bg-[#111827] flex flex-col h-[700px] border-t border-gray-800/50">
+                  {/* iPhone Tarzı Yatay Gün Başlığı */}
+                  <div className="bg-[#1c1c1e] border-b border-gray-800 pb-3 pt-2">
+                    <div className="flex items-center justify-between px-4 py-2">
+                      <button onClick={() => changeCalendarDate(-1)} className="text-[#0a84ff] hover:bg-gray-800 p-2 rounded-full transition flex items-center justify-center">
+                        <ChevronLeft size={28}/>
+                      </button>
+                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCalendarDate(getTodayStr())}>
+                        <div className="text-center font-bold text-[17px] text-white tracking-wide">
+                          {new Date(calendarDate).toLocaleDateString("tr-TR", { month: 'long', year: 'numeric' })}
                         </div>
                       </div>
-                    );
-                  })}
+                      <button onClick={() => changeCalendarDate(1)} className="text-[#0a84ff] hover:bg-gray-800 p-2 rounded-full transition flex items-center justify-center">
+                        <ChevronRight size={28}/>
+                      </button>
+                    </div>
+                    <div className="flex justify-between px-4 sm:px-6 pt-2">
+                      {[-3, -2, -1, 0, 1, 2, 3].map(offset => {
+                        const d = new Date(calendarDate);
+                        d.setDate(d.getDate() + offset);
+                        const isSelectedDay = offset === 0;
+                        const isRealToday = d.toDateString() === new Date().toDateString();
+                        return (
+                          <div 
+                            key={offset} 
+                            onClick={() => setCalendarDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)}
+                            className="flex flex-col items-center cursor-pointer group"
+                          >
+                            <span className={`text-[11px] font-semibold mb-1.5 uppercase ${isRealToday ? 'text-[#ff453a]' : isSelectedDay ? 'text-white' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                              {d.toLocaleDateString("tr-TR", { weekday: 'short' }).replace('.', '')}
+                            </span>
+                            <div className={`w-9 h-9 flex items-center justify-center rounded-full text-[17px] transition-all
+                              ${isSelectedDay 
+                                ? (isRealToday ? 'bg-[#ff453a] text-white font-semibold' : 'bg-white text-black font-semibold') 
+                                : (isRealToday ? 'text-[#ff453a] font-normal' : 'text-white font-normal hover:bg-gray-800')}`}
+                            >
+                              {d.getDate()}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Saat ve Etkinlikler Alanı */}
+                  <div className="flex-1 overflow-y-auto relative bg-[#1c1c1e] custom-scrollbar">
+                    
+                    <div className="relative" style={{ height: `${Math.max((hours.length + 0.5) * hourHeight, 600)}px` }}>
+                      {/* Çizgiler ve Saat İsimleri */}
+                      <div className="absolute inset-x-0 top-0">
+                        {hours.map((hour) => (
+                          <div key={hour} className="relative w-full border-b border-gray-800/80 pointer-events-none" style={{ height: `${hourHeight}px` }}>
+                            <div className="absolute -top-[10px] left-3 text-[12px] font-medium text-gray-500">
+                              {hour.toString().padStart(2, '0')}:00
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* İnteraktif Tıklama Alanı Sistemi (Her 30 Dk İçin) */}
+                      <div className="absolute top-0 bottom-0 left-[60px] right-0 flex flex-col z-0">
+                        {hours.map((hour) => (
+                          <div key={`click-${hour}`} className="w-full flex flex-col" style={{ height: `${hourHeight}px` }}>
+                             <div className="flex-1 hover:bg-[#0a84ff]/10 transition cursor-pointer" onClick={() => { setManualAppt({...manualAppt, date: calendarDate, time: `${hour.toString().padStart(2, '0')}:00`}); setManualApptModalOpen(true); }}></div>
+                             <div className="flex-1 border-t border-dashed border-gray-800/20 hover:bg-[#0a84ff]/10 transition cursor-pointer" onClick={() => { setManualAppt({...manualAppt, date: calendarDate, time: `${hour.toString().padStart(2, '0')}:30`}); setManualApptModalOpen(true); }}></div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Dinamik Event Kutuları */}
+                      <div className="absolute top-0 bottom-0 left-[64px] right-4 z-10 pointer-events-none">
+                        {sortedAppts.map(app => {
+                          const aDate = new Date(app.dateTime);
+                          const appHour = aDate.getHours();
+                          const appMin = aDate.getMinutes();
+                          
+                          const topMinutes = (appHour - startHour) * 60 + appMin;
+                          const topPx = Math.max(0, (topMinutes / 60) * hourHeight);
+                          
+                          const durMins = app.service?.duration || 30;
+                          const heightPx = (durMins / 60) * hourHeight;
+
+                          const isPending = app.status === 'PENDING';
+                          
+                          if (appHour < startHour || (appHour === endHour && appMin > 0)) return null;
+
+                          const colWidth = 100 / totalColumns;
+                          const colLeft = app.column * colWidth;
+
+                          return (
+                             <div 
+                                key={app.id}
+                                className={`absolute rounded-md p-1.5 sm:p-2 border-l-[3px] shadow-sm transition-all hover:brightness-110 cursor-pointer flex flex-col pointer-events-auto overflow-hidden
+                                  ${isPending ? 'bg-[#ff9f0a]/20 border-[#ff9f0a] text-white hover:bg-[#ff9f0a]/30' : 'bg-[#0a84ff]/30 border-[#0a84ff] text-white hover:bg-[#0a84ff]/40 shadow-[#0a84ff]/10'}`}
+                                style={{ 
+                                   top: `${topPx + 1}px`, 
+                                   height: `${Math.max(heightPx - 2, 24)}px`,
+                                   left: `${colLeft}%`,
+                                   width: `${colWidth - 1}%`
+                                }}
+                                onClick={() => {
+                                  Swal.fire({
+                                    title: `<span style="color:#fff">${app.customer?.name}</span>`,
+                                    html: `<div style="text-align:left; color:#d1d5db; font-size:14px; margin-top:10px;">
+                                              <div style="margin-bottom:8px;"><b style="color:#8b5cf6">Hizmet:</b> ${app.service?.name}</div>
+                                              <div style="margin-bottom:8px;"><b style="color:#10b981">Saat:</b> ${aDate.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} (${durMins}dk)</div>
+                                              ${app.staff ? `<div style="margin-bottom:8px;"><b style="color:#3b82f6">Uzman:</b> ${app.staff.name}</div>` : ''}
+                                              ${app.customer?.notes ? `<div style="margin-bottom:8px;"><b style="color:#f59e0b">Not:</b> ${app.customer.notes}</div>` : ''}
+                                              ${isPending ? '<div style="margin-top:10px; color:#ff9f0a; font-weight:bold;">Bu randevu onay bekliyor!</div>' : ''}
+                                            </div>`,
+                                    background: '#1c1c1e',
+                                    showCancelButton: true,
+                                    showDenyButton: true,
+                                    confirmButtonText: isPending ? 'Onayla' : 'Tamam',
+                                    denyButtonText: 'İptal Et/Sil',
+                                    cancelButtonText: 'Kapat',
+                                    confirmButtonColor: '#34c759',
+                                    denyButtonColor: '#ff3b30',
+                                    cancelButtonColor: '#3a3a3c'
+                                  }).then((res) => {
+                                    if(res.isConfirmed && isPending) handleUpdateStatus(app.id, 'CONFIRMED');
+                                    else if(res.isDenied) handleUpdateStatus(app.id, 'CANCELLED');
+                                  });
+                                }}
+                             >
+                                <span className={`font-semibold text-[11px] sm:text-[12px] truncate leading-tight ${isPending ? 'text-amber-100' : 'text-white'}`}>
+                                  {aDate.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} - {app.customer?.name}
+                                </span>
+                                {heightPx > 35 && (
+                                  <span className={`text-[10px] sm:text-[11px] truncate block opacity-80 mt-0.5 ${isPending ? 'text-amber-200' : 'text-blue-100'}`}>
+                                    {app.service?.name} {app.staff ? `(${app.staff.name})` : ''}
+                                  </span>
+                                )}
+                             </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Şimdiki Zaman Çizgisi (Kırmızı Çizgi) */}
+                      {currentMinuteLine >= 0 && (
+                        <div 
+                          className="absolute w-full pointer-events-none z-20"
+                          style={{ top: `${(currentMinuteLine / 60) * hourHeight}px` }}
+                        >
+                          <div className="absolute left-[54px] w-2.5 h-2.5 rounded-full bg-[#ff453a] -mt-[5px]"></div>
+                          <div className="absolute left-[64px] right-0 h-[1.5px] bg-[#ff453a]"></div>
+                        </div>
+                      )}
+
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
